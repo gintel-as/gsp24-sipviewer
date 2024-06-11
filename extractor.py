@@ -8,11 +8,11 @@ class Extractor:
         self.temp = 'temp.log'
         self.temp1 = 'temp1.log'
 
-    def readLog(self):      # Read the log and filter out SIP packets
-        with open(self.inputFile, 'r') as input, open(self.temp, 'w') as output:
-            for line in input:
-                if 'SipLogMgr' in line:
-                    output.writelines(line)
+    # def readLog(self):      # Read the log and filter out SIP packets
+    #     with open(self.inputFile, 'r') as input, open(self.temp, 'w') as output:
+    #         for line in input:
+    #             if 'SipLogMgr' in line:
+    #                 output.writelines(line)
 
     def format(self):
         replacements = ["<LF><CR>", '<CR>', '\n']
@@ -29,35 +29,8 @@ class Extractor:
                 content = content.replace(item, '\n')
         with open(self.temp1, 'w') as outputFile:
             outputFile.write(content)
-
-
-
-
-    def read_sip_log(self):
-        with open(self.inputFile, 'r') as file:
-            lines = file.readlines()
-
-        timestamp_pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
-        current_entry = []
-        entries = []
-
-        for line in lines:
-            if 'SipLogMgr' in line:
-                if timestamp_pattern.match(line):
-                    if current_entry:
-                        entries.append(' '.join(current_entry).strip())
-                    current_entry = [line.strip()]
-                else:
-                    current_entry.append(line.strip())
-            elif not timestamp_pattern.match(line):
-                current_entry.append(line.strip())
-            
-        if current_entry:
-            entries.append(' '.join(current_entry).strip())
-
-        return entries
     
-    def read_sip_3(self):
+    def read_sip(self):
         with open(self.inputFile, 'r') as file:
             lines = file.readlines()
         
@@ -87,11 +60,9 @@ class Extractor:
 if __name__ == "__main__":
     logPath = "./logs"
 
-    extractor = Extractor( logPath + "/" + "1.adapter.windows copy.log", "output.log")
-    # extractor.readLog()
-    # extractor.format()
+    extractor = Extractor( logPath + "/" + "1.adapter.windows.log", "output.log")
 
-    entries = extractor.read_sip_3()
+    entries = extractor.read_sip()
     print(entries)
     print('----------------')
     print(entries[0])
