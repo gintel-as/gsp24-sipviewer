@@ -42,7 +42,7 @@ class Extractor:
 
         for line in lines:
             if timestamp_pattern.match(line):
-                if 'SipLogMgr' in line: #ToDo, fix for to følgende siplogmgr
+                if 'SipLogMgr' in line:
                     if reading:
                         entries.append(current_entry)
                         current_entry = []
