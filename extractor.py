@@ -36,14 +36,14 @@ class Extractor:
         
         timestamp_pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
         
-        reading = False
-        entries = []
-        current_entry = []
+        reading = False #When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
+        entries = [] #List of full Sip messages
+        current_entry = [] #List of lines in current SIP-message 
 
         for line in lines:
             if timestamp_pattern.match(line):
                 if 'SipLogMgr' in line:
-                    if reading:
+                    if reading: #If program already reading logs, begin reading new log entry
                         entries.append(current_entry)
                         current_entry = []
                     reading = True
