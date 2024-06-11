@@ -81,7 +81,7 @@ class Extractor:
             if x.startswith("To:"):
                 sip_to = x
             elif x.startswith("From:"):
-                message_from = x
+                sip_from = x
             else:
                 sip_content.append(x)
         return message_type, sip_to, sip_from, sip_content
