@@ -1,4 +1,5 @@
 import os, re, shutil
+import json
 
 class Extractor:
     def __init__(self, inputFile, outputLog) -> None:
@@ -49,6 +50,7 @@ class Extractor:
                     self.preHeader.append(line.strip())
                 else:  
                     reading = False
+
                     if currentEntry:   # if array not empty
                         self.headerSDP.append(currentEntry)
                     currentEntry = []
