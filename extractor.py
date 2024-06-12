@@ -1,73 +1,98 @@
 import os, re, shutil
-
+import json
 
 class Extractor:
     def __init__(self, inputFile, outputLog) -> None:
         self.inputFile = inputFile
         self.outputLog = outputLog
-        self.temp = 'temp.log'
-        self.temp1 = 'temp1.log'
-
-    # def readLog(self):      # Read the log and filter out SIP packets
-    #     with open(self.inputFile, 'r') as input, open(self.temp, 'w') as output:
-    #         for line in input:
-    #             if 'SipLogMgr' in line:
-    #                 output.writelines(line)
-
-    def format(self):
-        replacements = ["<LF><CR>", '<CR>', '\n']
-        # with open(self.temp, 'r') as inputFile:
-        #     for line in inputFile:
-        #         # currentID = line.split()[4]
-        #         # if currentID not in self.logIDArr:
-        #         #     self.logIDArr.append(currentID)
-        #         for item in replacements:
-        #             content = content.replace(item, '\n')   # legg til erstatning
-        with open(self.temp, 'r') as inputFile:
-            content = inputFile.read()
-            for item in replacements:
-                content = content.replace(item, '\n')
-        with open(self.temp1, 'w') as outputFile:
-            outputFile.write(content)
+        self.preHeader = []
+        self.headerSDP = []
     
-    def read_sip(self):
+
+    def getPreHeader(self):
+        return self.preHeader
+
+
+    def getHeaderSDP(self):
+        return self.headerSDP
+
+
+    def readLog(self):
         with open(self.inputFile, 'r') as file:
             lines = file.readlines()
-        
-        timestamp_pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
-        
-        reading = False #When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
-        entries = [] #List of full Sip messages
-        current_entry = [] #List of lines in current SIP-message 
+
+        timestamp_pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')    
+        isFormated = True
 
         for line in lines:
-            if timestamp_pattern.match(line):
-                if 'SipLogMgr' in line:
-                    if reading: #If program already reading logs, begin reading new log entry
-                        entries.append(current_entry)
-                        current_entry = []
-                    reading = True
-                elif reading:
-                    reading = False
-                    entries.append(current_entry)
-                    current_entry = []
-            if reading:
-                current_entry.append(line)
-        return entries
+            if timestamp_pattern.match(line) or line.strip() == "":
+                continue
+            else:
+                isFormated = False
 
+        if isFormated:
+            self.filterStandard(lines)
+        else:
+            self.filterNonStandard(lines)
+
+
+    def filterNonStandard(self, lines):
+        # pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}.*?or.sip.gen.SipLogMgr.*?\n')
+        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
+
+        reading = False # When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
+        currentEntry = []
+
+        for line in lines:
+            if timestampPattern.match(line):
+                if 'or.sip.gen.SipLogMgr' in line:  # Find preHeader for SIP packet
+                    reading = True
+                    self.preHeader.append(line.strip())
+                else:  
+                    reading = False
+
+                    if currentEntry:   # if array not empty
+                        self.headerSDP.append(currentEntry)
+                    currentEntry = []
+
+            if reading and not 'or.sip.gen.SipLogMgr' in line:
+                    currentEntry.append(line.strip())   # appends to headerSDP in next loop if there are entries
+
+
+    def filterStandard(self, lines):
+        tempLines = []
+
+        # Filter for or.sip.gen.SipLogMgr
+        for line in lines:
+            if 'or.sip.gen.SipLogMgr' in line:
+                tempLines.append(line)
+        lines = tempLines
+        tempLines = []
+
+        # Separates preHeader from rest of SIP packet
+        for line in lines:
+            parts = line.split('<CR>', 1)
+            self.preHeader.append(parts[0])
+            self.headerSDP.append(parts[1])
+
+        # Removes <LF><CR> from SIP packet
+        for line in self.headerSDP:
+            line = line.strip().split('<LF><CR>')
+            tempLines.append(line)
+
+        self.headerSDP = tempLines
 
 
 if __name__ == "__main__":
     logPath = "./logs"
 
-    extractor = Extractor( logPath + "/" + "1.adapter.windows.log", "output.log")
+    extractor = Extractor( logPath + "/" + "1.adapter.log", "output.log")
+    # extractor = Extractor( logPath + "/" + "1.adapter copy.log", "output.log")
+    # extractor = Extractor( logPath + "/" + "1.adapter.windows.log", "output.log")
 
-    entries = extractor.read_sip()
-    print(entries)
-    print('----------------')
-    print(entries[0])
-    print('----------------')   
-    for entry in entries[0]:
-        print(entry)
-    for entry in entries[1]:
-        print(entry)
+    extractor.readLog()
+
+    print(len(extractor.getPreHeader()))
+    print(extractor.getPreHeader())
+    print(len(extractor.getHeaderSDP()))
+    print(extractor.getHeaderSDP())
