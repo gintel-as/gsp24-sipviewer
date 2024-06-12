@@ -43,7 +43,7 @@ class JsonFilter:
             if sID not in sessionIdList:
                 sessionIdList.append(sID)
         for sid in sessionIdList:
-            filepath = folderpath + sid
+            filepath = folderpath + sid + ".json"
             self.filterBySessionID(sid, filepath)
         
         
