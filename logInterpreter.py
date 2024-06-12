@@ -77,7 +77,7 @@ class LogInterpreter:
             
 
         # If message is request, remove excess information
-        else: 
+        elif message_type_line.endswith('SIP/2.0'):
             requestPattern = r'^(ACK|PRACK|INVITE|BYE|CANCEL|UPDATE|INFO|SUBSCRIBE|NOTIFY|REFER|MESSAGE|OPTIONS|PUBLISH|REGISTER) .*'
             request_match = re.match(requestPattern, message_type_line)
             if request_match:
@@ -156,5 +156,5 @@ if __name__ == "__main__":
     logInterpreter.writeJsonFileFromHeaders(preHeaders, headers, filePath)
 
 
-    test = logInterpreter.extract_header(headers[0])
-    print(test)
+    # test = logInterpreter.extract_header(headers[0])
+    # print(test)
