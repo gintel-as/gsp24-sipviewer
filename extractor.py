@@ -70,7 +70,6 @@ class Extractor:
         # Separates preHeader from rest of SIP packet
         for line in lines:
             parts = line.split('<CR>', 1)
-            # print(parts)
             self.preHeader.append(parts[0])
             self.headerSDP.append(parts[1])
 
