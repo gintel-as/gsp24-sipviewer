@@ -36,21 +36,6 @@ class LogInterpreter:
             "sdp": sdpDict 
         }
         return packetDict
-
-    # def extract_header(self, chosen_header):
-    #     header = chosen_header.split('\n')
-    #     message_type = header[0]
-    #     sip_to = None
-    #     sip_from = None
-    #     sip_content = []
-    #     for x in header: #Mulig ToDo: Se om dette er et fleksibilitetsproblem
-    #         if x.startswith("To:"):
-    #             sip_to = x[3:-1]
-    #         elif x.startswith("From:"):
-    #             sip_from = x[5:-1]
-    #         else:
-    #             sip_content.append(x)
-    #     return message_type, sip_to, sip_from, sip_content
     
     def extract_header(self, header):
         header = re.split(r'\n+', header)
@@ -69,8 +54,7 @@ class LogInterpreter:
                 sip_content.append(x)
         for x in SDP_elements:
                 SDP_content.append(x)
-        return message_type, sip_to, sip_from, sip_content, SDP_content
-    
+        return message_type, sip_to, sip_from, sip_content, SDP_content  
         
     # Separate SIP and SDP when SDP exsist
     def separate_SIP_and_SDP(self, header):
@@ -96,7 +80,6 @@ class LogInterpreter:
 
 
         return SIP_header, SDP_elements
-    
     
     def interpretPreHeaderString(self, preHeaderString):
         pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d{9}) .* id=([A-Fa-f0-9]{8}) (to|from) (\w+)'
