@@ -1,6 +1,6 @@
-from logToXML import XMLScriptMaker
-from logFilter import logFilter
-from createDynamicSIPpMessages import createDynamicSIPpMessages
+from old_files.logToXML import XMLScriptMaker
+from old_files.logFilter import logFilter
+from old_files.createDynamicSIPpMessages import createDynamicSIPpMessages
 import os
 import argparse
 

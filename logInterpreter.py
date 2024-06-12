@@ -74,6 +74,8 @@ class LogInterpreter:
                     SDP_elements.append(x)
                 else:
                     SIP_header.append(x)
+        else:
+            SIP_header = header
 
 
         return SIP_header, SDP_elements
