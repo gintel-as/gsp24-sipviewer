@@ -79,7 +79,7 @@ class LogInterpreter:
         return SIP_header, SDP_elements
     
     def interpretPreHeaderString(self, preHeaderString):
-        pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d{9}) .* id=([A-Fa-f0-9]{8}) (to|from) (\w+)'
+        pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d+) .* id=([A-Fa-f0-9]+) (to|from) (\w+)'
         match = re.match(pattern, preHeaderString)
         timestamp = match.group(1)
         sessionId = match.group(2)
