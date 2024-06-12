@@ -1,4 +1,5 @@
 import json, re
+from collections import defaultdict
 
 class LogInterpreter:
     
@@ -40,17 +41,14 @@ class LogInterpreter:
         header = re.split(r'\n+', header)
         SIP_header, SDP_elements = self.separate_SIP_and_SDP(header)
         message_type = header[0]
-        sip_to = None
-        sip_from = None
-        sip_content = []
-        for x in SIP_header:
-            if x.startswith("To:"):
-                sip_to = x[3:]
-            elif x.startswith("From:"):
-                sip_from = x[5:]
-            else: 
-                sip_content.append(x)
-        return message_type, sip_to, sip_from, sip_content, SDP_elements  
+        sip_content = defaultdict(list)
+        pattern = r'(^[A-Za-z-]+): (.*)'
+        for i in range(1,len(SIP_header)):
+            x = SIP_header[i]
+            if x != "":
+                match = re.match(pattern, x)
+                sip_content[match.group(1)].append(match.group(2))
+        return message_type, sip_content, SDP_elements  
         
     # Separate SIP and SDP when SDP exsist
     def separate_SIP_and_SDP(self, header):
@@ -89,9 +87,9 @@ class LogInterpreter:
         party = match.group(5)
         return timestamp, sessionId, messageId, direction, party
 
-    def createJsonPacket(self, time, sessionID, messageID, direction, party, messageType, sip_to, sip_from, sip_content, sdp):
+    def createJsonPacket(self, time, sessionID, messageID, direction, party, messageType, sip_content, sdp):
         preHeaderDict = self.createPreHeaderDict(time, sessionID, messageID, direction, party, messageType)
-        sipHeaderDict = self.createSipHeaderDict(messageType, sip_to, sip_from, sip_content)
+        sipHeaderDict = dict(sip_content)
         sdpDict = self.createSdpDict(sdp)
         packetDict = self.createPacketDict(preHeaderDict, sipHeaderDict, sdpDict)
         return packetDict
@@ -100,8 +98,8 @@ class LogInterpreter:
         json_packets = []
         for i in range(len(preHeaders)):
             time, sessionID, messageID, direction, party = self.interpretPreHeaderString(preHeaders[i])
-            messageType, sip_to, sip_from, sip_content, sdp = self.extract_header(headers[i])
-            json_pct = self.createJsonPacket(time, sessionID, messageID, direction, party, messageType, sip_to, sip_from, sip_content, sdp)
+            messageType, sip_content, sdp = self.extract_header(headers[i])
+            json_pct = self.createJsonPacket(time, sessionID, messageID, direction, party, messageType, sip_content, sdp)
             json_packets.append(json_pct)
         return json.dumps(json_packets, indent=2)
     
