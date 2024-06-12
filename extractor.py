@@ -1,7 +1,6 @@
 import os, re, shutil
 import json
 
-
 class Extractor:
     def __init__(self, inputFile, outputLog) -> None:
         self.inputFile = inputFile
@@ -9,7 +8,6 @@ class Extractor:
         self.preHeader = []
         self.headerSDP = []
     
-
 
     def getPreHeader(self):
         return self.preHeader
@@ -24,49 +22,41 @@ class Extractor:
             lines = file.readlines()
 
         timestamp_pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')    
-        isNotFormatedLog: bool
+        isFormated = True
 
         for line in lines:
             if timestamp_pattern.match(line) or line.strip() == "":
-                isNotFormatedLog = True
+                continue
             else:
-                isNotFormatedLog = False
-                # print(line)
+                isFormated = False
 
-        if isNotFormatedLog:
-                self.filterStandard(lines)
+        if isFormated:
+            self.filterStandard(lines)
         else:
-                self.filterNonStandard(lines)
+            self.filterNonStandard(lines)
 
 
-    # To Do: Fix duplicates of only one SIP packet in entries
     def filterNonStandard(self, lines):
-        timestamp_pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
-        reading = False #When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
-        entries = [] #List of full Sip messages
-        current_entry = [] #List of lines in current SIP-message 
+        # pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}.*?or.sip.gen.SipLogMgr.*?\n')
+        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
+
+        reading = False # When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
+        currentEntry = []
 
         for line in lines:
-            if timestamp_pattern.match(line):
-                if 'SipLogMgr' in line:
-                    if reading: #If program already reading logs, begin reading new log entry
-                        entries.append(current_entry)
-                        current_entry = []
+            if timestampPattern.match(line):
+                if 'or.sip.gen.SipLogMgr' in line:  # Find preHeader for SIP packet
                     reading = True
-                elif reading:
+                    self.preHeader.append(line.strip())
+                else:  
                     reading = False
-                    entries.append(current_entry)
-                    current_entry = []
-            if reading:
-                current_entry.append(line)
 
-        # print(entries)
-        # return entries
-    
-        # for entry in entries[0]:
-        #     print(entry)
-        # for entry in entries[1]:
-        #     print(entry)
+                    if currentEntry:   # if array not empty
+                        self.headerSDP.append(currentEntry)
+                    currentEntry = []
+
+            if reading and not 'or.sip.gen.SipLogMgr' in line:
+                    currentEntry.append(line.strip())   # appends to headerSDP in next loop if there are entries
 
 
     def filterStandard(self, lines):
@@ -85,29 +75,24 @@ class Extractor:
             self.preHeader.append(parts[0])
             self.headerSDP.append(parts[1])
 
-        # Removes <LF><CR> from SIP headerSDP
+        # Removes <LF><CR> from SIP packet
         for line in self.headerSDP:
-            line = line.replace('<LF><CR>', '\n')
+            line = line.strip().split('<LF><CR>')
             tempLines.append(line)
+
         self.headerSDP = tempLines
-        tempLines = []
 
 
 if __name__ == "__main__":
     logPath = "./logs"
 
     extractor = Extractor( logPath + "/" + "1.adapter.log", "output.log")
+    # extractor = Extractor( logPath + "/" + "1.adapter copy.log", "output.log")
+    # extractor = Extractor( logPath + "/" + "1.adapter.windows.log", "output.log")
 
     extractor.readLog()
 
+    print(len(extractor.getPreHeader()))
     print(extractor.getPreHeader())
+    print(len(extractor.getHeaderSDP()))
     print(extractor.getHeaderSDP())
-    print()
-    print()
-    print()
-    print()
-    for i, str in enumerate(extractor.headerSDP):
-        print(i)
-        print(extractor.preHeader[i])
-        print(extractor.headerSDP[i])
-        print()
