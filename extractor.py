@@ -8,7 +8,6 @@ class Extractor:
         self.headerSDP = []
     
 
-
     def getPreHeader(self):
         return self.preHeader
 
@@ -25,67 +24,38 @@ class Extractor:
         isFormated = True
 
         for line in lines:
-            # print(line)
             if timestamp_pattern.match(line) or line.strip() == "":
                 continue
             else:
                 isFormated = False
 
         if isFormated:
-            # print(isFormated)
             self.filterStandard(lines)
         else:
-            # print(isFormated)
             self.filterNonStandard(lines)
 
 
-    # To Do: Fix duplicates of only one SIP packet in entries
     def filterNonStandard(self, lines):
-        pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}.*?or.sip.gen.SipLogMgr.*?\n')
+        # pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}.*?or.sip.gen.SipLogMgr.*?\n')
         timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
-        tempLines = []
 
-        reading = False #When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
-        currentHeader = []
-        # currentHeader = ""
-        x = 0
+        reading = False # When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
+        currentEntry = []
 
         for line in lines:
             if timestampPattern.match(line):
-                if 'or.sip.gen.SipLogMgr' in line:
+                if 'or.sip.gen.SipLogMgr' in line:  # Find preHeader for SIP packet
                     reading = True
                     self.preHeader.append(line.strip())
-                else:
+                else:  
                     reading = False
-                    # print(currentHeader)
-                    if currentHeader:   # if array not empty
-                        # print(currentHeader)
-                        self.headerSDP.append(currentHeader)
-                    currentHeader = []
+                    if currentEntry:   # if array not empty
+                        self.headerSDP.append(currentEntry)
+                    currentEntry = []
 
-                    # if currentHeader != "":
-                    #     # print(x)
-                    #     # print("<<<\n" + currentHeader + ">>>\n")
-                    #     self.headerSDP.append(currentHeader)
-                    # currentHeader = ""
+            if reading and not 'or.sip.gen.SipLogMgr' in line:
+                    currentEntry.append(line.strip())   # appends to headerSDP in next loop if there are entries
 
-            if reading:
-                if not 'or.sip.gen.SipLogMgr' in line:
-                    # print(currentHeader)
-                    # print(line)
-                        # print(currentHeader)
-                    currentHeader.append(line)
-
-                    # print(x)
-                    # print("<<<\n" + currentHeader + ">>>\n")
-                    # currentHeader += line
-
-            # print(reading, line)
-            x += 1
-
-        # To Do: Flatten array
-        flattenedArray = [item for sublist in self.headerSDP for item in sublist]
-        self.headerSDP = flattenedArray
 
     def filterStandard(self, lines):
         tempLines = []
@@ -104,19 +74,19 @@ class Extractor:
             self.preHeader.append(parts[0])
             self.headerSDP.append(parts[1])
 
-        # Removes <LF><CR> from SIP headerSDP
+        # Removes <LF><CR> from SIP packet
         for line in self.headerSDP:
-            line = line.replace('<LF><CR>', '\n')
+            line = line.strip().split('<LF><CR>')
             tempLines.append(line)
+
         self.headerSDP = tempLines
-        tempLines = []
 
 
 if __name__ == "__main__":
     logPath = "./logs"
 
-    # extractor = Extractor( logPath + "/" + "1.adapter.log", "output.log")
-    extractor = Extractor( logPath + "/" + "1.adapter copy.log", "output.log")
+    extractor = Extractor( logPath + "/" + "1.adapter.log", "output.log")
+    # extractor = Extractor( logPath + "/" + "1.adapter copy.log", "output.log")
     # extractor = Extractor( logPath + "/" + "1.adapter.windows.log", "output.log")
 
     extractor.readLog()
