@@ -2,9 +2,8 @@ import os, re, shutil
 import json
 
 class LogExtractor:
-    def __init__(self, inputFile, outputLog) -> None:
+    def __init__(self, inputFile) -> None:
         self.inputFile = inputFile
-        self.outputLog = outputLog
         self.startLine = []
         self.headerBody = []
     

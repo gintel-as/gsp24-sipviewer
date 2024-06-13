@@ -1,4 +1,4 @@
-from extractor import Extractor
+from extractor import LogExtractor
 from logInterpreter import LogInterpreter
 from jsonFilter import JsonFilter
 import os, argparse
@@ -10,17 +10,17 @@ class Main:
         self.logPath = logPath
         self.destinationPath = destinationPath
         # Extractor variables
-        self.preHeader = []
-        self.headerSDP = []
+        self.startLine = []
+        self.headerBody = []
         # tempVariables
         self.logInterperterOutput = None
 
     def extractor(self):
         input = self.logPath + "/" + self.inputFile
-        extractor = Extractor(input)
+        extractor = LogExtractor(input)
         extractor.readLog()
-        self.preHeader = extractor.getPreHeader()
-        self.headerSDP = extractor.getHeaderSDP()
+        self.startLine = extractor.getStartLine()
+        self.headerBody = extractor.getHeaderBody()
 
     def logInterperter(self):
         if self.destinationPath == "":
@@ -30,7 +30,7 @@ class Main:
 
         self.logInterperterOutput = dest + self.inputFile + ".json"
         logInterpreter = LogInterpreter()
-        logInterpreter.writeJsonFileFromHeaders(self.preHeader, self.headerSDP, self.logInterperterOutput)
+        logInterpreter.writeJsonFileFromHeaders(self.startLine, self.headerBody, self.logInterperterOutput)
 
     def jsonFilter(self):
         if self.destinationPath == "":
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # input = input()
     # inputFile = "1.adapter.windows.log"
     # inputFile = "2.Two-Calls.adapter.log"
-    inputFile = "adapter_BCT 1.log"
+    inputFile = "adapter_BCT.log"
     logPath = "./logs"
     destinationPath = "./json"
     main = Main(inputFile, logPath, destinationPath)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
 
     # print(main.preHeader)
-    # print(main.headerSDP)
+    # print(main.headerBody)
     # print(len(main.preHeader))
-    # print(len(main.headerSDP))
+    # print(len(main.headerBody))
 
