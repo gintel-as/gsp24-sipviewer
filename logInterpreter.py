@@ -38,9 +38,10 @@ class LogInterpreter:
         return packetDict
     
     def extractHeader(self, header):
+        # header = re.split(r'\n+', header)
         sipHeader, bodyElements = self.separateHeaderAndBody(header)
         sipContent = defaultdict(list)
-        pattern = r'(^[A-Za-z-]+): (.*)'
+        pattern = r'(^[A-Za-z0-9.-]+): (.*)'
         sipContent["Header"].append(sipHeader[0])
         for i in range(1,len(sipHeader)):
             x = sipHeader[i]
@@ -49,7 +50,7 @@ class LogInterpreter:
                 sipContent[match.group(1)].append(match.group(2))
         method = self.findStartLine(sipContent, header)
         return method, sipContent, bodyElements  
-    
+
 
     # Find message type if message is response (e.g., INVITE, BYE etc.) and remove excess information (e.g., sip:4794001002@192.168.56.1:60129)
     def findStartLine(self, sipContent, header):
@@ -96,19 +97,22 @@ class LogInterpreter:
         if contentLengthValue > 0:
             bodyExists = True
 
+        pattern = r'^[A-Za-z0-9.-]+: .*'
+
         sipHeader = []
         bodyElements = []
+        sipHeader.append(header.pop(0))
         if bodyExists:
             for x in header:
-                if len(x) >= 2 and x[1] == '=':
-                    bodyElements.append(x)
-                else:
+                if re.match(pattern, x):
                     sipHeader.append(x)
+                else:
+                    bodyElements.append(x)
         else:
             sipHeader = header
 
-
         return sipHeader, bodyElements
+    
     
     def interpretStartLineString(self, startLineString):
         pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d+) .* id=([A-Fa-f0-9]+) (to|from) (\w+)'
