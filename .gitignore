@@ -1,4 +1,11 @@
+# Log files
 ./logs
 *.txt
 *.log
 *.json
+
+# Byte-compiled / optimized / DLL files
+__pycache__/*
+*.py[cod]
+*$py.class
+*.pyc
