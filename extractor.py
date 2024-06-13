@@ -1,36 +1,36 @@
 import os, re, shutil
 import json
 
-class Extractor:
+class LogExtractor:
     def __init__(self, inputFile, outputLog) -> None:
         self.inputFile = inputFile
         self.outputLog = outputLog
-        self.preHeader = []
-        self.headerSDP = []
+        self.startLine = []
+        self.headerBody = []
     
 
-    def getPreHeader(self):
-        return self.preHeader
+    def getStartLine(self):
+        return self.startLine
 
 
-    def getHeaderSDP(self):
-        return self.headerSDP
+    def getHeaderBody(self):
+        return self.headerBody
 
 
     def readLog(self):
         with open(self.inputFile, 'r') as file:
             lines = file.readlines()
 
-        timestamp_pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')    
-        isFormated = True
+        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')    
+        isFormatted = True
 
         for line in lines:
-            if timestamp_pattern.match(line) or line.strip() == "":
+            if timestampPattern.match(line) or line.strip() == "":
                 continue
             else:
-                isFormated = False
+                isFormatted = False
 
-        if isFormated:
+        if isFormatted:
             self.filterStandard(lines)
         else:
             self.filterNonStandard(lines)
@@ -45,18 +45,18 @@ class Extractor:
 
         for line in lines:
             if timestampPattern.match(line):
-                if 'or.sip.gen.SipLogMgr' in line:  # Find preHeader for SIP packet
+                if 'or.sip.gen.SipLogMgr' in line:  # Find startLine for SIP packet
                     reading = True
-                    self.preHeader.append(line.strip())
+                    self.startLine.append(line.strip())
                 else:  
                     reading = False
 
                     if currentEntry:   # if array not empty
-                        self.headerSDP.append(currentEntry)
+                        self.headerBody.append(currentEntry)
                     currentEntry = []
 
             if reading and not 'or.sip.gen.SipLogMgr' in line:
-                    currentEntry.append(line.strip())   # appends to headerSDP in next loop if there are entries
+                    currentEntry.append(line.strip())   # appends to headerBody in next loop if there are entries
 
 
     def filterStandard(self, lines):
@@ -69,30 +69,30 @@ class Extractor:
         lines = tempLines
         tempLines = []
 
-        # Separates preHeader from rest of SIP packet
+        # Separates startLine from rest of SIP packet
         for line in lines:
             parts = line.split('<CR>', 1)
-            self.preHeader.append(parts[0])
-            self.headerSDP.append(parts[1])
+            self.startLine.append(parts[0])
+            self.headerBody.append(parts[1])
 
         # Removes <LF><CR> from SIP packet
-        for line in self.headerSDP:
+        for line in self.headerBody:
             line = line.strip().split('<LF><CR>')
             tempLines.append(line)
 
-        self.headerSDP = tempLines
+        self.headerBody = tempLines
 
 
 if __name__ == "__main__":
     logPath = "./logs"
 
-    extractor = Extractor( logPath + "/" + "1.adapter.log", "output.log")
-    # extractor = Extractor( logPath + "/" + "1.adapter copy.log", "output.log")
-    # extractor = Extractor( logPath + "/" + "1.adapter.windows.log", "output.log")
+    logExtractor = LogExtractor( logPath + "/" + "1.adapter.log", "output.log")
+    # logExtractor = LogExtractor( logPath + "/" + "1.adapter copy.log", "output.log")
+    # logExtractor = LogExtractor( logPath + "/" + "1.adapter.windows.log", "output.log")
 
-    extractor.readLog()
+    logExtractor.readLog()
 
-    print(len(extractor.getPreHeader()))
-    print(extractor.getPreHeader())
-    print(len(extractor.getHeaderSDP()))
-    print(extractor.getHeaderSDP())
+    print(len(logExtractor.getStartLine()))
+    print(logExtractor.getStartLine())
+    print(len(logExtractor.getHeaderBody()))
+    print(logExtractor.getHeaderBody())
