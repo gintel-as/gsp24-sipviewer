@@ -45,7 +45,8 @@ if __name__ == "__main__":
 
     # input = input()
     # inputFile = "1.adapter.windows.log"
-    inputFile = "adapter_BCT.log"
+    # inputFile = "2.Two-Calls.adapter.log"
+    inputFile = "adapter_BCT 1.log"
     logPath = "./logs"
     destinationPath = "./json"
     main = Main(inputFile, logPath, destinationPath)

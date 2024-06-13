@@ -41,7 +41,7 @@ class LogInterpreter:
         # header = re.split(r'\n+', header)
         SIP_header, SDP_elements = self.separate_SIP_and_SDP(header)
         sip_content = defaultdict(list)
-        pattern = r'(^[A-Za-z-]+): (.*)'
+        pattern = r'(^[A-Za-z0-9.-]+): (.*)'
         sip_content["Header"].append(SIP_header[0])
         for i in range(1,len(SIP_header)):
             x = SIP_header[i]
@@ -99,14 +99,21 @@ class LogInterpreter:
         if content_length_value > 0:
             SDP_exists = True
 
+        pattern = r'^[A-Za-z0-9.-]+: .*'
+
         SIP_header = []
         SDP_elements = []
+        SIP_header.append(header.pop(0))
         if SDP_exists:
             for x in header:
-                if len(x) >= 2 and x[1] == '=':
-                    SDP_elements.append(x)
-                else:
+                # if len(x) >= 2 and x[1] == '=':
+                #     SDP_elements.append(x)
+                # else:
+                #     SIP_header.append(x)
+                if re.match(pattern, x):
                     SIP_header.append(x)
+                else:
+                    SDP_elements.append(x)
         else:
             SIP_header = header
 
