@@ -5,23 +5,31 @@ import os, argparse
 
 
 class Main:
-    def __init__(self, inputFile, outputFile):
+    def __init__(self, inputFile, logPath, destinationPath):
         self.inputFile = inputFile
-        self.outputFile = outputFile
+        self.logPath = logPath
+        self.destinationPath = destinationPath
         # Extractor variables
         self.preHeader = []
         self.headerSDP = []
 
     def extractor(self):
         # print("Extractor")
-        extractor = Extractor(self.inputFile)
+        input = self.logPath + "/" + self.inputFile
+        extractor = Extractor(input)
         extractor.readLog()
         self.preHeader = extractor.getPreHeader()
         self.headerSDP = extractor.getHeaderSDP()
 
     def logInterperter(self):
+        if self.destinationPath == "":
+            dest = self.destinationPath
+        else: 
+            dest = self.destinationPath + "/"
+
+        output = dest + self.inputFile + ".json"
         logInterpreter = LogInterpreter()
-        logInterpreter.writeJsonFileFromHeaders(self.preHeader, self.headerSDP, self.outputFile)
+        logInterpreter.writeJsonFileFromHeaders(self.preHeader, self.headerSDP, output)
 
     def jsonFilter(self):
         print("JSON")
@@ -30,9 +38,10 @@ class Main:
 if __name__ == "__main__":
 
     # input = input()
-    input = "./logs/1.adapter.windows.log"
-    output = "test.json"
-    main = Main(input, output)
+    inputFile = "1.adapter.windows.log"
+    logPath = "./logs"
+    destinationPath = "./json"
+    main = Main(inputFile, logPath, destinationPath)
 
     main.extractor()
     main.logInterperter()
