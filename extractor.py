@@ -2,9 +2,8 @@ import os, re, shutil
 import json
 
 class Extractor:
-    def __init__(self, inputFile, outputLog) -> None:
+    def __init__(self, inputFile) -> None:
         self.inputFile = inputFile
-        self.outputLog = outputLog
         self.preHeader = []
         self.headerSDP = []
     
