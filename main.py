@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     # input = input()
     input = "./logs/1.adapter.windows.log"
-    output = "test2.json"
+    output = "test.json"
     main = Main(input, output)
 
     main.extractor()
