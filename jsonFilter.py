@@ -18,7 +18,7 @@ class JsonFilter:
         f.write(jsonText)
         f.close()
 
-    #Section is preHeader, sipHeader, sdp
+    #Section is startLine, sipHeader, body
     def filterPacketsByParameter(self, section, key, value):
         jsonData = self.loadData()
         filteredPackets = []
@@ -28,7 +28,7 @@ class JsonFilter:
         return filteredPackets
 
     def filterBySessionID(self, sessionID, outputFile):
-        filteredPackets = self.filterPacketsByParameter("preHeader", "sessionID", sessionID)
+        filteredPackets = self.filterPacketsByParameter("startLine", "sessionID", sessionID)
         filteredDict = dict()
         filteredDict["sessionIdList"] = sessionID
         filteredDict["packetList"] = filteredPackets 
@@ -39,7 +39,7 @@ class JsonFilter:
         jsonData = self.loadData()
         sessionIdList = []
         for packet in jsonData:
-            sID = packet["preHeader"]["sessionID"]
+            sID = packet["startLine"]["sessionID"]
             if sID not in sessionIdList:
                 sessionIdList.append(sID)
         for sid in sessionIdList:
