@@ -12,9 +12,10 @@ class Main:
         # Extractor variables
         self.preHeader = []
         self.headerSDP = []
+        # tempVariables
+        self.logInterperterOutput = None
 
     def extractor(self):
-        # print("Extractor")
         input = self.logPath + "/" + self.inputFile
         extractor = Extractor(input)
         extractor.readLog()
@@ -27,28 +28,35 @@ class Main:
         else: 
             dest = self.destinationPath + "/"
 
-        output = dest + self.inputFile + ".json"
+        self.logInterperterOutput = dest + self.inputFile + ".json"
         logInterpreter = LogInterpreter()
-        logInterpreter.writeJsonFileFromHeaders(self.preHeader, self.headerSDP, output)
+        logInterpreter.writeJsonFileFromHeaders(self.preHeader, self.headerSDP, self.logInterperterOutput)
 
     def jsonFilter(self):
-        print("JSON")
-    
+        if self.destinationPath == "":
+            dest = self.destinationPath
+        else: 
+            dest = self.destinationPath + "/"
+
+        jsonFilter = JsonFilter(self.logInterperterOutput)
+        jsonFilter.filterAllSessions(dest)
 
 if __name__ == "__main__":
 
     # input = input()
-    inputFile = "1.adapter.windows.log"
+    # inputFile = "1.adapter.windows.log"
+    inputFile = "adapter_BCT.log"
     logPath = "./logs"
     destinationPath = "./json"
     main = Main(inputFile, logPath, destinationPath)
 
     main.extractor()
     main.logInterperter()
+    main.jsonFilter()
+
+
     # print(main.preHeader)
     # print(main.headerSDP)
     # print(len(main.preHeader))
     # print(len(main.headerSDP))
 
-    # main.logInterperter()
-    # main.jsonFilter()
