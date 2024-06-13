@@ -5,8 +5,9 @@ import os, argparse
 
 
 class Main:
-    def __init__(self, inputFile):
+    def __init__(self, inputFile, outputFile):
         self.inputFile = inputFile
+        self.outputFile = outputFile
         # Extractor variables
         self.preHeader = []
         self.headerSDP = []
@@ -19,7 +20,8 @@ class Main:
         self.headerSDP = extractor.getHeaderSDP()
 
     def logInterperter(self):
-        print("logInterperter")
+        logInterpreter = LogInterpreter()
+        logInterpreter.writeJsonFileFromHeaders(self.preHeader, self.headerSDP, self.outputFile)
 
     def jsonFilter(self):
         print("JSON")
@@ -28,14 +30,16 @@ class Main:
 if __name__ == "__main__":
 
     # input = input()
-    input = "./logs/1.adapter.log"
-    main = Main(input)
+    input = "./logs/1.adapter.windows.log"
+    output = "test2.json"
+    main = Main(input, output)
 
     main.extractor()
-    print(main.preHeader)
-    print(main.headerSDP)
-    print(len(main.preHeader))
-    print(len(main.headerSDP))
+    main.logInterperter()
+    # print(main.preHeader)
+    # print(main.headerSDP)
+    # print(len(main.preHeader))
+    # print(len(main.headerSDP))
 
     # main.logInterperter()
     # main.jsonFilter()
