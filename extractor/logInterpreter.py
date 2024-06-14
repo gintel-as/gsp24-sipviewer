@@ -38,7 +38,6 @@ class LogInterpreter:
         return packetDict
     
     def extractHeader(self, header):
-        # header = re.split(r'\n+', header)
         sipHeader, bodyElements = self.separateHeaderAndBody(header)
         sipContent = defaultdict(list)
         pattern = r'(^[A-Za-z0-9.-]+): (.*)'
@@ -54,7 +53,7 @@ class LogInterpreter:
 
     # Find message type if message is response (e.g., INVITE, BYE etc.) and remove excess information (e.g., sip:4794001002@192.168.56.1:60129)
     def findStartLine(self, sipContent, header):
-        startLineEntry = header[0]
+        startLineEntry = sipContent["Header"][0]
         method = ""
 
         # If message is response remove excess information and add message type from CSeq 
