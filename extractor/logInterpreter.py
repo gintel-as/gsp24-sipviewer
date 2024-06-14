@@ -101,8 +101,8 @@ class LogInterpreter:
 
         sipHeader = []
         bodyElements = []
-        sipHeader.append(header.pop(0))
         if bodyExists:
+            sipHeader.append(header.pop(0))
             for x in header:
                 if re.match(pattern, x):
                     sipHeader.append(x)
