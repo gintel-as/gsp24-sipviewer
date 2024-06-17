@@ -3,7 +3,7 @@
     <h1 class="heading1">Overview over SIP messages</h1>
     <div>
       <ul>
-          <li *ngFor="let startLine of startLineList" class="list-item">{{ startLine }}</li>
+          <li *ngFor="let message of messages" class="list-item">{{ message.startLine.time }},{{message.startLine.messageID}},{{message.startLine.sessionID}}</li>
       </ul>
     </div>
 </div>
