@@ -15,7 +15,7 @@ export class TestJsonComponent implements OnInit {
   data : Message[] = messageData;
 
   ngOnInit(): void {
-    console.log('Data', this.data[0].sipHeader["Header"])
+    console.log('Data', this.data[0])
     console.log('Raw data', messageData)
   }
 }
