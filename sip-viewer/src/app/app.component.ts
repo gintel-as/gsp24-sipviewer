@@ -1,4 +1,5 @@
-import { Component, AfterViewInit, Renderer2  } from '@angular/core';
+import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { RedirectCommand, RouterOutlet } from '@angular/router';
 // Import components
 import { SIPViewerComponent } from './sip-viewer/sip-viewer.component';
