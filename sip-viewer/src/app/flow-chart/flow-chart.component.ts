@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import { DataService } from '../data.service';
 import { NgFor } from '@angular/common';
+import { Message } from '../message';
 
 @Component({
   selector: 'app-flow-chart',
@@ -12,18 +13,7 @@ import { NgFor } from '@angular/common';
 })
 
 export class FlowChartComponent implements OnInit {
-  // startLineList: string[] = ["Hei","på", "deg"];
-  // When interface is finished: 
-  // startLineList: FlowChart[] = [
-  //   {
-  //     ...
-  //   }
-  //   {
-  //     ...
-  //   }
-  // ]
-
-  startLineList: string[] = [];
+  messages: Message[] = [];
 
   constructor(private dataService: DataService) { }
 
@@ -33,13 +23,8 @@ export class FlowChartComponent implements OnInit {
 
   fetchMessages(): void {
     this.dataService.getMessages().subscribe(
-      (messages: any[]) => {
-        // Extract 'method' from each 'startLine' object
-        this.startLineList = messages.map(message => message.startLine.method);
-      },
-      error => {
-        console.error('Error fetching messages', error);
-      }
+      data => this.messages = data,
+      error => console.error('Error fetching messages', error)
     );
   }
 
