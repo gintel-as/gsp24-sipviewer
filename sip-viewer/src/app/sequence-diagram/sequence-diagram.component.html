@@ -1,20 +1,67 @@
 <p>sequence-diagram works!</p>
 
+<p>Testing overlapping divs:</p>
+
+<div class="wrapper">  
+    <div class="bottom-layer">    
+        <div class="diagram">
+            <div class="partyName">LegA</div>
+            <div></div>
+            <div class="partyName">LegA</div>
+            <div></div>
+            <div class="partyName">LegA</div>
+            <div class="lifeline-parent"><div class="lifeline"></div></div>
+            <div></div>
+            <div class="lifeline-parent"><div class="lifeline"></div></div>
+            <div></div>
+            <div class="lifeline-parent"><div class="lifeline"></div></div>
+        </div>
+    </div>  
+    <div class="top-layer">
+        <div class="diagram"><div>Hi</div><div>Hi</div><div>Hi</div><div>Hi</div><div>Hi</div><div>Hi</div><div>Hi</div></div>    
+    </div>
+</div>
+<!-- <div>
+    <div class="under">Div1</div>
+    <div class="over">Div2</div>
+</div> -->
+
 <div class="diagram">
-    <div class="party">
-        <div class="partyName">LegA</div>
-        <div class="lifeline"></div>
+    <div class="partyName">LegA</div>
+    <div></div>
+    <div class="partyName">LegA</div>
+    <div></div>
+    <div class="partyName">LegA</div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div class="message">
+        <div class="message-text">INVITE</div>
+        <div class="arrow">
+            <div class="arrow-line"></div>
+            <div class="arrow-point"></div>
+        </div>
     </div>
-    <div class="arrow">Hi</div>
-    <div class="party">
-        <div class="partyName">LegA</div>
-        <div class="lifeline"></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div class="message">
+        <div class="message-text">INVITE</div>
+        <div class="arrow">
+            <div class="arrow-line"></div>
+            <div class="arrow-point"></div>
+        </div>
     </div>
-    <div class="arrow">Hi</div>
-    <div class="party">
-        <div class="partyName">LegA</div>
-        <div class="lifeline"></div>
-    </div>
-    
-    <div class="arrow">Hi</div><div class="arrow">Hi</div><div class="arrow">Hi</div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
+    <div></div>
+    <div class="lifeline-parent"><div class="lifeline"></div></div>
 </div>
