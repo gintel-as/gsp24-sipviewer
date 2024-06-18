@@ -1,0 +1,117 @@
+.main-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.left-section {
+  flex: 1 1 50%; /* Flex-grow, flex-shrink, and flex-basis to take 50% width */
+  overflow: auto; /* Enable both vertical and horizontal scrolling */
+  background-color: #e0f7fa; /* Light cyan background */
+  min-width: 100px; /* Minimum width to prevent collapsing */
+}
+
+.right-section {
+  flex: 1 1 50%; /* Flex-grow, flex-shrink, and flex-basis to take 50% width */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Ensure right section doesn't overflow */
+  border-bottom: none; /* No bottom border for the top section */
+}
+
+.top-right-section, .bottom-right-section {
+  flex: 1;
+  overflow-y: auto; /* Enable vertical scrolling only */
+  background-color: #ffcdd2; /* Light orange background */
+  min-height: 100px; /* Minimum height to prevent collapsing */
+  border: 1px solid #ffab91; /* Slightly darker orange for border */
+  box-sizing: border-box; /* Include border in element's total width and height */
+}
+
+.top-right-section {
+  border-bottom: none; /* No bottom border for the top section */
+}
+
+
+
+.inner-left .inner-top-right .inner-bottom-right {
+  margin-left: 5%;
+  /* margin-left: 10px; */
+}
+
+
+
+
+mat-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1001; /* Ensure it stays above other content */
+}
+
+.container {
+  display: flex;
+  height: calc(100vh - 64px); /* Adjust height to account for toolbar */
+  margin-top: 64px; /* Space for toolbar */
+}
+
+.resizable-div-left {
+  background-color: lightgrey;
+  border: 1px solid #000;
+  user-select: none;
+  position: relative;
+  overflow: auto;
+}
+
+.right-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.resizable-div-top {
+  background-color: lightblue;
+  border: 1px solid #000;
+  user-select: none;
+  position: relative;
+  overflow: auto;
+}
+
+.resizable-div-bottom {
+  background-color: lightgreen;
+  border: 1px solid #000;
+  user-select: none;
+  flex: 1;
+  overflow: auto;
+}
+
+.resize-handle-horizontal {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  cursor: ew-resize;
+  background-color: darkgrey;
+}
+
+.resize-handle-vertical {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  cursor: ns-resize;
+  background-color: darkgrey;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}

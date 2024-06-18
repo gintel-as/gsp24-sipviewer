@@ -1,8 +1,10 @@
-<mat-toolbar-row color="primary">
-  <span>Main Window</span>
-</mat-toolbar-row>
+<mat-toolbar>
+  <mat-toolbar-row>
+    <span>My Toolbar</span>
+  </mat-toolbar-row>
+</mat-toolbar>
 
-<div class="main-container">
+<!-- <div class="main-container">
   <div class="left-section" id="leftSection">
     <app-flow-chart></app-flow-chart>
   </div>
@@ -15,4 +17,46 @@
       <app-message-detail></app-message-detail>
     </div>
   </div>
+</div> -->
+
+<div class="main-container">
+
+  <div class="resizable-div-left" [ngStyle]="{'width.px': leftWidth}">
+    <div class="inner-left">
+      <app-flow-chart></app-flow-chart>
+    </div>
+    <div 
+      class="resize-handle-horizontal" 
+      (mousedown)="onHorizontalResizeStart($event)">
+    </div>
+  </div>
+  <div class="right-container">
+    
+    <div class="resizable-div-top" [ngStyle]="{'height.px': topHeight}">
+      <div class="inner-top-right">
+        <app-session-table></app-session-table>
+      </div>
+      <div 
+        class="resize-handle-vertical" 
+        (mousedown)="onVerticalResizeStart($event)">
+      </div>
+    </div>
+      
+      <div 
+      class="resizable-div-bottom">
+        <div class="inner-bottom-right">
+          <app-message-detail ></app-message-detail>
+        </div>
+      </div>
+    
+  </div>
+  
+
+</div>
+
+<div 
+  class="overlay" 
+  *ngIf="resizing"
+  (mousemove)="onResize($event)" 
+  (mouseup)="onResizeEnd()">
 </div>
