@@ -13,8 +13,6 @@ import { Message } from '../message';
 })
 
 export class FlowChartComponent implements OnInit {
-  methodList: string[] = [];
-  directionList: string[] = [];
   messages: Message[] = [];
 
   constructor(private dataService: DataService) { }
@@ -29,5 +27,4 @@ export class FlowChartComponent implements OnInit {
       error => console.error('Error fetching messages', error)
     );
   }
-
 }
