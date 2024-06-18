@@ -10,6 +10,6 @@ export class DataService {
   constructor(private http: HttpClient) { }
 
   getMessages(): Observable<any[]> {
-    return this.http.get<any[]>('assets/jsonfile.json'); // Adjust the path based on your JSON file location. Original path given: assets/messages.json
+    return this.http.get<any[]>('assets/jsonfile2.json'); 
   } 
 }

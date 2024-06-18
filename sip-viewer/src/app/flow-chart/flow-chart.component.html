@@ -1,9 +1,26 @@
 <!-- <p>flow-chart works!</p> -->
+<!--
 <div class="section-content">
     <h1 class="heading1">Overview over SIP messages</h1>
     <div>
       <ul>
-          <li *ngFor="let startLine of startLineList" class="list-item">{{ startLine }}</li>
+          <li *ngFor="let method of methodList" class="list-item">{{ method }}</li>
       </ul>
     </div>
 </div>
+-->
+
+
+<h1 class="heading1">Overview over SIP messages</h1>
+<div class="timeline">
+  <ul>
+    <li *ngFor="let method of methodList; let i = index" class="timeline-item">
+      <span class="timeline-arrow" [ngClass]="{'from': directionList[i] === 'from', 'to': directionList[i] === 'to'}"></span>
+      <div class="timeline-content">
+        <p>{{ method }}</p>
+      </div>
+    </li>
+  </ul>
+</div>
+
+

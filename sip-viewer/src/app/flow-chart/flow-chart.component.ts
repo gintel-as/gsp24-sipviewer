@@ -12,18 +12,8 @@ import { NgFor } from '@angular/common';
 })
 
 export class FlowChartComponent implements OnInit {
-  // startLineList: string[] = ["Hei","på", "deg"];
-  // When interface is finished: 
-  // startLineList: FlowChart[] = [
-  //   {
-  //     ...
-  //   }
-  //   {
-  //     ...
-  //   }
-  // ]
-
-  startLineList: string[] = [];
+  methodList: string[] = [];
+  directionList: string[] = [];
 
   constructor(private dataService: DataService) { }
 
@@ -35,7 +25,8 @@ export class FlowChartComponent implements OnInit {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
         // Extract 'method' from each 'startLine' object
-        this.startLineList = messages.map(message => message.startLine.method);
+        this.methodList = messages.map(message => message.startLine.method),
+        this.directionList = messages.map(message => message.startLine.direction);
       },
       error => {
         console.error('Error fetching messages', error);
