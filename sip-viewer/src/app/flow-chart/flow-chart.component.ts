@@ -3,13 +3,16 @@ import {CommonModule} from '@angular/common';
 import { DataService } from '../data.service';
 import { NgFor } from '@angular/common';
 import { Message } from '../message';
+import { SequenceDiagramComponent } from "../sequence-diagram/sequence-diagram.component";
+import { MermaidComponent } from "../mermaid/mermaid.component";
+import { GoComponent } from '../go/go.component';
 
 @Component({
-  selector: 'app-flow-chart',
-  standalone: true,
-  imports: [CommonModule, NgFor],
-  templateUrl: './flow-chart.component.html',
-  styleUrl: './flow-chart.component.css'
+    selector: 'app-flow-chart',
+    standalone: true,
+    templateUrl: './flow-chart.component.html',
+    styleUrl: './flow-chart.component.css',
+    imports: [CommonModule, NgFor, SequenceDiagramComponent, MermaidComponent, GoComponent]
 })
 
 export class FlowChartComponent implements OnInit {

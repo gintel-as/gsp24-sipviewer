@@ -30,7 +30,11 @@
               "@angular/material/prebuilt-themes/cyan-orange.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/mermaid/dist/mermaid.min.js",
+              "node_modules/d3/d3.min.js",
+              "node_modules/js-sequence-diagrams/dist/sequence-diagram-min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -89,7 +93,11 @@
               "@angular/material/prebuilt-themes/cyan-orange.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/mermaid/dist/mermaid.min.js",
+              "node_modules/d3/d3.min.js",
+              "node_modules/js-sequence-diagrams/dist/sequence-diagram-min.js"
+            ]
           }
         }
       }
