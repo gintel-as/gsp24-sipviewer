@@ -18,9 +18,9 @@ export class SeqDiaComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     console.log("passed");
     console.log(this.sequenceDiagram.nativeElement);
-    const seqDia = this.sequenceDiagram.nativeElement;
-    // const svg = d3.select(this.sequenceDiagram.nativeElement);
-    console.log(d3.select(this.sequenceDiagram.nativeElement))
+    // const seqDia = this.sequenceDiagram.nativeElement;
+    const svg = d3.select(this.sequenceDiagram.nativeElement);
+    // console.log(d3.select(this.sequenceDiagram.nativeElement))
     // console.log(svg);
     // const svg = d3.select(this.sequenceDiagram.nativeElement)
     //   .style('fill', 'red');
