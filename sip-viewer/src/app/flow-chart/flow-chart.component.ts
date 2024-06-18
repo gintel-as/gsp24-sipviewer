@@ -3,13 +3,13 @@ import {CommonModule} from '@angular/common';
 import { DataService } from '../data.service';
 import { NgFor } from '@angular/common';
 import { Message } from '../message';
-
+import { SeqDiaComponent } from '../seq-dia/seq-dia.component';
 @Component({
-  selector: 'app-flow-chart',
-  standalone: true,
-  imports: [CommonModule, NgFor],
-  templateUrl: './flow-chart.component.html',
-  styleUrl: './flow-chart.component.css'
+    selector: 'app-flow-chart',
+    standalone: true,
+    templateUrl: './flow-chart.component.html',
+    styleUrl: './flow-chart.component.css',
+    imports: [CommonModule, NgFor, SeqDiaComponent]
 })
 
 export class FlowChartComponent implements OnInit {

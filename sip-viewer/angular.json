@@ -30,7 +30,9 @@
               "@angular/material/prebuilt-themes/cyan-orange.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/d3/d3.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -89,7 +91,9 @@
               "@angular/material/prebuilt-themes/cyan-orange.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/d3/d3.min.js"
+            ]
           }
         }
       }
