@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import { DataService } from '../data.service';
 import { NgFor } from '@angular/common';
-import { forEachChild } from 'typescript';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 
 @Component({
@@ -16,10 +16,18 @@ export class MessageDetailComponent {
 
   resultList: any[] = [];
 
-  constructor(private dataService: DataService) { }
+  constructor(
+    private dataService: DataService,
+    private clipboard: Clipboard
+  ) { }
 
   ngOnInit(): void {
     this.fetchMessages();
+  }
+
+  copyText() {
+    let textToCopy = this.resultList.toString();
+    this.clipboard.copy(textToCopy);
   }
 
   findInJson(inputArr: any[], index: number, str: 'sipHeader'|'body'): string[] {
@@ -28,7 +36,7 @@ export class MessageDetailComponent {
     
     if (str == 'sipHeader') {
       headers = inputArr[index].sipHeader;
-      output.push('---------------------------------------Header--------------------------------------');
+      // output.push('---------------------------------------Header--------------------------------------');
 
       for (const key in headers) {
         if (headers.hasOwnProperty(key)) {
@@ -39,7 +47,7 @@ export class MessageDetailComponent {
       }
     } else if (str == 'body') {
       headers = inputArr[index].body;
-      output.push('----------------------------------------Body---------------------------------------');
+      // output.push('----------------------------------------Body---------------------------------------');
 
       for (const key in headers) {
         if (headers.hasOwnProperty(key)) {

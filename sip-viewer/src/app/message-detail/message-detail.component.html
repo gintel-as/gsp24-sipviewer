@@ -1,7 +1,12 @@
 <!-- <p>message-detail works!</p> -->
 <div class="section-content">
-    <div>
+    <div> 
       <h1 class="heading1">SIP packet details</h1>
+    </div>
+    <div>
+      <button (click)="copyText()">Copy Text</button>
+    </div>
+    <div>
       <ul>
           <li *ngFor="let result of resultList" class="list-item">{{ result }}</li>
       </ul>
