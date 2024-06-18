@@ -27,5 +27,4 @@ export class FlowChartComponent implements OnInit {
       error => console.error('Error fetching messages', error)
     );
   }
-
 }
