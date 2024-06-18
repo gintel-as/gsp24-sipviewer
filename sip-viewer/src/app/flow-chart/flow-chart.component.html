@@ -1,9 +1,7 @@
-<!-- <p>flow-chart works!</p> -->
-<div class="section-content">
-    <h1 class="heading1">Overview over SIP messages</h1>
-    <div>
-      <ul>
-          <li *ngFor="let startLine of startLineList" class="list-item">{{ startLine }}</li>
-      </ul>
-    </div>
+<h1 class="heading1">Overview over SIP messages</h1>
+<div>
+  <ul>
+    <li *ngFor="let message of messages" class="list-item">{{message.startLine.method}}</li>
+  </ul>
 </div>
+ 
