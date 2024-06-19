@@ -24,7 +24,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const participants = ['LegA', 'Call Handling', 'LegB'];
-    const messages = [
+    const demoMessages = [
       { from: 'LegA', to: 'Call Handling', message: 'INVITE', index: 0 },
       { from: 'Call Handling', to: 'LegB', message: 'INVITE', index: 1 },
       { from: 'LegB', to: 'Call Handling', message: '180 Trying', index: 2 },
@@ -38,9 +38,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
       { from: 'LegB', to: 'Call Handling', message: '180 Trying', index: 10 },
       { from: 'Call Handling', to: 'LegA', message: '180 Trying', index: 11 }
     ];
-    console.log("hi")
-    console.log(this.diagram)
-    this.drawSequenceDiagram(messages, participants);
+    this.drawSequenceDiagram(demoMessages, participants);
   }
 
   private drawSequenceDiagram(messages: DiagramMessage[], participants: string[]): void {
@@ -72,7 +70,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
     .attr('class', 'participant-line')
     .attr('x1', d => xScale(d) ?? 0)
     .attr('x2', d => xScale(d) ?? 0)
-    .attr('y1', 0)
+    .attr('y1', 30)
     .attr('y2', svgHeight)
     .attr('stroke', 'black')
     .attr('stroke-width', 2);
@@ -84,7 +82,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
     .append('text')
     .attr('class', 'participant-label')
     .attr('x', d => xScale(d) ?? 0)
-    .attr('y', 30)
+    .attr('y', 25)
     .attr('text-anchor', 'middle')
     .text(d => d);
 
