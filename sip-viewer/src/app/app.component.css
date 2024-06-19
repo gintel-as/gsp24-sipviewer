@@ -16,7 +16,6 @@ mat-toolbar {
   position: relative;
 }
 
-
 .resizable-div-left {
   background-color: lightgrey;
   overflow: auto;
@@ -37,6 +36,7 @@ mat-toolbar {
   flex-shrink: 0;
   user-select: auto;
   position: relative;
+  padding-left: 2em;
 }
 
 .resizable-div-top {
@@ -54,24 +54,26 @@ mat-toolbar {
 
 .resize-handle-horizontal {
   position: absolute;
-  right: 0;
+  right: -10px;
   top: 0;
   width: 10px;
   height: 100%;
   cursor: ew-resize;
   background-color: darkgrey;
   user-select: none;
+  z-index: 1000;
 }
 
 .resize-handle-vertical {
   position: absolute;
-  bottom: 0;
+  bottom: -10px;
   left: 0;
   width: 100%;
   height: 10px;
   cursor: ns-resize;
   background-color: darkgrey;
   user-select: none;
+  z-index: 1000;
 }
 
 .overlay {
