@@ -42,10 +42,10 @@ export class AppComponent {
   initialHeight = 0;
   initialY = 0;
   topHeight = 0;
-  
+
   ngOnInit() {
     this.topHeight = window.innerHeight*0.5;
-    this.leftWidth = window.innerWidth*0.5;
+    this.leftWidth = window.innerWidth*0.3;
   }
 
   onHorizontalResizeStart(event: MouseEvent) {

@@ -6,27 +6,22 @@ mat-toolbar {
   z-index: 1001; /* Ensure it stays above other content */
 }
 
-/* .resizable-div-left {
-  background-color: lightgrey;
-  border: 1px solid #000;
-  position: relative;
-  min-width: 20px;
-  user-select: auto;
-  overflow: auto;
-  white-space: nowrap; 
-} */
-
 .main-container {
   display: flex;
   height: calc(100vh - 64px); /* Adjust height to account for toolbar */
   margin-top: 64px; /* Space for toolbar */
 }
 
+.resizable-div-left-wrapper, .resizable-div-top-wrapper {
+  position: relative;
+}
+
+
 .resizable-div-left {
   background-color: lightgrey;
-  position: relative;
   overflow: auto;
-  white-space: nowrap; 
+  white-space: nowrap;
+  height: 100%;
 }
 
 .right-container {
@@ -41,21 +36,20 @@ mat-toolbar {
   border: 1px solid #000;
   flex-shrink: 0;
   user-select: auto;
+  position: relative;
 }
 
 .resizable-div-top {
   background-color: lightblue;
-  position: relative;
-  overflow: hidden;
-  /* overflow: auto; */
-  white-space: nowrap; 
+  overflow: auto;
+  white-space: nowrap;
 }
 
 .resizable-div-bottom {
   background-color: lightgreen;
   flex: 1;
   overflow: auto;
-  white-space: nowrap; 
+  white-space: nowrap;
 }
 
 .resize-handle-horizontal {
@@ -88,10 +82,3 @@ mat-toolbar {
   height: 100%;
   z-index: 1000;
 }
-
-.inner-left .inner-top-right .inner-bottom-right {
-  margin-left: 5%;
-  overflow: auto;
-  /* margin-left: 10px; */
-}
-
