@@ -15,6 +15,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 export class MessageDetailComponent {
 
   resultList: any[] = [];
+  textToCopy: any[] = [];
 
   constructor(
     private dataService: DataService,
@@ -26,8 +27,8 @@ export class MessageDetailComponent {
   }
 
   copyText() {
-    let textToCopy = this.resultList.toString();
-    this.clipboard.copy(textToCopy);
+    let output = this.textToCopy.join('');
+    this.clipboard.copy(output);
   }
 
   findInJson(inputArr: any[], index: number, str: 'sipHeader'|'body'): string[] {
@@ -36,25 +37,25 @@ export class MessageDetailComponent {
     
     if (str == 'sipHeader') {
       headers = inputArr[index].sipHeader;
-      // output.push('---------------------------------------Header--------------------------------------');
 
       for (const key in headers) {
         if (headers.hasOwnProperty(key)) {
           headers[key].forEach((value: string) => {
-            output.push(`${key}: ${value}`);
+            const str = key+ ': ' + value;
+            this.textToCopy.push(str + '\n')
+            output.push(str);
           });
         }
       }
     } else if (str == 'body') {
       headers = inputArr[index].body;
-      // output.push('----------------------------------------Body---------------------------------------');
 
       for (const key in headers) {
         if (headers.hasOwnProperty(key)) {
           headers[key].forEach((value: string) => {
-            // result += `${key}: ${value} \n\n\n`;
-            output.push(`${value}`);
-            // console.log(`${key}: ${value}\n`)
+            const str = value;
+            this.textToCopy.push(str + '\n')
+            output.push(str);
           });
         }
       }
