@@ -42,7 +42,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
   }
 
   private drawSequenceDiagram(messages: DiagramMessage[], participants: string[]): void {
-    const svgWidth = 600;
+    const svgWidth = Math.max(500, 200*participants.length);
     const svgHeight = Math.max(500,50 + 40*messages.length);
     
     const svg = d3.select(this.diagram.nativeElement)
