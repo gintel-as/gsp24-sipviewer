@@ -48,6 +48,7 @@ mat-toolbar {
 .resizable-div-bottom {
   background-color: lightgreen;
   flex: 1;
+  /* Remember to remove overflow auto since the child div of this resizable-div-bottom should scrool */
   overflow: auto;
   white-space: nowrap;
 }

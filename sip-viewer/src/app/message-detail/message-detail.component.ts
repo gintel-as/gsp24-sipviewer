@@ -3,19 +3,23 @@ import {CommonModule} from '@angular/common';
 import { DataService } from '../data.service';
 import { NgFor } from '@angular/common';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @Component({
   selector: 'app-message-detail',
   standalone: true,
-  imports: [CommonModule, NgFor],
+  imports: [CommonModule, NgFor, MatToolbarModule, MatTooltipModule, MatIconModule],
   templateUrl: './message-detail.component.html',
   styleUrl: './message-detail.component.css'
 })
 export class MessageDetailComponent {
-
+  log: any[] = [];
   resultList: any[] = [];
   textToCopy: any[] = [];
+  packetIndex: number = 0;
 
   constructor(
     private dataService: DataService,
@@ -24,6 +28,22 @@ export class MessageDetailComponent {
 
   ngOnInit(): void {
     this.fetchMessages();
+  }
+
+  changePacket(direction: 'next'|'previous') {
+    if (direction == 'next') {
+      if ((this.packetIndex + 1) > this.log.length) {
+      } else {
+        this.packetIndex++;
+        this.printPacketDetail();
+      }
+    } else if (direction == 'previous') {
+      if ((this.packetIndex - 1) < 0) {
+      } else {
+        this.packetIndex--;
+        this.printPacketDetail();
+      }
+    }
   }
 
   copyText() {
@@ -41,7 +61,12 @@ export class MessageDetailComponent {
       for (const key in headers) {
         if (headers.hasOwnProperty(key)) {
           headers[key].forEach((value: string) => {
-            const str = key+ ': ' + value;
+            let str: string = '';
+            if (key == 'Header') {
+              str = value;
+            } else {
+              str = key + ': ' + value;
+            }
             this.textToCopy.push(str + '\n')
             output.push(str);
           });
@@ -62,21 +87,27 @@ export class MessageDetailComponent {
     }
     return output;
   }
+
+  printPacketDetail(): void {
+    this.textToCopy = [];
+    this.resultList = [
+      ...this.findInJson(this.log, this.packetIndex, 'sipHeader'),
+      ...this.findInJson(this.log, this.packetIndex, 'body')
+    ];
+  }
   
   fetchMessages(): void {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
-        let index: number = 0;
-        this.resultList = [
-          ...this.findInJson(messages, index, 'sipHeader'),
-          ...this.findInJson(messages, index, 'body')
-        ];
+        this.log = messages;
+        this.printPacketDetail();
       },
       error => {
         console.error('Error fetching messages', error);
       }
     );
   }
+
 
 
 }

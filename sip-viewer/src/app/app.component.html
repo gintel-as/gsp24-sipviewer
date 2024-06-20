@@ -4,11 +4,14 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
+<!-- <div> -->
+  <!-- <app-message-detail></app-message-detail> -->
+<!-- </div> -->
+
 <div class="main-container">
   <div class="resizable-div-left-wrapper">
     <div class="resizable-div-left" [ngStyle]="{'width.px': leftWidth}">
         <app-flow-chart></app-flow-chart>
-        <!-- <app-message-detail></app-message-detail> -->
     </div>
     <div 
       class="resize-handle-horizontal" 
@@ -19,7 +22,6 @@
     <div class="resizable-div-top-wrapper">
       <div class="resizable-div-top" [ngStyle]="{'height.px': topHeight}">
         <app-session-table></app-session-table>
-        <!-- <app-message-detail></app-message-detail> -->
       </div>
       <div 
         class="resize-handle-vertical" 
@@ -30,10 +32,7 @@
     class="resizable-div-bottom">
       <app-message-detail ></app-message-detail>
     </div>
-
   </div>
-  
-
 </div>
 
 <div 
