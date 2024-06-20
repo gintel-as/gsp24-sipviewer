@@ -38,10 +38,6 @@ mat-toolbar {
   position: relative;
 }
 
-.resizable-div-top, .resizable-div-bottom {
-  padding-left: 2em;
-}
-
 .resizable-div-top {
   background-color: lightblue;
   overflow: auto;
