@@ -36,43 +36,61 @@
   <div class="sticky-header">
     <mat-form-field class="mat-form-field">
       <mat-label>Filter</mat-label>
-      <input matInput (keyup)="applyFilter($event)" placeholder="Filter by ex. session ID" #input>
+      <input
+        matInput
+        (keyup)="applyFilter($event)"
+        placeholder="Filter by ex. session ID"
+        #input
+      />
     </mat-form-field>
   </div>
-  
+
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-  
     <!-- Time Column -->
     <ng-container matColumnDef="Time">
-      <th mat-header-cell *matHeaderCellDef> Time </th>
-      <td mat-cell *matCellDef="let element of dataSource"> {{element.Time}} </td> <!-- element is one item in the dataSource array -->
+      <th mat-header-cell *matHeaderCellDef>Time</th>
+      <td mat-cell *matCellDef="let element of dataSource">
+        {{ element.Time }}
+      </td>
+      <!-- element is one item in the dataSource array -->
     </ng-container>
-  
+
     <!-- SessionID Column -->
     <ng-container matColumnDef="Session ID">
-      <th mat-header-cell *matHeaderCellDef> Session ID </th>
-      <td mat-cell *matCellDef="let element of dataSource"> {{element.SessionID}} </td>
+      <th mat-header-cell *matHeaderCellDef>Session ID</th>
+      <td mat-cell *matCellDef="let element of dataSource">
+        {{ element.SessionID }}
+      </td>
     </ng-container>
-  
+
     <!-- Sender Column -->
     <ng-container matColumnDef="Sender">
-      <th mat-header-cell *matHeaderCellDef> Sender </th>
-      <td mat-cell *matCellDef="let element of dataSource"> {{element.Sender}} </td>
+      <th mat-header-cell *matHeaderCellDef>Sender</th>
+      <td mat-cell *matCellDef="let element of dataSource">
+        {{ element.Sender }}
+      </td>
     </ng-container>
-  
+
     <!-- Receiver Column -->
     <ng-container matColumnDef="Receiver">
-      <th mat-header-cell *matHeaderCellDef> Receiver </th>
-      <td mat-cell *matCellDef="let element of dataSource"> {{element.Receiver}} </td>
+      <th mat-header-cell *matHeaderCellDef>Receiver</th>
+      <td mat-cell *matCellDef="let element of dataSource">
+        {{ element.Receiver }}
+      </td>
     </ng-container>
-  
+
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplay;" (click)="onRowClicked(row)"></tr>
-  
+    <tr
+      mat-row
+      *matRowDef="let row; columns: columnsToDisplay"
+      (click)="onRowClicked(row)"
+    ></tr>
+
     <!-- Row shown when there is no matching data. -->
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+      <td class="mat-cell" colspan="4">
+        No data matching the filter "{{ input.value }}"
+      </td>
     </tr>
   </table>
-
 </div>
