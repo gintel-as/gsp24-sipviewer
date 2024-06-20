@@ -36,6 +36,9 @@ mat-toolbar {
   flex-shrink: 0;
   user-select: auto;
   position: relative;
+}
+
+.resizable-div-top, .resizable-div-bottom {
   padding-left: 2em;
 }
 

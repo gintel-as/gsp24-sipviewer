@@ -6,39 +6,33 @@
 
 <div class="main-container">
   <div class="resizable-div-left-wrapper">
-    <div class="resizable-div-left" [ngStyle]="{'width.px': leftWidth}">
-        <app-flow-chart></app-flow-chart>
-        <!-- <app-message-detail></app-message-detail> -->
+    <div class="resizable-div-left" [ngStyle]="{ 'width.px': leftWidth }">
+      <app-flow-chart></app-flow-chart>
     </div>
-    <div 
-      class="resize-handle-horizontal" 
-      (mousedown)="onHorizontalResizeStart($event)">
-    </div>
+    <div
+      class="resize-handle-horizontal"
+      (mousedown)="onHorizontalResizeStart($event)"
+    ></div>
   </div>
   <div class="right-container">
     <div class="resizable-div-top-wrapper">
-      <div class="resizable-div-top" [ngStyle]="{'height.px': topHeight}">
+      <div class="resizable-div-top" [ngStyle]="{ 'height.px': topHeight }">
         <app-session-table></app-session-table>
-        <!-- <app-message-detail></app-message-detail> -->
       </div>
-      <div 
-        class="resize-handle-vertical" 
-        (mousedown)="onVerticalResizeStart($event)">
-      </div>
+      <div
+        class="resize-handle-vertical"
+        (mousedown)="onVerticalResizeStart($event)"
+      ></div>
     </div>
-    <div 
-    class="resizable-div-bottom">
-      <app-message-detail ></app-message-detail>
+    <div class="resizable-div-bottom">
+      <app-message-detail></app-message-detail>
     </div>
-
   </div>
-  
-
 </div>
 
-<div 
-  class="overlay" 
+<div
+  class="overlay"
   *ngIf="resizing"
-  (mousemove)="onResize($event)" 
-  (mouseup)="onResizeEnd()">
-</div>
+  (mousemove)="onResize($event)"
+  (mouseup)="onResizeEnd()"
+></div>
