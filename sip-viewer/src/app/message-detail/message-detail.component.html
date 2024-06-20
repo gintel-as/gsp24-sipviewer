@@ -1,40 +1,47 @@
 <!-- To do: make toolbar sticky and not scroll -->
 
 <div class="message-detail-wrapper">
-<mat-toolbar>
-  <mat-toolbar-row>
-    <span id="packetDetailSpan" >
-      Packet Detail
-    </span>
-    <span class="spacer"></span>
-
-    <!-- To do: add function for going to next or previous packets -->
-    <button mat-icon-button
-      id="previousButton"
-      matTooltip='Go to the previous packet'
-      aria-label='Button goes to the previous packet'>
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <button mat-icon-button
-      id="nextButton"
-      matTooltip='Go to the next packet'
-      aria-label='Button goes to the next packet'>
-      <mat-icon>arrow_forward</mat-icon>
-    </button>
-    <button mat-icon-button (click)="copyText()"
+  <mat-toolbar>
+    <mat-toolbar-row>
+      <span id="packetDetailSpan"> Packet Detail </span>
+      <span class="spacer"></span>
+      <span id="packetNumber">{{ packetIndex }} of {{ log.length }}</span>
+      <!-- To do: add function for going to next or previous packets -->
+      <button
+        mat-icon-button
+        (click)="changePacket('previous')"
+        id="previousButton"
+        [disabled]="packetIndex <= 0"
+        matTooltip="Go to the previous packet"
+        aria-label="Button goes to the previous packet"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="changePacket('next')"
+        id="nextButton"
+        [disabled]="packetIndex >= log.length"
+        matTooltip="Go to the next packet"
+        aria-label="Button goes to the next packet"
+      >
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="copyText()"
         id="copyPacketButton"
-        matTooltip='Copy packet details'
-        aria-label='Button that copies the text of packet detail'>
-      <mat-icon>content_copy</mat-icon>
-    </button>
-  </mat-toolbar-row>
+        matTooltip="Copy packet details"
+        aria-label="Button that copies the text of packet detail"
+      >
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </mat-toolbar-row>
   </mat-toolbar>
 
   <div class="content">
-      <ul id="list">
-        <li *ngFor="let result of resultList" class="list-item">{{ result }}</li>
-      </ul>
+    <ul id="list">
+      <li *ngFor="let result of resultList" class="list-item">{{ result }}</li>
+    </ul>
   </div>
 </div>
-
-  

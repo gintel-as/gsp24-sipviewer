@@ -16,9 +16,10 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './message-detail.component.css'
 })
 export class MessageDetailComponent {
-
+  log: any[] = [];
   resultList: any[] = [];
   textToCopy: any[] = [];
+  packetIndex: number = 0;
 
   constructor(
     private dataService: DataService,
@@ -29,11 +30,33 @@ export class MessageDetailComponent {
     this.fetchMessages();
   }
 
+  changePacket(direction: 'next'|'previous') {
+    if (direction == 'next') {
+      if ((this.packetIndex + 1) > this.log.length) {
+        // alert("You are on the last packet and cannot go any further forward");
+      } else {
+        this.packetIndex++;
+        this.printPacketDetail();
+      }
+    } else if (direction == 'previous') {
+      if ((this.packetIndex - 1) < 0) {
+        // alert("You are on the first packet and cannot go any further backwards");
+        // Kan visst disable html button. Se på det senere
+      } else {
+        this.packetIndex--;
+        this.printPacketDetail();
+      }
+    }
+    console.log(this.packetIndex + ' : ' + this.log.length)
+  }
+
+  // fix bug: copies everything
   copyText() {
     let output = this.textToCopy.join('');
     this.clipboard.copy(output);
   }
 
+  // remove print of header
   findInJson(inputArr: any[], index: number, str: 'sipHeader'|'body'): string[] {
     let output: string[] = [];
     let headers;
@@ -69,16 +92,27 @@ export class MessageDetailComponent {
   fetchMessages(): void {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
-        let index: number = 0;
-        this.resultList = [
-          ...this.findInJson(messages, index, 'sipHeader'),
-          ...this.findInJson(messages, index, 'body')
-        ];
+        // console.log(messages.length)
+        this.log = messages;
+        console.log(this.log.length)
+
+        this.printPacketDetail();
+        // this.resultList = [
+        //   ...this.findInJson(this.log, this.packetIndex, 'sipHeader'),
+        //   ...this.findInJson(this.log, this.packetIndex, 'body')
+        // ];
       },
       error => {
         console.error('Error fetching messages', error);
       }
     );
+  }
+
+  printPacketDetail(): void {
+    this.resultList = [
+      ...this.findInJson(this.log, this.packetIndex, 'sipHeader'),
+      ...this.findInJson(this.log, this.packetIndex, 'body')
+    ];
   }
 
 

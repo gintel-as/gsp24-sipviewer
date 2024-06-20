@@ -5,6 +5,7 @@
 
 mat-toolbar {
     position: sticky;
+    top: 0;
 }
 
 #packetDetailSpan {
