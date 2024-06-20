@@ -33,21 +33,19 @@ export class MessageDetailComponent {
   changePacket(direction: 'next'|'previous') {
     if (direction == 'next') {
       if ((this.packetIndex + 1) > this.log.length) {
-        // alert("You are on the last packet and cannot go any further forward");
       } else {
         this.packetIndex++;
         this.printPacketDetail();
+        // this.fetchMessages();
       }
     } else if (direction == 'previous') {
       if ((this.packetIndex - 1) < 0) {
-        // alert("You are on the first packet and cannot go any further backwards");
-        // Kan visst disable html button. Se på det senere
       } else {
         this.packetIndex--;
         this.printPacketDetail();
+        // this.fetchMessages();
       }
     }
-    console.log(this.packetIndex + ' : ' + this.log.length)
   }
 
   // fix bug: copies everything
@@ -67,7 +65,12 @@ export class MessageDetailComponent {
       for (const key in headers) {
         if (headers.hasOwnProperty(key)) {
           headers[key].forEach((value: string) => {
-            const str = key+ ': ' + value;
+            let str: string = '';
+            if (key == 'Header') {
+              str = value;
+            } else {
+              str = key + ': ' + value;
+            }
             this.textToCopy.push(str + '\n')
             output.push(str);
           });
@@ -88,19 +91,20 @@ export class MessageDetailComponent {
     }
     return output;
   }
+
+  printPacketDetail(): void {
+    this.textToCopy = [];
+    this.resultList = [
+      ...this.findInJson(this.log, this.packetIndex, 'sipHeader'),
+      ...this.findInJson(this.log, this.packetIndex, 'body')
+    ];
+  }
   
   fetchMessages(): void {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
-        // console.log(messages.length)
         this.log = messages;
-        console.log(this.log.length)
-
         this.printPacketDetail();
-        // this.resultList = [
-        //   ...this.findInJson(this.log, this.packetIndex, 'sipHeader'),
-        //   ...this.findInJson(this.log, this.packetIndex, 'body')
-        // ];
       },
       error => {
         console.error('Error fetching messages', error);
@@ -108,12 +112,6 @@ export class MessageDetailComponent {
     );
   }
 
-  printPacketDetail(): void {
-    this.resultList = [
-      ...this.findInJson(this.log, this.packetIndex, 'sipHeader'),
-      ...this.findInJson(this.log, this.packetIndex, 'body')
-    ];
-  }
 
 
 }
