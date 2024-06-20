@@ -36,25 +36,21 @@ export class MessageDetailComponent {
       } else {
         this.packetIndex++;
         this.printPacketDetail();
-        // this.fetchMessages();
       }
     } else if (direction == 'previous') {
       if ((this.packetIndex - 1) < 0) {
       } else {
         this.packetIndex--;
         this.printPacketDetail();
-        // this.fetchMessages();
       }
     }
   }
 
-  // fix bug: copies everything
   copyText() {
     let output = this.textToCopy.join('');
     this.clipboard.copy(output);
   }
 
-  // remove print of header
   findInJson(inputArr: any[], index: number, str: 'sipHeader'|'body'): string[] {
     let output: string[] = [];
     let headers;
