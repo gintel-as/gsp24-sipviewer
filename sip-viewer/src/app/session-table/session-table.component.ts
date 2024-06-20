@@ -6,11 +6,15 @@ import { MatList } from '@angular/material/list';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
+
 
 @Component({
   selector: 'app-session-table',
   standalone: true,
-  imports: [NgFor, MatFormFieldModule, MatInputModule, MatTableModule],
+  imports: [NgFor, MatFormFieldModule, MatInputModule, MatTableModule, MatToolbarModule, MatTooltipModule, MatIconModule],
   templateUrl: './session-table.component.html',
   styleUrl: './session-table.component.css'
 })
@@ -22,6 +26,7 @@ export class SessionTableComponent implements OnInit{
   tableData: any[] = []; //List of dictionaries which represent a session
   
   // For displaying data in table
+  displayedColumns: string[] = ['Time', 'Session ID', 'Sender', 'Receiver'];
   columnsToDisplay = ['Time', 'Session ID', 'Sender', 'Receiver'];
   dataSource = new MatTableDataSource(this.tableData);
   clickedRow: any = null; 
