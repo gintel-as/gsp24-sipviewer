@@ -3,12 +3,15 @@ import {CommonModule} from '@angular/common';
 import { DataService } from '../data.service';
 import { NgFor } from '@angular/common';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @Component({
   selector: 'app-message-detail',
   standalone: true,
-  imports: [CommonModule, NgFor],
+  imports: [CommonModule, NgFor, MatToolbarModule, MatTooltipModule, MatIconModule],
   templateUrl: './message-detail.component.html',
   styleUrl: './message-detail.component.css'
 })

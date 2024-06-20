@@ -1,7 +1,23 @@
-.heading1 {
-    font-size: 24px;
-    color: #1caf5e;
-    font-family: Arial, sans-serif;
+/* #copyPacketButton {
+    position: absolute;
+    right: 5%;
+} */
+
+mat-toolbar {
+    position: sticky;
+}
+
+#packetDetailSpan {
+    position: absolute;
+    padding-left: auto;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+button {
+    margin-left: 10px;
 }
 
 .list-item {
@@ -9,4 +25,18 @@
     color: #3750df;
     font-family:monospace;
     list-style-type: none;
+}
+
+.message-detail-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    /* height: 100%; */
+    overflow: auto;
+}
+
+:root {
+    height: 100%;
 }
