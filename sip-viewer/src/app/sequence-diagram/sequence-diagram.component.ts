@@ -1,5 +1,6 @@
 import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { DataService } from '../data.service';
+import { SelectedMessageService } from '../selected-message.service';
 import * as d3 from 'd3';
 import Utils from './utils';
 import { DiagramMessage } from '../diagram-message';
@@ -17,7 +18,25 @@ export class SequenceDiagramComponent implements AfterViewInit {
   @ViewChild('sequenceDiagram', { static: false })
   diagram!: ElementRef;
 
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private selectedMessageService: SelectedMessageService
+  ) {
+    selectedMessageService.currentSelectedMessageID$.subscribe(
+      (selectedMessageID) => {
+        this.markSelectedMessage(selectedMessageID);
+      }
+    );
+  }
+
+  markSelectedMessage(messageID: string): void {
+    d3.select('#selected-message').attr('id', '');
+    d3.select(`[message-id="${messageID}"`).attr('id', 'selected-message');
+  }
+
+  selectMessage(messageID: string): void {
+    this.selectedMessageService.selectNewMessageByID(messageID);
+  }
 
   ngAfterViewInit(): void {
     Utils.importCombined(this.dataService.getMessages())
@@ -84,10 +103,19 @@ export class SequenceDiagramComponent implements AfterViewInit {
 
     // Draw messages
     messages.forEach((msg) => {
-      let parties = Utils.identifyMessageRecieverAndSender(msg.startLine, ch);
+      let parties = Utils.identifyMessageRecieverAndSender(
+        msg.message.startLine,
+        ch
+      );
       const fromX = xScale(parties.from) ?? 0;
       const toX = xScale(parties.to) ?? 0;
       const y = yScale(msg.index);
+      let textLine = msg.message.startLine.method;
+      try {
+        if (msg.message.sipHeader['Content-Length'][0] > 0) {
+          textLine = `${textLine} [SDP]`;
+        }
+      } catch (error) {}
 
       // Draw arrow
       svg
@@ -97,15 +125,9 @@ export class SequenceDiagramComponent implements AfterViewInit {
         .attr('y1', y)
         .attr('y2', y)
         .attr('marker-end', 'url(#arrow)')
-        .attr('class', `session-${msg.startLine.sessionID} arrow-line`)
-        .attr('message-index', msg.index)
-        .on('click', function () {
-          d3.select('#selected-message').attr('id', '');
-          d3.select(`[message-index="${msg.index}"`).attr(
-            'id',
-            'selected-message'
-          );
-        });
+        .attr('class', `session-${msg.message.startLine.sessionID} arrow-line`)
+        .attr('message-id', msg.message.startLine.messageID)
+        .on('click', () => this.selectMessage(msg.message.startLine.messageID));
 
       // Draw message text
       svg
@@ -113,18 +135,15 @@ export class SequenceDiagramComponent implements AfterViewInit {
         .attr('x', (fromX + toX) / 2)
         .attr('y', y - 5)
         .attr('class', 'arrow-text')
-        .text(msg.startLine.method)
+        .text(textLine)
         .on('click', function () {
           d3.select('#selected-message').attr('id', '');
-          d3.select(`[message-index="${msg.index}"`).attr(
+          d3.select(`[message-id="${msg.message.startLine.messageID}"`).attr(
             'id',
             'selected-message'
           );
         });
     });
-
-    //Set arrow 1 as selected
-    d3.select(`[message-index="0"`).attr('id', 'selected-message');
 
     // Define arrow marker
     svg
