@@ -10,7 +10,7 @@ export default class Utils {
       map((msgList) =>
         msgList.map((msg, i) => {
           return {
-            startLine: msg.startLine,
+            message: msg,
             index: i,
           };
         })
