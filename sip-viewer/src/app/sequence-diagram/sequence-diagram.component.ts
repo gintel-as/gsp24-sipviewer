@@ -1,6 +1,5 @@
 import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { DataService } from '../data.service';
-import { SelectedMessageService } from '../selected-message.service';
 import * as d3 from 'd3';
 import Utils from './utils';
 import { DiagramMessage } from '../diagram-message';
@@ -18,15 +17,10 @@ export class SequenceDiagramComponent implements AfterViewInit {
   @ViewChild('sequenceDiagram', { static: false })
   diagram!: ElementRef;
 
-  constructor(
-    private dataService: DataService,
-    private selectedMessageService: SelectedMessageService
-  ) {
-    selectedMessageService.currentSelectedMessageID$.subscribe(
-      (selectedMessageID) => {
-        this.markSelectedMessage(selectedMessageID);
-      }
-    );
+  constructor(private dataService: DataService) {
+    dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
+      this.markSelectedMessage(selectedMessageID);
+    });
   }
 
   markSelectedMessage(messageID: string): void {
@@ -35,7 +29,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
   }
 
   selectMessage(messageID: string): void {
-    this.selectedMessageService.selectNewMessageByID(messageID);
+    this.dataService.selectNewMessageByID(messageID);
   }
 
   ngAfterViewInit(): void {
