@@ -1,5 +1,5 @@
 /* Import the Angular Material theme */
-
+@import './app/sequence-diagram/svg-styles.css';
 html, body {
   margin: 0;
   padding: 0;

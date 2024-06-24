@@ -11,22 +11,21 @@ import { SessionTableComponent } from './session-table/session-table.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
-
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet, 
-    SIPViewerComponent, 
-    FlowChartComponent, 
-    MessageDetailComponent, 
-    SessionTableComponent, 
+    RouterOutlet,
+    SIPViewerComponent,
+    FlowChartComponent,
+    MessageDetailComponent,
+    SessionTableComponent,
     MatToolbarModule,
     DragDropModule,
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
   title = 'SIP Graphical Viewer';
@@ -44,21 +43,21 @@ export class AppComponent {
   topHeight = 0;
 
   ngOnInit() {
-    this.topHeight = window.innerHeight*0.5;
-    this.leftWidth = window.innerWidth*0.3;
+    this.topHeight = window.innerHeight * 0.5;
+    this.leftWidth = window.innerWidth * 0.5;
   }
 
   onHorizontalResizeStart(event: MouseEvent) {
     this.resizing = true;
     this.horizontalResize = true;
-    this.initialWidth = this.leftWidth
+    this.initialWidth = this.leftWidth;
     this.initialX = event.clientX;
   }
-    
+
   onVerticalResizeStart(event: MouseEvent) {
     this.resizing = true;
     this.verticalResize = true;
-    this.initialHeight = this.topHeight
+    this.initialHeight = this.topHeight;
     this.initialY = event.clientY;
   }
 
@@ -67,7 +66,7 @@ export class AppComponent {
       const deltaX = event.clientX - this.initialX;
       this.leftWidth = this.initialWidth + deltaX;
     }
-      
+
     if (this.verticalResize) {
       const deltaY = event.clientY - this.initialY;
       this.topHeight = this.initialHeight + deltaY;
@@ -79,5 +78,4 @@ export class AppComponent {
     this.horizontalResize = false;
     this.verticalResize = false;
   }
-
 }

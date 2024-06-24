@@ -1,0 +1,29 @@
+
+.session-304286493 {
+    stroke: rgb(88, 13, 194);
+  }
+
+.session-304286495 {
+    stroke: rgb(255, 0, 0);
+  }
+
+.arrow-line {
+    stroke-width: 4;
+    cursor: pointer;
+}
+
+.arrow-text {
+    cursor: pointer;
+    text-anchor: middle;
+    /* text-align: center; */
+}
+  
+/* ToDo add  */
+#selected-message {
+    stroke: yellow;
+}
+
+/* ToDo make arrowhead color separated by */
+#arrow {
+    fill: black;
+}

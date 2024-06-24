@@ -1,67 +1,83 @@
-.heading2 {
-    font-size: 24px;
-    color: #1caf5e;
-    font-family: Arial, sans-serif;
+/* .heading2 {
+  font-size: 24px;
+  color: #1caf5e;
+  font-family: Arial, sans-serif;
+} */
+
+/* .list-item {
+  font-size: 18px;
+  color: #3750df;
+  font-family: monospace;
+} */
+
+/* table {
+  width: 100%;
+} */
+
+.table-container {
+  position: relative;
 }
 
-.list-item {
-    font-size: 18px;
-    color: #3750df;
-    font-family:monospace
+.toolbar {
+  position: sticky;
+  top: 0;
 }
 
-table {
-    width: 100%;
-}
-  
-.mat-mdc-form-field {
-font-size: 14px;
-width: 100%;
+.spacer {
+  flex: 1 1 auto;
 }
 
-.demo-table {
-    width: 100%;
-  }
-  
-.mat-mdc-row .mat-mdc-cell {
-    border-bottom: 1px solid transparent;
-    border-top: 1px solid transparent;
-    cursor: pointer;
+.filter-bar {
+  position: sticky;
+  background-color: inherit;
+  display: block;
 }
 
-.mat-mdc-row:hover .mat-mdc-cell {
-    border-color: currentColor;
+.filter-bar input:focus {
+  color: white; /* Text color */
+  outline-color: #ca2f2c; /* Outline */
+  caret-color: white; /* Cursor color */
+}
+
+.filter-bar.mat-focused .mat-form-field-label {
+  color: #ca2f2c !important;
+}
+
+.filter-bar.mat-focused .mat-form-field-underline::after {
+  background-color: #ca2f2c !important; /* Change underline color when focused */
+}
+
+/* .mat-table {
+  background-color: inherit;
+} */
+
+.table-header {
+  position: sticky;
+}
+
+.mat-row .mat-cell {
+  background-color: #1caf5e;
+  /* border-bottom: 1px solid transparent; */
+  /* border-top: 1px solid transparent; */
+  cursor: pointer;
+}
+
+.mat-row:hover .mat-cell {
+  border-color: currentColor;
 }
 
 .demo-row-is-clicked {
-    font-weight: bold;
-}
-
-.table-container {
-    position: relative;
-}
-
-.sticky-header {
-    position: sticky;
-    top: 0;
-    background: white;
-    z-index: 1000; 
-    padding: 10px 0;
+  font-weight: bold;
 }
 
 .mat-header-row {
-    position: sticky;
-    top: 56px;
-    background: black;
-    z-index: 100; 
-  }
-  
-.mat-form-field {
-    background: white;
-    z-index: 2000; 
+  position: sticky;
+  /* top: 56px; */
+  /* background: black; */
+  /* z-index: 100; */
 }
 
 .mat-header-cell {
-    background: white; 
-    z-index: 50; 
+  background: white;
+  /* z-index: 50; */
 }
