@@ -54,12 +54,14 @@ export class SequenceDiagramComponent implements AfterViewInit {
     const svgWidth = Math.max(500, 200 * participants.length + spaceForTime);
     const svgHeight = Math.max(500, 50 + 40 * messages.length);
 
+    //svg is the diagram div, for questions look at d3 docs
     const svg = d3
       .select(this.diagram.nativeElement)
       .append('svg')
       .attr('width', svgWidth)
       .attr('height', svgHeight);
 
+    //svg2 is the upepr div "diagramLabels"
     const svg2 = d3
       .select(this.diagramLabels.nativeElement)
       .append('svg')
