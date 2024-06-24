@@ -23,6 +23,26 @@ export class SequenceDiagramComponent implements AfterViewInit {
     dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
       this.markSelectedMessage(selectedMessageID);
     });
+    dataService.selectedSessionIDs$.subscribe(() => {
+      this.onUpdatedSelectedSessions();
+    });
+  }
+  //Buttons for testing purposes, remove later
+  onButtonClick() {
+    this.dataService.updateSelectedSession('304286493');
+  }
+  onButtonClick2() {
+    this.dataService.updateSelectedSession('304286495');
+  }
+
+  onUpdatedSelectedSessions() {
+    Utils.importCombined(this.dataService.getMessagesFromSelectedSessions())
+      .pipe(
+        tap((data) =>
+          this.drawSequenceDiagram(data.diagramMessages, data.participants)
+        )
+      )
+      .subscribe();
   }
 
   markSelectedMessage(messageID: string): void {
@@ -53,6 +73,10 @@ export class SequenceDiagramComponent implements AfterViewInit {
     let spaceForTime = 180;
     const svgWidth = Math.max(500, 200 * participants.length + spaceForTime);
     const svgHeight = Math.max(500, 50 + 40 * messages.length);
+
+    //Clear elements for blank canvas
+    d3.select(this.diagram.nativeElement).selectAll('*').remove();
+    d3.select(this.diagramLabels.nativeElement).selectAll('*').remove();
 
     //svg is the diagram div, for questions look at d3 docs
     const svg = d3
