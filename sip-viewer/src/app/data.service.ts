@@ -29,8 +29,19 @@ export class DataService {
     return this.messages;
   }
 
+  // fetchMessages(): Observable<Message[]> {
+  //   return this.http.get<Message[]>('assets/adapter_bct.log.json'); // Adjust the path based on your JSON file location
+  // }
+
   fetchMessages(): Observable<Message[]> {
-    return this.http.get<Message[]>('assets/adapter_bct.log.json'); // Adjust the path based on your JSON file location
+    return this.http.get<Message[]>('assets/adapter_bct.log.json').pipe(
+      map((data) => {
+        return data.map((message) => {
+          message.startLine.time = new Date(message.startLine.time);
+          return message;
+        });
+      })
+    );
   }
 
   getMessageByID(messageID: string): Observable<Message | undefined> {
