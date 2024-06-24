@@ -30,7 +30,7 @@ export class DataService {
   }
 
   fetchMessages(): Observable<Message[]> {
-    return this.http.get<Message[]>('assets/adapter_bct.log.json'); // Adjust the path based on your JSON file location
+    return this.http.get<Message[]>('assets/jsonfile3.json'); // Adjust the path based on your JSON file location
   }
 
   getMessageByID(messageID: string): Observable<Message | undefined> {

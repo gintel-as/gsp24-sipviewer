@@ -1,39 +1,5 @@
-<!-- <div class="section-content">
-    <h2 class="heading2">Unique Session IDs</h2>
-    <ul>
-      <li *ngFor="let sessionId of sessionIdList" class="list-item">{{sessionId}}</li>
-      <li *ngFor="let sender of senders" class="list-item">{{sender}}</li>
-      <li *ngFor="let receiver of receivers" class="list-item">{{receiver}}</li>
-      <li *ngFor="let time of times" class="list-item">{{times}}</li>
-    </ul>
-</div>  -->
-
-<!-- <div class="section-content">
-  <h2 class="heading2">Session Details</h2>
-  <table class="session-table">
-    <thead>
-      <tr>
-        <th>Time</th> 
-        <th>Session ID</th>
-        <th>Sender</th>
-        <th>Receiver</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let sessionId of sessionIdList; let i = index">
-        <tr>
-          <td>{{ times[i] }}</td>
-          <td>{{ sessionId }}</td>
-          <td>{{ senders[i] }}</td>
-          <td>{{ receivers[i] }}</td>
-        </tr>
-      </ng-container>
-    </tbody>
-  </table>
-</div> -->
-
 <div class="table-container">
-  <mat-toolbar class="toolbar">
+  <mat-toolbar sticky class="toolbar">
     <mat-toolbar-row>
       <span id="sessionIdSpan">Session IDs </span>
       <span class="spacer"></span>
@@ -107,13 +73,14 @@
 
     <tr
       mat-header-row
-      *matHeaderRowDef="columnsToDisplay; sticky: true"
+      *matHeaderRowDef="columnsToDisplay"
       class="table-header"
     ></tr>
     <tr
       mat-row
       *matRowDef="let row; columns: columnsToDisplay"
       (click)="onRowClicked(row)"
+      (click)="selection.toggle(row)"
     ></tr>
 
     <!-- Row shown when there is no matching data. -->

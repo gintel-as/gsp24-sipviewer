@@ -21,6 +21,8 @@
 .toolbar {
   position: sticky;
   top: 0;
+  background-color: blackx; /*Maybe change to "inherit" when styling app.component.css */
+  z-index: 100;
 }
 
 .spacer {
@@ -53,6 +55,8 @@
 
 .table-header {
   position: sticky;
+  top: 64px;
+  z-index: 100;
 }
 
 .mat-row .mat-cell {
@@ -72,12 +76,11 @@
 
 .mat-header-row {
   position: sticky;
-  /* top: 56px; */
-  /* background: black; */
-  /* z-index: 100; */
+  top: 56px;
+  background: black;
 }
 
 .mat-header-cell {
   background: white;
-  /* z-index: 50; */
+  z-index: 50;
 }
