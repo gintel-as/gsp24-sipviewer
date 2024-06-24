@@ -1,0 +1,21 @@
+.label-container {
+    position: fixed;
+    width: 100%;
+    background-color: white;
+    height: 40px;
+    z-index: 1;
+}
+
+.diagram {
+    top:30px;
+    position: relative;
+    z-index: 0;
+}
+
+.diagram-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}

@@ -10,7 +10,7 @@ export default class Utils {
       map((msgList) =>
         msgList.map((msg, i) => {
           return {
-            startLine: msg.startLine,
+            message: msg,
             index: i,
           };
         })
@@ -54,5 +54,24 @@ export default class Utils {
       return 'red';
     }
     return 'blue';
+  }
+
+  static getDateString(date: Date) {
+    return `${date.getFullYear()}-${this.addZeroInFront(
+      date.getMonth()
+    )}-${this.addZeroInFront(date.getDay())} ${this.getTimeString(date)}`;
+  }
+
+  static getTimeString(date: Date) {
+    return `${this.addZeroInFront(date.getHours())}:${this.addZeroInFront(
+      date.getMinutes()
+    )}:${this.addZeroInFront(date.getSeconds())}.${date.getMilliseconds()}`;
+  }
+
+  static addZeroInFront(n: number) {
+    if (n < 10) {
+      return `0${n}`;
+    }
+    return `${n}`;
   }
 }
