@@ -1,29 +1,83 @@
-
 .session-304286493 {
-    stroke: rgb(88, 13, 194);
-  }
+  stroke: rgb(88, 13, 194);
+  stroke-dasharray: 3px 3px;
+}
 
 .session-304286495 {
-    stroke: rgb(255, 0, 0);
-  }
+  stroke: rgb(255, 0, 0);
+  stroke-dasharray: 10px 3px;
+}
+
+.colored-line-red {
+  stroke: rgb(255, 0, 0);
+}
+
+.colored-line-blue {
+  stroke: rgb(0, 0, 255);
+}
+
+.colored-line-green {
+  stroke: rgb(0, 128, 0);
+}
+
+.colored-line-yellow {
+  stroke: rgb(255, 255, 0);
+}
+
+.colored-line-orange {
+  stroke: rgb(255, 165, 0);
+}
+
+.colored-line-purple {
+  stroke: rgb(128, 0, 128);
+}
+
+.colored-line-cyan {
+  stroke: rgb(0, 255, 255);
+}
+
+.colored-line-magenta {
+  stroke: rgb(255, 0, 255);
+}
+
+.colored-line-brown {
+  stroke: rgb(165, 42, 42);
+}
+
+.colored-line-black {
+  stroke: rgb(0, 0, 0);
+}
+
+.dotted-line-long {
+  stroke-dasharray: 10px 3px;
+}
+
+.dotted-line-short {
+  stroke-dasharray: 3px 3px;
+}
 
 .arrow-line {
-    stroke-width: 4;
-    cursor: pointer;
+  stroke-width: 4;
+  cursor: pointer;
 }
 
 .arrow-text {
-    cursor: pointer;
-    text-anchor: middle;
-    /* text-align: center; */
+  cursor: pointer;
+  text-anchor: middle;
+  /* text-align: center; */
 }
-  
+
+.side-details {
+  cursor: pointer;
+  text-anchor: end;
+}
+
 /* ToDo add  */
 #selected-message {
-    stroke: yellow;
+  stroke: #f2b400;
 }
 
 /* ToDo make arrowhead color separated by */
 #arrow {
-    fill: black;
+  fill: black;
 }
