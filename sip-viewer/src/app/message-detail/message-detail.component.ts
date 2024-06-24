@@ -34,7 +34,11 @@ export class MessageDetailComponent {
   currentMessageId: string = '';
   messageIdList: string[] = []; // Remove later
 
-  constructor(private dataService: DataService, private clipboard: Clipboard) {}
+  constructor(private dataService: DataService, private clipboard: Clipboard) {
+    dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
+      this.printPacketDetail(selectedMessageID);
+    });
+  }
 
   ngOnInit() {
     this.fetchMessages();
