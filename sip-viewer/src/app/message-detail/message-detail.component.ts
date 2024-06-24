@@ -29,7 +29,7 @@ export class MessageDetailComponent {
   textToCopy: any[] = [];
   packetIndex: number = 0;
 
-  currentMessage: Message | undefined;
+  // currentMessage: Message | undefined;
 
   currentMessageId: string = '';
   messageIdList: string[] = []; // Remove later
@@ -39,8 +39,6 @@ export class MessageDetailComponent {
   ngOnInit() {
     this.fetchMessages();
   }
-
-  ngAfterViewInit() {}
 
   changePacket(direction: 'next' | 'previous') {
     if (direction == 'next') {
@@ -59,12 +57,12 @@ export class MessageDetailComponent {
   }
 
   findInJsonByMessageId(id: string) {
-    // return this.dataService.getMessageByID(id);
-    return this.dataService.getMessageByID(id).pipe(
-      tap((message: Message | undefined) => {
-        this.currentMessage = message;
-      })
-    );
+    return this.dataService.getMessageByID(id);
+    // return this.dataService.getMessageByID(id).pipe(
+    //   tap((message: Message | undefined) => {
+    //     this.currentMessage = message;
+    //   })
+    // );
   }
 
   printPacketDetail(id: string): void {
