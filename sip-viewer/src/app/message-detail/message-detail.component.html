@@ -5,7 +5,7 @@
     <mat-toolbar-row>
       <span id="packetDetailSpan"> Packet Detail </span>
       <span class="spacer"></span>
-      <span id="packetNumber">{{ packetIndex }} of {{ log.length }}</span>
+      <span id="packetNumber">{{ packetIndex }} of {{ log.length - 1 }}</span>
       <!-- To do: add function for going to next or previous packets -->
       <button
         mat-icon-button
@@ -21,7 +21,7 @@
         mat-icon-button
         (click)="changePacket('next')"
         id="nextButton"
-        [disabled]="packetIndex >= log.length"
+        [disabled]="packetIndex >= log.length - 1"
         matTooltip="Go to the next packet"
         aria-label="Button goes to the next packet"
       >
