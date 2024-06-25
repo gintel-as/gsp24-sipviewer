@@ -31,12 +31,32 @@ export class MessageDetailComponent {
 
   // currentMessage: Message | undefined;
 
-  currentMessageId: string = '';
-  messageIdList: string[] = []; // Remove later
+  currentMessageID: string = '';
+  messageIDList: string[] = []; // Remove later
+  sessionIDList: string[] = [];
 
   constructor(private dataService: DataService, private clipboard: Clipboard) {
     dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
       this.printPacketDetail(selectedMessageID);
+      // console.log(selectedMessageID)
+    });
+
+    dataService.selectedSessionIDs$.subscribe((selectedSessionIDs) => {
+      console.log(selectedSessionIDs);
+      // console.log(this.sessionIDList);
+      dataService.getMessagesFromSelectedSessions().subscribe(
+        (messages: any[]) => {
+          console.log(messages);
+          this.messageIDList = messages.map((item) => item.startLine.messageID);
+          console.log(this.messageIDList);
+        },
+        (error) => {
+          console.error(
+            'Error fetching messages of selected sessionIDs',
+            error
+          );
+        }
+      );
     });
   }
 
@@ -46,7 +66,7 @@ export class MessageDetailComponent {
 
   changePacket(direction: 'next' | 'previous') {
     if (direction == 'next') {
-      if (this.packetIndex + 1 < this.messageIdList.length) {
+      if (this.packetIndex + 1 < this.messageIDList.length) {
         this.packetIndex++;
       }
     } else if (direction == 'previous') {
@@ -54,12 +74,12 @@ export class MessageDetailComponent {
         this.packetIndex--;
       }
     }
-    const id = this.messageIdList[this.packetIndex];
+    const id = this.messageIDList[this.packetIndex];
     this.printPacketDetail(id);
     this.dataService.selectNewMessageByID(id);
   }
 
-  findInJsonByMessageId(id: string) {
+  findInJsonByMessageID(id: string) {
     return this.dataService.getMessageByID(id);
     // return this.dataService.getMessageByID(id).pipe(
     //   tap((message: Message | undefined) => {
@@ -73,9 +93,9 @@ export class MessageDetailComponent {
     this.resultList = [];
 
     // Update packet detail meta information
-    this.packetIndex = this.messageIdList.indexOf(id);
+    this.packetIndex = this.messageIDList.indexOf(id);
 
-    this.findInJsonByMessageId(id).subscribe(
+    this.findInJsonByMessageID(id).subscribe(
       (message: Message | undefined) => {
         let output: string[] = [];
         let sipHeaderArr = message?.sipHeader;
@@ -118,7 +138,9 @@ export class MessageDetailComponent {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
         this.log = messages;
-        this.messageIdList = messages.map((item) => item.startLine.messageID);
+        this.messageIDList = messages.map((item) => item.startLine.messageID);
+        let sessionArr = messages.map((item) => item.startLine.sessionID);
+        this.sessionIDList = [...new Set(sessionArr)]; // Filter out duplicate sessions, leaving only distinct IDs
         this.printFirstMessage();
       },
       (error) => {
@@ -128,8 +150,8 @@ export class MessageDetailComponent {
   }
 
   printFirstMessage(): void {
-    this.currentMessageId = this.messageIdList[0];
-    this.printPacketDetail(this.currentMessageId);
+    this.currentMessageID = this.messageIDList[0];
+    this.printPacketDetail(this.currentMessageID);
   }
 
   copyText(): void {
