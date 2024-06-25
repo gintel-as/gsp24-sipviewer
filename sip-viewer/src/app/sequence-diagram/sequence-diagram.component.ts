@@ -35,6 +35,10 @@ export class SequenceDiagramComponent implements AfterViewInit {
     this.dataService.updateSelectedSession('304286495');
   }
 
+  onArrowUp(event: any) {
+    console.log(event);
+  }
+
   onUpdatedSelectedSessions() {
     Utils.importCombined(this.dataService.getMessagesFromSelectedSessions())
       .pipe(
