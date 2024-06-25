@@ -1,7 +1,6 @@
 import { NgFor } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../data.service';
-// import { MatList } from '@angular/material/list';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,14 +27,13 @@ import { SelectionModel } from '@angular/cdk/collections';
   styleUrl: './session-table.component.css',
 })
 export class SessionTableComponent implements OnInit {
-  sessionIdList: string[] = [];
+  sessionIDList: string[] = [];
   senders: string[] = []; // from: sender of the first message in the session (phone number)
   receivers: string[] = []; // to: receiver of the first message in the session (phone number)
   times: string[] = []; // time of first INVITE in the session
   tableData: any[] = []; //List of dictionaries which represent a session
 
   // For displaying data in table
-  displayedColumns: string[] = ['Time', 'Session ID', 'Sender', 'Receiver'];
   columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver'];
   dataSource = new MatTableDataSource(this.tableData);
   clickedRow: any = null;
@@ -51,20 +49,20 @@ export class SessionTableComponent implements OnInit {
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
-    this.fetchSessionIds();
+    this.fetchSessionIDs();
   }
 
-  fetchSessionIds(): void {
+  fetchSessionIDs(): void {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
         // Extract unique session IDs and add time, session ID, sender and receiver to lists
-        const sessionIds = new Set<string>(); // Use set to store unique session IDs
+        const sessionIDs = new Set<string>(); // Use set to store unique session IDs
         const phoneNumberPattern = /<sip:?(\+?\d+)@/;
         messages.forEach((message) => {
-          if (!sessionIds.has(message.startLine.sessionID)) {
+          if (!sessionIDs.has(message.startLine.sessionID)) {
             // Only add sender, receiver and time if it is the first message with this sessionID
             this.times.push(message.startLine.time);
-            sessionIds.add(message.startLine.sessionID);
+            sessionIDs.add(message.startLine.sessionID);
             const matchSender =
               message.sipHeader['From'][0].match(phoneNumberPattern); // Keep only the phone number
             this.senders.push(matchSender[1]);
@@ -81,7 +79,7 @@ export class SessionTableComponent implements OnInit {
             this.tableData.push(newDict);
           }
         });
-        this.sessionIdList = Array.from(sessionIds);
+        this.sessionIDList = Array.from(sessionIDs);
         this.dataSource = new MatTableDataSource(this.tableData);
       },
       (error) => {
@@ -93,7 +91,7 @@ export class SessionTableComponent implements OnInit {
   onRowClicked(row: any): void {
     this.clickedRow = row;
     this.selection;
-    // console.log('Row clicked: ', this.clickedRow); // Can be removed
+    console.log('Row clicked: ', this.clickedRow); // Can be removed
     console.log('Selected row(s): ', this.selection.selected);
   }
 
