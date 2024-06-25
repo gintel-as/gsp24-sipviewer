@@ -30,7 +30,7 @@
       <td mat-cell *matCellDef="let row">
         <mat-checkbox
           (click)="$event.stopPropagation()"
-          (change)="$event ? selection.toggle(row) : null"
+          (change)="onRowClicked(row)"
           [checked]="selection.isSelected(row)"
           [aria-label]="checkboxLabel(row)"
         >
@@ -79,7 +79,7 @@
     <tr
       mat-row
       *matRowDef="let row; columns: columnsToDisplay"
-      (click)="onRowClicked(row)"
+      (click)="onRowClicked(row, $event)"
       (click)="selection.toggle(row)"
     ></tr>
 

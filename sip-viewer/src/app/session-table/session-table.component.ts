@@ -40,6 +40,7 @@ export class SessionTableComponent implements OnInit {
 
   // Selected sessions
   selection = new SelectionModel<any>(true, []);
+  selectionStatus: { [key: string]: boolean } = {}; // Show whether the row is selected (true) or not (false)
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -49,10 +50,10 @@ export class SessionTableComponent implements OnInit {
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
-    this.fetchSessionIDs();
+    this.fetchSessions();
   }
 
-  fetchSessionIDs(): void {
+  fetchSessions(): void {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
         // Extract unique session IDs and add time, session ID, sender and receiver to lists
@@ -81,6 +82,9 @@ export class SessionTableComponent implements OnInit {
         });
         this.sessionIDList = Array.from(sessionIDs);
         this.dataSource = new MatTableDataSource(this.tableData);
+        this.sessionIDList.forEach((sessionID) => {
+          this.selectionStatus[sessionID] = false;
+        });
       },
       (error) => {
         console.error('Error fetching messages', error);
@@ -88,14 +92,40 @@ export class SessionTableComponent implements OnInit {
     );
   }
 
-  onRowClicked(row: any): void {
+  onRowClicked(row: any, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
     this.clickedRow = row;
-    this.selection;
-    console.log('Row clicked: ', this.clickedRow); // Can be removed
-    console.log('Selected row(s): ', this.selection.selected);
+    console.log('Row clicked: ', this.clickedRow);
+    console.log(this.selection);
+    const SessionIDofClickedRow = row['SessionID'];
+
+    // Update dictionary with selected-status (used in toggleAllRows to check which new sessions should be updated to data service)
+    if (this.selectionStatus[row] === false) {
+      this.selectionStatus[row] = true;
+    } else if (this.selectionStatus[row] === true) {
+      this.selectionStatus[row] = false;
+    }
+    this.dataService.updateSelectedSession(SessionIDofClickedRow);
   }
 
-  // Checkbox code:
+  // onCheckboxClicked(event: any, row: any): void {
+  //   event.stopPropagation();
+  //   this.clickedRow = row;
+  //   console.log('Checkbox clicked: ', this.clickedRow);
+  //   const SessionIDofClickedRow = row['SessionID'];
+
+  //   // Update dictionary with selected-status (used in toggleAllRows to check which new sessions should be updated to data service)
+  //   if (this.selectionStatus[row] === false) {
+  //     this.selectionStatus[row] = true;
+  //   } else if (this.selectionStatus[row] === true) {
+  //     this.selectionStatus[row] = false;
+  //   }
+  //   this.dataService.updateSelectedSession(SessionIDofClickedRow);
+  // }
+
   isAllSelected() {
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
@@ -104,11 +134,23 @@ export class SessionTableComponent implements OnInit {
 
   toggleAllRows() {
     if (this.isAllSelected()) {
+      // If all sessions are selected from before, clear selection
       this.selection.clear();
-      return;
+      this.sessionIDList.forEach((sessionID) => {
+        this.selectionStatus[sessionID] = false; // Mark all as not selected
+        this.dataService.updateSelectedSession(sessionID); // Update data service to reflect deselection
+      });
+    } else {
+      // If not all are selected, select the ones that are not selected
+      this.dataSource.data.forEach((row) => {
+        if (!this.selection.isSelected(row)) {
+          this.selection.select(row);
+          const sessionID = row['SessionID'];
+          this.selectionStatus[sessionID] = true; // Mark as selected
+          this.dataService.updateSelectedSession(sessionID); // Update data service to reflect selection
+        }
+      });
     }
-
-    this.selection.select(...this.dataSource.data);
   }
 
   checkboxLabel(row?: any): string {
