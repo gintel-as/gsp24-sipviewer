@@ -34,7 +34,11 @@ export class MessageDetailComponent {
   currentMessageId: string = '';
   messageIdList: string[] = []; // Remove later
 
-  constructor(private dataService: DataService, private clipboard: Clipboard) {}
+  constructor(private dataService: DataService, private clipboard: Clipboard) {
+    dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
+      this.printPacketDetail(selectedMessageID);
+    });
+  }
 
   ngOnInit() {
     this.fetchMessages();
@@ -44,16 +48,15 @@ export class MessageDetailComponent {
     if (direction == 'next') {
       if (this.packetIndex + 1 < this.messageIdList.length) {
         this.packetIndex++;
-        const id = this.messageIdList[this.packetIndex];
-        this.printPacketDetail(id);
       }
     } else if (direction == 'previous') {
       if (this.packetIndex - 1 >= 0) {
         this.packetIndex--;
-        const id = this.messageIdList[this.packetIndex];
-        this.printPacketDetail(id);
       }
     }
+    const id = this.messageIdList[this.packetIndex];
+    this.printPacketDetail(id);
+    this.dataService.selectNewMessageByID(id);
   }
 
   findInJsonByMessageId(id: string) {
@@ -68,6 +71,9 @@ export class MessageDetailComponent {
   printPacketDetail(id: string): void {
     this.textToCopy = [];
     this.resultList = [];
+
+    // Update packet detail meta information
+    this.packetIndex = this.messageIdList.indexOf(id);
 
     this.findInJsonByMessageId(id).subscribe(
       (message: Message | undefined) => {
