@@ -29,8 +29,6 @@ export class MessageDetailComponent {
   textToCopy: any[] = [];
   packetIndex: number = 0;
 
-  // currentMessage: Message | undefined;
-
   currentMessageID: string = '';
   messageIDList: string[] = []; // Remove later
   sessionIDList: string[] = [];
@@ -38,17 +36,13 @@ export class MessageDetailComponent {
   constructor(private dataService: DataService, private clipboard: Clipboard) {
     dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
       this.printPacketDetail(selectedMessageID);
-      // console.log(selectedMessageID)
     });
 
     dataService.selectedSessionIDs$.subscribe((selectedSessionIDs) => {
       console.log(selectedSessionIDs);
-      // console.log(this.sessionIDList);
       dataService.getMessagesFromSelectedSessions().subscribe(
         (messages: any[]) => {
-          console.log(messages);
           this.messageIDList = messages.map((item) => item.startLine.messageID);
-          console.log(this.messageIDList);
         },
         (error) => {
           console.error(
@@ -81,11 +75,6 @@ export class MessageDetailComponent {
 
   findInJsonByMessageID(id: string) {
     return this.dataService.getMessageByID(id);
-    // return this.dataService.getMessageByID(id).pipe(
-    //   tap((message: Message | undefined) => {
-    //     this.currentMessage = message;
-    //   })
-    // );
   }
 
   printPacketDetail(id: string): void {
