@@ -1,67 +1,36 @@
-.heading2 {
-    font-size: 24px;
-    color: #1caf5e;
-    font-family: Arial, sans-serif;
-}
-
-.list-item {
-    font-size: 18px;
-    color: #3750df;
-    font-family:monospace
-}
-
-table {
-    width: 100%;
-}
-  
-.mat-mdc-form-field {
-font-size: 14px;
-width: 100%;
-}
-
-.demo-table {
-    width: 100%;
-  }
-  
-.mat-mdc-row .mat-mdc-cell {
-    border-bottom: 1px solid transparent;
-    border-top: 1px solid transparent;
-    cursor: pointer;
-}
-
-.mat-mdc-row:hover .mat-mdc-cell {
-    border-color: currentColor;
-}
-
-.demo-row-is-clicked {
-    font-weight: bold;
-}
-
 .table-container {
-    position: relative;
+  position: relative;
 }
 
-.sticky-header {
-    position: sticky;
-    top: 0;
-    background: white;
-    z-index: 1000; 
-    padding: 10px 0;
+.toolbar {
+  position: sticky;
+  top: 0;
+  /* background-color: black; */
+  z-index: 100;
 }
 
-.mat-header-row {
-    position: sticky;
-    top: 56px;
-    background: black;
-    z-index: 100; 
-  }
-  
-.mat-form-field {
-    background: white;
-    z-index: 2000; 
+.spacer {
+  flex: 1 1 auto;
 }
 
-.mat-header-cell {
-    background: white; 
-    z-index: 50; 
+.filter-bar {
+  position: sticky;
+  /* background-color: inherit; */
+  /* display: block; */
+}
+
+.filter-bar input:focus {
+  color: white; /* Text color */
+  outline-color: #ca2f2c; /* Outline */
+  caret-color: white; /* Cursor color */
+}
+
+.filter-bar.mat-focused .mat-form-field-label {
+  color: #ca2f2c !important;
+}
+
+.table-header {
+  position: sticky;
+  top: 64px;
+  z-index: 100;
 }
