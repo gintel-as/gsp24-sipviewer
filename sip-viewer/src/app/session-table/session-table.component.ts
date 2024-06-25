@@ -77,6 +77,7 @@ export class SessionTableComponent implements OnInit {
         this.sessionIDList = Array.from(sessionIDs);
         this.dataSource = new MatTableDataSource(this.tableData);
 
+        // Select all sessions when the application is started
         this.dataSource.data.forEach((row) => {
           this.selection.select(row);
           const sessionID = row.SessionID;
