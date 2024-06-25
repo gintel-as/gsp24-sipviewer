@@ -39,7 +39,6 @@ export class MessageDetailComponent {
     });
 
     dataService.selectedSessionIDs$.subscribe((selectedSessionIDs) => {
-      console.log(selectedSessionIDs);
       dataService.getMessagesFromSelectedSessions().subscribe(
         (messages: any[]) => {
           this.messageIDList = messages.map((item) => item.startLine.messageID);
