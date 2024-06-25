@@ -12,7 +12,8 @@ mat-toolbar {
   margin-top: 64px; /* Space for toolbar */
 }
 
-.resizable-div-left-wrapper, .resizable-div-top-wrapper {
+.resizable-div-left-wrapper,
+.resizable-div-top-wrapper {
   position: relative;
 }
 
@@ -31,7 +32,9 @@ mat-toolbar {
   overflow: hidden;
 }
 
-.resizable-div-left, .resizable-div-top, .resizable-div-bottom {
+.resizable-div-left,
+.resizable-div-top,
+.resizable-div-bottom {
   border: 1px solid #000;
   flex-shrink: 0;
   user-select: auto;

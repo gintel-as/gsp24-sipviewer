@@ -16,6 +16,13 @@ export class DataService {
 
   constructor(private http: HttpClient) {
     this.messages = this.fetchMessages();
+    const detectArrowUpDown = (event: KeyboardEvent) => {
+      if (event.key == 'ArrowUp') {
+        console.log(2, event);
+      }
+      console.log(event);
+    };
+    window.addEventListener('keydown', detectArrowUpDown);
   }
 
   //Subject of currently selected session IDs

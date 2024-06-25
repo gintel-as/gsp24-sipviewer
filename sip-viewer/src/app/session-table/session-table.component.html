@@ -1,55 +1,47 @@
-<!-- <div class="section-content">
-    <h2 class="heading2">Unique Session IDs</h2>
-    <ul>
-      <li *ngFor="let sessionId of sessionIdList" class="list-item">{{sessionId}}</li>
-      <li *ngFor="let sender of senders" class="list-item">{{sender}}</li>
-      <li *ngFor="let receiver of receivers" class="list-item">{{receiver}}</li>
-      <li *ngFor="let time of times" class="list-item">{{times}}</li>
-    </ul>
-</div>  -->
-
-<!-- <div class="section-content">
-  <h2 class="heading2">Session Details</h2>
-  <table class="session-table">
-    <thead>
-      <tr>
-        <th>Time</th> 
-        <th>Session ID</th>
-        <th>Sender</th>
-        <th>Receiver</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let sessionId of sessionIdList; let i = index">
-        <tr>
-          <td>{{ times[i] }}</td>
-          <td>{{ sessionId }}</td>
-          <td>{{ senders[i] }}</td>
-          <td>{{ receivers[i] }}</td>
-        </tr>
-      </ng-container>
-    </tbody>
-  </table>
-</div> -->
-
 <div class="table-container">
-  <div class="sticky-header">
-    <mat-form-field class="mat-form-field">
-      <mat-label>Filter</mat-label>
-      <input
-        matInput
-        (keyup)="applyFilter($event)"
-        placeholder="Filter by ex. session ID"
-        #input
-      />
-    </mat-form-field>
-  </div>
+  <mat-toolbar sticky class="toolbar">
+    <mat-toolbar-row>
+      <span id="sessionIDSpan">Session IDs </span>
+      <span class="spacer"></span>
+      <mat-form-field class="filter-bar" subscriptSizing="dynamic">
+        <mat-label>Filter</mat-label>
+        <input
+          matInput
+          (keyup)="applyFilter($event)"
+          placeholder="Filter by ex. session ID"
+          #input
+        />
+      </mat-form-field>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource" class="mat-table">
+    <!-- Checkbox Column -->
+    <ng-container matColumnDef="Select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          (change)="$event ? toggleAllRows() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [aria-label]="checkboxLabel()"
+        >
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)"
+          [aria-label]="checkboxLabel(row)"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
     <!-- Time Column -->
     <ng-container matColumnDef="Time">
       <th mat-header-cell *matHeaderCellDef>Time</th>
-      <td mat-cell *matCellDef="let element of dataSource">
+      <td mat-cell *matCellDef="let element">
         {{ element.Time }}
       </td>
       <!-- element is one item in the dataSource array -->
@@ -58,7 +50,7 @@
     <!-- SessionID Column -->
     <ng-container matColumnDef="Session ID">
       <th mat-header-cell *matHeaderCellDef>Session ID</th>
-      <td mat-cell *matCellDef="let element of dataSource">
+      <td mat-cell *matCellDef="let element">
         {{ element.SessionID }}
       </td>
     </ng-container>
@@ -66,7 +58,7 @@
     <!-- Sender Column -->
     <ng-container matColumnDef="Sender">
       <th mat-header-cell *matHeaderCellDef>Sender</th>
-      <td mat-cell *matCellDef="let element of dataSource">
+      <td mat-cell *matCellDef="let element">
         {{ element.Sender }}
       </td>
     </ng-container>
@@ -74,16 +66,21 @@
     <!-- Receiver Column -->
     <ng-container matColumnDef="Receiver">
       <th mat-header-cell *matHeaderCellDef>Receiver</th>
-      <td mat-cell *matCellDef="let element of dataSource">
+      <td mat-cell *matCellDef="let element">
         {{ element.Receiver }}
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
+    <tr
+      mat-header-row
+      *matHeaderRowDef="columnsToDisplay"
+      class="table-header"
+    ></tr>
     <tr
       mat-row
       *matRowDef="let row; columns: columnsToDisplay"
       (click)="onRowClicked(row)"
+      (click)="selection.toggle(row)"
     ></tr>
 
     <!-- Row shown when there is no matching data. -->
