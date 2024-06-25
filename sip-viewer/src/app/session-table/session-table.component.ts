@@ -32,15 +32,9 @@ export class SessionTableComponent implements OnInit {
   receivers: string[] = []; // to: receiver of the first message in the session (phone number)
   times: string[] = []; // time of first INVITE in the session
   tableData: any[] = []; //List of dictionaries which represent a session
-
-  // For displaying data in table
-  columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver'];
-  dataSource = new MatTableDataSource(this.tableData);
-  clickedRow: any = null;
-
-  // Selected sessions
-  selection = new SelectionModel<any>(true, []);
-  selectionStatus: { [key: string]: boolean } = {}; // Show whether the row is selected (true) or not (false)
+  columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver']; // Columns of the table
+  dataSource = new MatTableDataSource(this.tableData); // Data used in the table
+  selection = new SelectionModel<any>(true, []); // Selected sessions
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -82,8 +76,11 @@ export class SessionTableComponent implements OnInit {
         });
         this.sessionIDList = Array.from(sessionIDs);
         this.dataSource = new MatTableDataSource(this.tableData);
-        this.sessionIDList.forEach((sessionID) => {
-          this.selectionStatus[sessionID] = false;
+
+        this.dataSource.data.forEach((row) => {
+          this.selection.select(row);
+          const sessionID = row.SessionID;
+          this.dataService.updateSelectedSession(sessionID);
         });
       },
       (error) => {
@@ -92,39 +89,11 @@ export class SessionTableComponent implements OnInit {
     );
   }
 
-  onRowClicked(row: any, event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
-
-    this.clickedRow = row;
-    console.log('Row clicked: ', this.clickedRow);
-    console.log(this.selection);
-    const SessionIDofClickedRow = row['SessionID'];
-
-    // Update dictionary with selected-status (used in toggleAllRows to check which new sessions should be updated to data service)
-    if (this.selectionStatus[row] === false) {
-      this.selectionStatus[row] = true;
-    } else if (this.selectionStatus[row] === true) {
-      this.selectionStatus[row] = false;
-    }
-    this.dataService.updateSelectedSession(SessionIDofClickedRow);
+  onCheckboxClicked(row: any): void {
+    this.selection.toggle(row);
+    const sessionID = row.SessionID;
+    this.dataService.updateSelectedSession(sessionID);
   }
-
-  // onCheckboxClicked(event: any, row: any): void {
-  //   event.stopPropagation();
-  //   this.clickedRow = row;
-  //   console.log('Checkbox clicked: ', this.clickedRow);
-  //   const SessionIDofClickedRow = row['SessionID'];
-
-  //   // Update dictionary with selected-status (used in toggleAllRows to check which new sessions should be updated to data service)
-  //   if (this.selectionStatus[row] === false) {
-  //     this.selectionStatus[row] = true;
-  //   } else if (this.selectionStatus[row] === true) {
-  //     this.selectionStatus[row] = false;
-  //   }
-  //   this.dataService.updateSelectedSession(SessionIDofClickedRow);
-  // }
 
   isAllSelected() {
     const numSelected = this.selection.selected.length;
@@ -137,7 +106,6 @@ export class SessionTableComponent implements OnInit {
       // If all sessions are selected from before, clear selection
       this.selection.clear();
       this.sessionIDList.forEach((sessionID) => {
-        this.selectionStatus[sessionID] = false; // Mark all as not selected
         this.dataService.updateSelectedSession(sessionID); // Update data service to reflect deselection
       });
     } else {
@@ -146,7 +114,6 @@ export class SessionTableComponent implements OnInit {
         if (!this.selection.isSelected(row)) {
           this.selection.select(row);
           const sessionID = row['SessionID'];
-          this.selectionStatus[sessionID] = true; // Mark as selected
           this.dataService.updateSelectedSession(sessionID); // Update data service to reflect selection
         }
       });
