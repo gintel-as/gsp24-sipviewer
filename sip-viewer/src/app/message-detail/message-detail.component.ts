@@ -43,6 +43,7 @@ export class MessageDetailComponent {
       dataService.getMessagesFromSelectedSessions().subscribe(
         (messages: any[]) => {
           this.messageIDList = messages.map((item) => item.startLine.messageID);
+          this.printFirstMessage(); // can be replaced by listening to currentSelectedMessageID$
         },
         (error) => {
           console.error(
@@ -62,10 +63,14 @@ export class MessageDetailComponent {
     if (direction == 'next') {
       if (this.packetIndex + 1 < this.messageIDList.length) {
         this.packetIndex++;
+      } else {
+        this.packetIndex = 0;
       }
     } else if (direction == 'previous') {
       if (this.packetIndex - 1 >= 0) {
         this.packetIndex--;
+      } else {
+        this.packetIndex = this.messageIDList.length - 1;
       }
     }
     const id = this.messageIDList[this.packetIndex];
