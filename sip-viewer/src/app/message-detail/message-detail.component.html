@@ -5,8 +5,15 @@
     <mat-toolbar-row>
       <span id="packetDetailSpan"> Packet Detail </span>
       <span class="spacer"></span>
-      <span id="packetNumber">{{ packetIndex }} of {{ log.length - 1 }}</span>
-      <!-- To do: add function for going to next or previous packets -->
+      <div *ngIf="messageIDList.length > 0">
+        <span id="packetNumber">
+          {{ packetIndex + 1 }} of {{ messageIDList.length }}
+        </span>
+      </div>
+      <div *ngIf="messageIDList.length <= 0">
+        <span id="packetNumber"> {{ 0 }} of {{ 0 }} </span>
+      </div>
+
       <button
         mat-icon-button
         (click)="changePacket('previous')"
@@ -21,7 +28,7 @@
         mat-icon-button
         (click)="changePacket('next')"
         id="nextButton"
-        [disabled]="packetIndex >= log.length - 1"
+        [disabled]="packetIndex >= messageIDList.length - 1"
         matTooltip="Go to the next packet"
         aria-label="Button goes to the next packet"
       >
@@ -31,6 +38,7 @@
         mat-icon-button
         (click)="copyText()"
         id="copyPacketButton"
+        [disabled]="messageIDList.length <= 0"
         matTooltip="Copy packet details"
         aria-label="Button that copies the text of packet detail"
       >
@@ -40,8 +48,13 @@
   </mat-toolbar>
 
   <div class="content">
-    <ul id="list">
-      <li *ngFor="let result of resultList" class="list-item">{{ result }}</li>
-    </ul>
+    <div *ngIf="messageIDList.length > 0">
+      <ul id="list">
+        <li *ngFor="let result of resultList" class="list-item">
+          {{ result }}
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="messageIDList.length <= 0"></div>
   </div>
 </div>
