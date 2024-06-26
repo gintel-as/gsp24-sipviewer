@@ -1,12 +1,4 @@
-<!-- Remove buttons later, keep for testing -->
-<button (click)="onButtonClick()">Click Me</button
-><button (click)="onButtonClick2()">Click Me2</button>
-<input (keydown.arrowup)="onArrowUp($event)" />
-<div class="diagram-container" (keydown.arrowright)="onArrowUp($event)">
-  <div
-    #diagramLabels
-    class="label-container"
-    (keydown.arrowup)="onArrowUp($event)"
-  ></div>
+<div class="diagram-container">
+  <div #diagramLabels class="label-container"></div>
   <div #sequenceDiagram class="diagram"></div>
 </div>

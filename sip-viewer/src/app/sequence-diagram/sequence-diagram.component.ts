@@ -3,7 +3,9 @@ import { DataService } from '../data.service';
 import * as d3 from 'd3';
 import Utils from './utils';
 import { DiagramMessage } from '../diagram-message';
-import { from, tap } from 'rxjs';
+import { from, max, tap } from 'rxjs';
+
+type messageIndexDict = { [key: number]: string };
 
 @Component({
   selector: 'app-sequence-diagram',
@@ -18,6 +20,8 @@ export class SequenceDiagramComponent implements AfterViewInit {
   diagram!: ElementRef;
   @ViewChild('diagramLabels', { static: false })
   diagramLabels!: ElementRef;
+  private selectedPacketIndex: number = 0;
+  private messageIndexDict: messageIndexDict = {};
 
   constructor(private dataService: DataService) {
     dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
@@ -26,19 +30,12 @@ export class SequenceDiagramComponent implements AfterViewInit {
     dataService.selectedSessionIDs$.subscribe(() => {
       this.onUpdatedSelectedSessions();
     });
-  }
-  //Buttons for testing purposes, remove later
-  onButtonClick() {
-    this.dataService.updateSelectedSession('304286493');
-  }
-  onButtonClick2() {
-    this.dataService.updateSelectedSession('304286495');
+    dataService.keyEvent$.subscribe((keyEvent) => {
+      this.onKeyUpDown(keyEvent);
+    });
   }
 
-  onArrowUp(event: any) {
-    console.log(event);
-  }
-
+  //When sessions are updated, update diagram
   onUpdatedSelectedSessions() {
     Utils.importCombined(this.dataService.getMessagesFromSelectedSessions())
       .pipe(
@@ -51,11 +48,62 @@ export class SequenceDiagramComponent implements AfterViewInit {
 
   markSelectedMessage(messageID: string): void {
     d3.select('#selected-message').attr('id', '');
-    d3.select(`[message-id="${messageID}"`).attr('id', 'selected-message');
+    d3.select(`[message-text-id="${messageID}"`).attr('id', 'selected-message');
+
+    const nativeElement = d3.select('#selected-message').node() as Element;
+    nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest',
+    });
+
+    //Potential fix on redone resize windows
+    // if (0 == 0) {
+    //   console.log(1);
+    //   const nativeElement = d3.select('#selected-message').node() as Element;
+    //   nativeElement.scrollIntoView({
+    //     behavior: 'smooth',
+    //     block: 'center',
+    //     inline: 'nearest',
+    //   });
+    // } else {
+    //   console.log(2);
+    //   const nativeParent = document.getElementById('#leftDiv') as Element;
+    //   nativeParent.scrollTop = 0;
+    //   // document.scroll;
+    //   console.log(nativeParent.scrollTop);
+    // }
   }
 
-  selectMessage(messageID: string): void {
-    this.dataService.selectNewMessageByID(messageID);
+  selectMessage(msg: DiagramMessage): void {
+    this.dataService.selectNewMessageByID(msg.message.startLine.messageID);
+    this.selectedPacketIndex = msg.index;
+  }
+
+  onKeyUpDown(keyEvent: string) {
+    let maxIndex = Object.keys(this.messageIndexDict).length;
+    if (keyEvent === 'ArrowUp') {
+      this.selectedPacketIndex--;
+    }
+    if (keyEvent === 'ArrowDown') {
+      this.selectedPacketIndex++;
+    }
+    if (this.selectedPacketIndex == maxIndex) {
+      this.selectedPacketIndex = 0;
+    }
+    if (this.selectedPacketIndex < 0) {
+      this.selectedPacketIndex = maxIndex - 1;
+    }
+    this.dataService.selectNewMessageByID(
+      this.messageIndexDict[this.selectedPacketIndex]
+    );
+  }
+
+  setMessageIndexToIDDictionary(messages: DiagramMessage[]) {
+    this.messageIndexDict = messages.reduce((acc, message) => {
+      acc[message.index] = message.message.startLine.messageID;
+      return acc;
+    }, this.messageIndexDict);
   }
 
   ngAfterViewInit(): void {
@@ -78,6 +126,8 @@ export class SequenceDiagramComponent implements AfterViewInit {
     const svgWidth = Math.max(500, 200 * participants.length + spaceForTime);
     const svgHeight = Math.max(500, 50 + 40 * messages.length);
 
+    this.setMessageIndexToIDDictionary(messages);
+
     //Clear elements for blank canvas
     d3.select(this.diagram.nativeElement).selectAll('*').remove();
     d3.select(this.diagramLabels.nativeElement).selectAll('*').remove();
@@ -87,7 +137,10 @@ export class SequenceDiagramComponent implements AfterViewInit {
       .select(this.diagram.nativeElement)
       .append('svg')
       .attr('width', svgWidth)
-      .attr('height', svgHeight);
+      .attr('height', svgHeight)
+      .attr('y', 0)
+      .attr('id', 'diagramSVG')
+      .attr('scroll-margin-top', 50);
 
     //svg2 is the upepr div "diagramLabels"
     const svg2 = d3
@@ -150,8 +203,8 @@ export class SequenceDiagramComponent implements AfterViewInit {
         directionOffset = -5;
       }
       const y = yScale(msg.index);
+      //Potentially change/remove labelSpace? Currently hard coded to 80px, but should probably be made flexible
       let labelSpace = msg.index.toString().length * 5 + 2;
-      // let labelX = spaceForTime + labelSpace;
       let labelX = spaceForTime + 80;
       let textLine = msg.message.startLine.method;
 
@@ -173,7 +226,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
         .attr('marker-start', '1')
         .attr('class', `session-${msg.message.startLine.sessionID} arrow-line`)
         .attr('message-id', msg.message.startLine.messageID)
-        .on('click', () => this.selectMessage(msg.message.startLine.messageID));
+        .on('click', () => this.selectMessage(msg));
 
       // Draw message text
       svg
@@ -182,7 +235,8 @@ export class SequenceDiagramComponent implements AfterViewInit {
         .attr('y', y - 5)
         .attr('class', 'arrow-text')
         .text(textLine)
-        .on('click', () => this.selectMessage(msg.message.startLine.messageID));
+        .attr('message-text-id', msg.message.startLine.messageID)
+        .on('click', () => this.selectMessage(msg));
 
       //Draw timestamp and packet index
       svg
@@ -193,7 +247,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
         .text(
           `${msg.index}: ${Utils.getDateString(msg.message.startLine.time)}`
         )
-        .on('click', () => this.selectMessage(msg.message.startLine.messageID));
+        .on('click', () => this.selectMessage(msg));
     });
 
     // Define arrow marker
@@ -210,5 +264,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
       .append('path')
       .attr('markerUnit', 'useSpaceOnUse')
       .attr('d', 'M 0 0 L 10 5 L 0 10 z');
+
+    this.selectMessage(messages[0]);
   }
 }
