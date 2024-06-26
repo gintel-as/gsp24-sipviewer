@@ -44,11 +44,14 @@ class Main:
 if __name__ == "__main__":
 
     # input = input()
-    inputFile = "1.adapter.windows.log"
+    inputFile = "adapter.log.2024-06-17-12.log"
+    # inputFile = "1.adapter.windows.log"
     # inputFile = "2.Two-Calls.adapter.log"
     # inputFile = "adapter_BCT.log"
-    logPath = "./logs"
-    destinationPath = "./json"
+    logPath = "./extractor/logs"
+    destinationPath = "./extractor/json"
+    # logPath = "./logs"
+    # destinationPath = "./json"
     main = Main(inputFile, logPath, destinationPath)
 
     main.extractor()
