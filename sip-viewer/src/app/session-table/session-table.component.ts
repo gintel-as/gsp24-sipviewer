@@ -50,6 +50,7 @@ export class SessionTableComponent implements OnInit {
   fetchSessions(): void {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
+        this.tableData = [];
         // Extract unique session IDs and add time, session ID, sender and receiver to lists
         const sessionIDs = new Set<string>(); // Use set to store unique session IDs
         const phoneNumberPattern = /<sip:?(\+?\d+)@/;
