@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { Message } from './message';
 import { Session } from './session';
 
@@ -9,13 +9,13 @@ import { Session } from './session';
   providedIn: 'root',
 })
 export class DataService {
-  private messages: Observable<Message[]>;
+  private messages = new BehaviorSubject<Message[]>([]);
   private currentSelectedMessageIDSource = new Subject<string>();
   private selectedSessionIDs = new Subject<string[]>();
   private sessionIDs: string[] = new Array<string>();
 
   constructor(private http: HttpClient) {
-    this.messages = this.fetchMessages();
+    this.fetchMessages();
   }
 
   //Subject of currently selected session IDs
@@ -42,18 +42,22 @@ export class DataService {
 
   //Get lists of messages:
   getMessages(): Observable<Message[]> {
-    return this.messages;
+    return this.messages.asObservable();
   }
 
-  fetchMessages(): Observable<Message[]> {
-    return this.http.get<Message[]>('assets/adapter_bct.log.json').pipe(
-      map((data) => {
-        return data.map((message) => {
-          message.startLine.time = new Date(message.startLine.time);
-          return message;
-        });
-      })
-    );
+  fetchMessages() {
+    this.http
+      .get<Message[]>('assets/adapter_bct.log.json')
+      .pipe(
+        map((data) => {
+          return data.map((message) => {
+            message.startLine.time = new Date(message.startLine.time);
+            return message;
+          });
+        }),
+        tap((data) => this.messages.next(data))
+      )
+      .subscribe();
   }
 
   getMessageByID(messageID: string): Observable<Message | undefined> {

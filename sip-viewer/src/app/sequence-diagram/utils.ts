@@ -1,29 +1,33 @@
 import { Message } from '../message';
 import { DiagramMessage } from '../diagram-message';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin, map, take } from 'rxjs';
 import d3, { index } from 'd3';
 import { StartLine } from '../start-line';
 
 export default class Utils {
   static importDataFromDataServiceMap(messages: Observable<Message[]>) {
-    return messages.pipe(
-      map((msgList) =>
-        msgList.map((msg, i) => {
-          return {
-            message: msg,
-            index: i,
-          };
-        })
+    return messages
+      .pipe(
+        map((msgList) =>
+          msgList.map((msg, i) => {
+            return {
+              message: msg,
+              index: i,
+            };
+          })
+        )
       )
-    );
+      .pipe(take(1));
   }
 
   static importParseParticipants(messages: Observable<Message[]>) {
-    return messages.pipe(
-      map((msgList) =>
-        msgList.map((msg) => msg.startLine.party).filter(this.onlyUnique)
+    return messages
+      .pipe(
+        map((msgList) =>
+          msgList.map((msg) => msg.startLine.party).filter(this.onlyUnique)
+        )
       )
-    );
+      .pipe(take(1));
   }
 
   static importCombined(messages: Observable<Message[]>) {
