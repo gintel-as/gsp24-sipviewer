@@ -1,12 +1,13 @@
 import { Message } from '../message';
 import { DiagramMessage } from '../diagram-message';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin, map, take } from 'rxjs';
 import d3, { index } from 'd3';
 import { StartLine } from '../start-line';
 
 export default class Utils {
   static importDataFromDataServiceMap(messages: Observable<Message[]>) {
     return messages.pipe(
+      take(1),
       map((msgList) =>
         msgList.map((msg, i) => {
           return {
@@ -20,6 +21,7 @@ export default class Utils {
 
   static importParseParticipants(messages: Observable<Message[]>) {
     return messages.pipe(
+      take(1),
       map((msgList) =>
         msgList.map((msg) => msg.startLine.party).filter(this.onlyUnique)
       )

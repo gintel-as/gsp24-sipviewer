@@ -28,7 +28,7 @@ mat-toolbar {
 
 .resizable-div-left {
   background-color: lightgrey;
-  overflow: auto;
+  overflow: scroll;
   white-space: nowrap;
   height: 100%;
 }

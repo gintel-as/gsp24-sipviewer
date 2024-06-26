@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { Message } from './message';
 import { Session } from './session';
 
@@ -9,13 +9,27 @@ import { Session } from './session';
   providedIn: 'root',
 })
 export class DataService {
-  private messages: Observable<Message[]>;
+  private messages: BehaviorSubject<Message[]> = new BehaviorSubject<Message[]>(
+    []
+  );
   private currentSelectedMessageIDSource = new Subject<string>();
   private selectedSessionIDs = new Subject<string[]>();
   private sessionIDs: string[] = new Array<string>();
+  private keyEventSource = new Subject<string>();
 
   constructor(private http: HttpClient) {
-    this.messages = this.fetchMessages();
+    this.fetchMessages();
+
+    //Add listener to ineract with keyEvent subject
+    const detectArrowUpDown = (event: KeyboardEvent) => {
+      if (event.key == 'ArrowUp') {
+        this.keyEventSource.next('ArrowUp');
+      }
+      if (event.key == 'ArrowDown') {
+        this.keyEventSource.next('ArrowDown');
+      }
+    };
+    window.addEventListener('keydown', detectArrowUpDown);
   }
 
   //Subject of currently selected session IDs
@@ -24,6 +38,9 @@ export class DataService {
 
   //Subject of currently selected session IDs
   selectedSessionIDs$ = this.selectedSessionIDs.asObservable();
+
+  //Subject of keyEvent
+  keyEvent$ = this.keyEventSource.asObservable();
 
   //If session ID new, add to array, else remove
   updateSelectedSession(sessionID: string) {
@@ -36,24 +53,30 @@ export class DataService {
     this.selectedSessionIDs.next(this.sessionIDs);
   }
 
+  //Sets new messageID as selected in subject
   selectNewMessageByID(selectedID: string) {
     this.currentSelectedMessageIDSource.next(selectedID);
   }
 
   //Get lists of messages:
   getMessages(): Observable<Message[]> {
-    return this.messages;
+    return this.messages.asObservable();
   }
 
-  fetchMessages(): Observable<Message[]> {
-    return this.http.get<Message[]>('assets/adapter_bct.log.json').pipe(
-      map((data) => {
-        return data.map((message) => {
-          message.startLine.time = new Date(message.startLine.time);
-          return message;
-        });
-      })
-    );
+  //Fetches from http, should only be called by constructor
+  fetchMessages(): void {
+    this.http
+      .get<Message[]>('assets/adapter_bct.log.json')
+      .pipe(
+        map((data) => {
+          return data.map((message) => {
+            message.startLine.time = new Date(message.startLine.time);
+            return message;
+          });
+        }),
+        tap((data) => this.messages.next(data))
+      )
+      .subscribe();
   }
 
   getMessageByID(messageID: string): Observable<Message | undefined> {
@@ -64,6 +87,7 @@ export class DataService {
     );
   }
 
+  //Get Message[] from all sessions in the selectedSessions subject
   getMessagesFromSelectedSessions(): Observable<Message[]> {
     return this.getMessages().pipe(
       map((messages: Message[]) =>
