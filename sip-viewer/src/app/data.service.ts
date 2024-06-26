@@ -60,21 +60,23 @@ export class DataService {
 
   //Get lists of messages:
   getMessages(): Observable<Message[]> {
-    console.log(1);
     return this.messages.asObservable();
   }
 
   //Fetches from http, should only be called by constructor
   fetchMessages(): void {
-    this.http.get<Message[]>('assets/adapter_bct.log.json').pipe(
-      map((data) => {
-        return data.map((message) => {
-          message.startLine.time = new Date(message.startLine.time);
-          return message;
-        });
-      }),
-      tap((messages: Message[]) => this.messages.next(messages))
-    );
+    this.http
+      .get<Message[]>('assets/adapter_bct.log.json')
+      .pipe(
+        map((data) => {
+          return data.map((message) => {
+            message.startLine.time = new Date(message.startLine.time);
+            return message;
+          });
+        }),
+        tap((data) => this.messages.next(data))
+      )
+      .subscribe();
   }
 
   getMessageByID(messageID: string): Observable<Message | undefined> {
