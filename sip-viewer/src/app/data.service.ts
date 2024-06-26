@@ -89,7 +89,6 @@ export class DataService {
 
   //Get Message[] from all sessions in the selectedSessions subject
   getMessagesFromSelectedSessions(): Observable<Message[]> {
-    console.log(2);
     return this.getMessages().pipe(
       map((messages: Message[]) =>
         messages.filter(
