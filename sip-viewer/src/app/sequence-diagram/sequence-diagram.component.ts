@@ -93,7 +93,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
     if (keyEvent === 'ArrowDown') {
       this.selectedPacketIndex++;
     }
-    if (this.selectedPacketIndex == maxIndex) {
+    if (this.selectedPacketIndex >= maxIndex) {
       this.selectedPacketIndex = 0;
     }
     if (this.selectedPacketIndex < 0) {
