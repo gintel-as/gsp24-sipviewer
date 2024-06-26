@@ -48,7 +48,12 @@ export class SequenceDiagramComponent implements AfterViewInit {
 
   markSelectedMessage(messageID: string): void {
     d3.select('#selected-message').attr('id', '');
-    d3.select(`[message-text-id="${messageID}"`).attr('id', 'selected-message');
+    d3.select('#selected-message-text').attr('id', '');
+    d3.select(`[message-id="${messageID}"`).attr('id', 'selected-message');
+    d3.select(`[message-text-id="${messageID}"`).attr(
+      'id',
+      'selected-message-text'
+    );
 
     const nativeElement = d3.select('#selected-message').node() as Element;
     nativeElement.scrollIntoView({
