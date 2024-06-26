@@ -42,7 +42,7 @@ export class MessageDetailComponent {
       dataService.getMessagesFromSelectedSessions().subscribe(
         (messages: any[]) => {
           this.messageIDList = messages.map((item) => item.startLine.messageID);
-          this.printFirstMessage(); // can be replaced by listening to currentSelectedMessageID$
+          // this.printFirstMessage(); // can be replaced by listening to currentSelectedMessageID$
         },
         (error) => {
           console.error(
@@ -55,7 +55,7 @@ export class MessageDetailComponent {
   }
 
   ngOnInit() {
-    this.fetchMessages();
+    // this.fetchMessages();
   }
 
   changePacket(direction: 'next' | 'previous') {
@@ -127,25 +127,25 @@ export class MessageDetailComponent {
     );
   }
 
-  fetchMessages(): void {
-    this.dataService.getMessages().subscribe(
-      (messages: any[]) => {
-        this.log = messages;
-        this.messageIDList = messages.map((item) => item.startLine.messageID);
-        let sessionArr = messages.map((item) => item.startLine.sessionID);
-        this.sessionIDList = [...new Set(sessionArr)]; // Filter out duplicate sessions, leaving only distinct IDs
-        this.printFirstMessage();
-      },
-      (error) => {
-        console.error('Error fetching messages', error);
-      }
-    );
-  }
+  // fetchMessages(): void {
+  //   this.dataService.getMessages().subscribe(
+  //     (messages: any[]) => {
+  //       this.log = messages;
+  //       this.messageIDList = messages.map((item) => item.startLine.messageID);
+  //       let sessionArr = messages.map((item) => item.startLine.sessionID);
+  //       this.sessionIDList = [...new Set(sessionArr)]; // Filter out duplicate sessions, leaving only distinct IDs
+  //       this.printFirstMessage();
+  //     },
+  //     (error) => {
+  //       console.error('Error fetching messages', error);
+  //     }
+  //   );
+  // }
 
-  printFirstMessage(): void {
-    this.currentMessageID = this.messageIDList[0];
-    this.printPacketDetail(this.currentMessageID);
-  }
+  // printFirstMessage(): void {
+  //   this.currentMessageID = this.messageIDList[0];
+  //   this.printPacketDetail(this.currentMessageID);
+  // }
 
   copyText(): void {
     let output = this.textToCopy.join('');
