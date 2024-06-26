@@ -76,4 +76,48 @@ export default class Utils {
     }
     return `${n}`;
   }
+
+  static getArrowStyles() {
+    return [
+      'colored-line-red', // Solid red
+      'colored-line-purple dotted-line-short', // Short dotted purple
+      'colored-line-yellow dotted-line-long', // Long dotted yellow
+
+      'colored-line-blue', // Solid blue
+      'colored-line-magenta dotted-line-short', // Short dotted magenta
+      'colored-line-cyan dotted-line-long', // Long dotted cyan
+
+      'colored-line-black', // Solid black
+      'colored-line-brown dotted-line-short', // Short dotted brown
+      'colored-line-orange dotted-line-long', // Long dotted orange
+
+      'colored-line-orange', // Solid orange
+      'colored-line-purple dotted-line-short', // Short dotted purple
+      'colored-line-green dotted-line-long', // Long dotted green
+
+      'colored-line-blue', // Solid blue
+      'colored-line-red dotted-line-short', // Short dotted red
+      'colored-line-yellow dotted-line-long', // Long dotted yellow
+
+      'colored-line-black', // Solid black
+      'colored-line-cyan dotted-line-short', // Short dotted cyan
+      'colored-line-brown dotted-line-long', // Long dotted brown
+
+      'colored-line-magenta', // Solid magenta
+      'colored-line-purple dotted-line-short', // Short dotted purple
+      'colored-line-green dotted-line-long', // Long dotted green
+
+      'colored-line-red', // Solid red
+      'colored-line-blue dotted-line-short', // Short dotted blue
+      'colored-line-yellow dotted-line-long', // Long dotted yellow
+
+      'colored-line-orange', // Solid orange
+      'colored-line-cyan dotted-line-short', // Short dotted cyan
+      'colored-line-brown dotted-line-long', // Long dotted brown
+
+      'colored-line-brown', // Solid brown
+      'colored-line-magenta dotted-line-short', // Short dotted magenta
+      'colored-line-green dotted-line-long', // Long dotted green
+    ];
+  }
 }
