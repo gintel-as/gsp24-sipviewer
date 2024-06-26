@@ -13,9 +13,21 @@ export class DataService {
   private currentSelectedMessageIDSource = new Subject<string>();
   private selectedSessionIDs = new Subject<string[]>();
   private sessionIDs: string[] = new Array<string>();
+  private keyEventSource = new Subject<string>();
 
   constructor(private http: HttpClient) {
     this.messages = this.fetchMessages();
+
+    //Add listener to ineract with keyEvent subject
+    const detectArrowUpDown = (event: KeyboardEvent) => {
+      if (event.key == 'ArrowUp') {
+        this.keyEventSource.next('ArrowUp');
+      }
+      if (event.key == 'ArrowDown') {
+        this.keyEventSource.next('ArrowDown');
+      }
+    };
+    window.addEventListener('keydown', detectArrowUpDown);
   }
 
   //Subject of currently selected session IDs
@@ -24,6 +36,9 @@ export class DataService {
 
   //Subject of currently selected session IDs
   selectedSessionIDs$ = this.selectedSessionIDs.asObservable();
+
+  //Subject of keyEvent
+  keyEvent$ = this.keyEventSource.asObservable();
 
   //If session ID new, add to array, else remove
   updateSelectedSession(sessionID: string) {
@@ -36,6 +51,7 @@ export class DataService {
     this.selectedSessionIDs.next(this.sessionIDs);
   }
 
+  //Sets new messageID as selected in subject
   selectNewMessageByID(selectedID: string) {
     this.currentSelectedMessageIDSource.next(selectedID);
   }
@@ -45,6 +61,7 @@ export class DataService {
     return this.messages;
   }
 
+  //Fetches from http, should only be called by constructor
   fetchMessages(): Observable<Message[]> {
     return this.http.get<Message[]>('assets/adapter_bct.log.json').pipe(
       map((data) => {
@@ -64,6 +81,7 @@ export class DataService {
     );
   }
 
+  //Get Message[] from all sessions in the selectedSessions subject
   getMessagesFromSelectedSessions(): Observable<Message[]> {
     return this.getMessages().pipe(
       map((messages: Message[]) =>
