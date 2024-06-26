@@ -6,6 +6,7 @@ import { DiagramMessage } from '../diagram-message';
 import { from, max, tap } from 'rxjs';
 
 type messageIndexDict = { [key: number]: string };
+type sessionDict = { [key: string]: string };
 
 @Component({
   selector: 'app-sequence-diagram',
@@ -22,13 +23,15 @@ export class SequenceDiagramComponent implements AfterViewInit {
   diagramLabels!: ElementRef;
   private selectedPacketIndex: number = 0;
   private messageIndexDict: messageIndexDict = {};
+  private arrowStyles: string[] = Utils.getArrowStyles();
+  private sessionDict: sessionDict = {};
 
   constructor(private dataService: DataService) {
     dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
       this.markSelectedMessage(selectedMessageID);
     });
-    dataService.selectedSessionIDs$.subscribe(() => {
-      this.onUpdatedSelectedSessions();
+    dataService.selectedSessionIDs$.subscribe((selectedSessionIDs) => {
+      this.onUpdatedSelectedSessions(selectedSessionIDs);
     });
     dataService.keyEvent$.subscribe((keyEvent) => {
       this.onKeyUpDown(keyEvent);
@@ -36,7 +39,8 @@ export class SequenceDiagramComponent implements AfterViewInit {
   }
 
   //When sessions are updated, update diagram
-  onUpdatedSelectedSessions() {
+  onUpdatedSelectedSessions(selectedSessionIDs: string[]) {
+    this.updateSessionStyles(selectedSessionIDs);
     Utils.importCombined(this.dataService.getMessagesFromSelectedSessions())
       .pipe(
         tap((data) =>
@@ -44,6 +48,26 @@ export class SequenceDiagramComponent implements AfterViewInit {
         )
       )
       .subscribe();
+  }
+
+  //If session already has a style selected, keep this selection and randomly assign for other sessions
+  updateSessionStyles(selectedSessionIDs: string[]) {
+    let newSessionDict: sessionDict = {};
+    Object.keys(this.sessionDict).forEach((key) => {
+      if (selectedSessionIDs.includes(key)) {
+        newSessionDict[key] = this.sessionDict[key];
+      }
+    });
+    let newSessions = selectedSessionIDs.filter(
+      (sessionID) => !Object.keys(this.sessionDict).includes(sessionID)
+    );
+    let styles = this.arrowStyles.filter(
+      (style) => !Object.values(newSessionDict).includes(style)
+    );
+    newSessions.forEach((sessionID, index) => {
+      newSessionDict[sessionID] = styles[index];
+    });
+    this.sessionDict = newSessionDict;
   }
 
   markSelectedMessage(messageID: string): void {
@@ -220,6 +244,9 @@ export class SequenceDiagramComponent implements AfterViewInit {
         }
       } catch (error) {}
 
+      //Select style for message based on session
+      let classes = this.sessionDict[`${msg.message.startLine.sessionID}`];
+
       // Draw arrow
       svg
         .append('line')
@@ -229,7 +256,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
         .attr('y2', y)
         .attr('marker-end', 'url(#arrow)')
         .attr('marker-start', '1')
-        .attr('class', `session-${msg.message.startLine.sessionID} arrow-line`)
+        .attr('class', `${classes} arrow-line`)
         .attr('message-id', msg.message.startLine.messageID)
         .on('click', () => this.selectMessage(msg));
 
