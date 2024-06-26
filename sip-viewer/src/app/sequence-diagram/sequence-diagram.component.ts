@@ -55,13 +55,13 @@ export class SequenceDiagramComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    Utils.importCombined(this.dataService.getMessages())
-      .pipe(
-        tap((data) =>
-          this.drawSequenceDiagram(data.diagramMessages, data.participants)
-        )
-      )
-      .subscribe();
+    // Utils.importCombined(this.dataService.getMessages())
+    //   .pipe(
+    //     tap((data) =>
+    //       this.drawSequenceDiagram(data.diagramMessages, data.participants)
+    //     )
+    //   )
+    //   .subscribe();
   }
 
   private drawSequenceDiagram(
