@@ -24,7 +24,7 @@ import { pack } from 'd3';
   styleUrl: './message-detail.component.css',
 })
 export class MessageDetailComponent {
-  log: any[] = [];
+  // log: any[] = [];
   resultList: any[] = [];
   textToCopy: any[] = [];
   packetIndex: number = 0;
@@ -42,7 +42,6 @@ export class MessageDetailComponent {
       dataService.getMessagesFromSelectedSessions().subscribe(
         (messages: any[]) => {
           this.messageIDList = messages.map((item) => item.startLine.messageID);
-          // this.printFirstMessage(); // can be replaced by listening to currentSelectedMessageID$
         },
         (error) => {
           console.error(
@@ -52,10 +51,6 @@ export class MessageDetailComponent {
         }
       );
     });
-  }
-
-  ngOnInit() {
-    // this.fetchMessages();
   }
 
   changePacket(direction: 'next' | 'previous') {
@@ -134,17 +129,11 @@ export class MessageDetailComponent {
   //       this.messageIDList = messages.map((item) => item.startLine.messageID);
   //       let sessionArr = messages.map((item) => item.startLine.sessionID);
   //       this.sessionIDList = [...new Set(sessionArr)]; // Filter out duplicate sessions, leaving only distinct IDs
-  //       this.printFirstMessage();
   //     },
   //     (error) => {
   //       console.error('Error fetching messages', error);
   //     }
   //   );
-  // }
-
-  // printFirstMessage(): void {
-  //   this.currentMessageID = this.messageIDList[0];
-  //   this.printPacketDetail(this.currentMessageID);
   // }
 
   copyText(): void {
