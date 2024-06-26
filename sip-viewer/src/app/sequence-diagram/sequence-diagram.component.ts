@@ -50,11 +50,24 @@ export class SequenceDiagramComponent implements AfterViewInit {
       .subscribe();
   }
 
+  //If session already has a style selected, keep this selection and randomly assign for other sessions
   updateSessionStyles(selectedSessionIDs: string[]) {
-    this.sessionDict = {};
-    selectedSessionIDs.forEach((sessionID, index) => {
-      this.sessionDict[sessionID] = this.arrowStyles[index];
+    let newSessionDict: sessionDict = {};
+    Object.keys(this.sessionDict).forEach((key) => {
+      if (selectedSessionIDs.includes(key)) {
+        newSessionDict[key] = this.sessionDict[key];
+      }
     });
+    let newSessions = selectedSessionIDs.filter(
+      (sessionID) => !Object.keys(this.sessionDict).includes(sessionID)
+    );
+    let styles = this.arrowStyles.filter(
+      (style) => !Object.values(newSessionDict).includes(style)
+    );
+    newSessions.forEach((sessionID, index) => {
+      newSessionDict[sessionID] = styles[index];
+    });
+    this.sessionDict = newSessionDict;
   }
 
   markSelectedMessage(messageID: string): void {
