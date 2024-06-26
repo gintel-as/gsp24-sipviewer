@@ -6,6 +6,15 @@ mat-toolbar {
   z-index: 1001; /* Ensure it stays above other content */
 }
 
+.spacer {
+  flex: 1 1 auto;
+}
+
+
+
+
+
+
 .main-container {
   display: flex;
   height: calc(100vh - 64px); /* Adjust height to account for toolbar */
