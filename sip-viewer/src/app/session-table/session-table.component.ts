@@ -28,6 +28,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 })
 export class SessionTableComponent implements OnInit {
   sessionIDList: string[] = [];
+  sessionIDsToSendToDataService: string[] = [];
   senders: string[] = []; // from: sender of the first message in the session (phone number)
   receivers: string[] = []; // to: receiver of the first message in the session (phone number)
   times: string[] = []; // time of first INVITE in the session
@@ -50,7 +51,14 @@ export class SessionTableComponent implements OnInit {
   fetchSessions(): void {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
-        this.tableData = [];
+        this.tableData = []; // Empty the table to avoid duplicate copies of the sessions
+        this.selection.selected.forEach((message) => {
+          if (message && message.startLine) {
+            this.dataService.updateSelectedSession(message.startLine.sessionID);
+          }
+        });
+        this.selection.clear(); // Set all sessions as not selected
+
         // Extract unique session IDs and add time, session ID, sender and receiver to lists
         const sessionIDs = new Set<string>(); // Use set to store unique session IDs
         const phoneNumberPattern = /<sip:?(\+?\d+)@/;
@@ -79,11 +87,14 @@ export class SessionTableComponent implements OnInit {
         this.dataSource = new MatTableDataSource(this.tableData);
 
         // Select all sessions when the application is started
+        this.dataService.updateSelectedSessionsByList(this.sessionIDList);
         this.dataSource.data.forEach((row) => {
           this.selection.select(row);
-          const sessionID = row.SessionID;
-          this.dataService.updateSelectedSession(sessionID);
+          // const sessionID = row.SessionID;
+          // this.dataService.updateSelectedSession(sessionID);
         });
+
+        // this.toggleAllRows();
       },
       (error) => {
         console.error('Error fetching messages', error);
@@ -92,9 +103,13 @@ export class SessionTableComponent implements OnInit {
   }
 
   onCheckboxClicked(row: any): void {
-    this.selection.toggle(row);
+    // this.selection.toggle(row);
+    this.selection.select(row);
     const sessionID = row.SessionID;
-    this.dataService.updateSelectedSession(sessionID);
+    this.sessionIDsToSendToDataService.push(sessionID);
+    this.dataService.updateSelectedSessionsByList(
+      this.sessionIDsToSendToDataService
+    );
   }
 
   isAllSelected() {
@@ -106,10 +121,10 @@ export class SessionTableComponent implements OnInit {
   toggleAllRows() {
     if (this.isAllSelected()) {
       // If all sessions are selected from before, clear selection
-      this.selection.clear();
-      this.sessionIDList.forEach((sessionID) => {
+      this.selection.selected.forEach((sessionID) => {
         this.dataService.updateSelectedSession(sessionID); // Update data service to reflect deselection
       });
+      this.selection.clear();
     } else {
       // If not all are selected, select the ones that are not selected
       this.dataSource.data.forEach((row) => {

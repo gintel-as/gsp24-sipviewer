@@ -54,6 +54,11 @@ export class DataService {
     this.selectedSessionIDs.next(this.sessionIDs);
   }
 
+  updateSelectedSessionsByList(sessionIDList: string[]) {
+    this.sessionIDs = sessionIDList;
+    this.selectedSessionIDs.next(this.sessionIDs);
+  }
+
   //Sets new messageID as selected in subject
   selectNewMessageByID(selectedID: string) {
     this.currentSelectedMessageIDSource.next(selectedID);

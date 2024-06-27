@@ -297,6 +297,6 @@ export class SequenceDiagramComponent implements AfterViewInit {
       .attr('markerUnit', 'useSpaceOnUse')
       .attr('d', 'M 0 0 L 10 5 L 0 10 z');
 
-    this.selectMessage(messages[0]);
+    // this.selectMessage(messages[0]);
   }
 }
