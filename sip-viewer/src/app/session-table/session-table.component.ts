@@ -30,11 +30,11 @@ export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
   sessionIDList: string[] = [];
   sessionIDsToSendToDataService: string[] = [];
-  senders: string[] = []; // from: sender of the first message in the session (phone number)
-  receivers: string[] = []; // to: receiver of the first message in the session (phone number)
-  times: string[] = []; // time of first INVITE in the session
+  senders: string[] = [];
+  receivers: string[] = [];
+  times: string[] = [];
   tableData: any[] = []; //List of dictionaries which represent a session
-  columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver']; // Columns of the table
+  columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver'];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
   selection = new SelectionModel<any>(true, []); // Selected sessions
 
@@ -53,15 +53,10 @@ export class SessionTableComponent implements AfterViewInit {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
         this.tableData = []; // Empty the table to avoid duplicate copies of the sessions
-        // this.selection.selected.forEach((message) => {
-        //   if (message && message.startLine) {
-        //     this.dataService.updateSelectedSession(message.startLine.sessionID);
-        //   }
-        // });
         this.selection.clear(); // Set all sessions as not selected
 
         // Extract unique session IDs and add time, session ID, sender and receiver to lists
-        const sessionIDs = new Set<string>(); // Use set to store unique session IDs
+        const sessionIDs = new Set<string>();
         const phoneNumberPattern = /<sip:?(\+?\d+)@/;
         messages.forEach((message) => {
           if (!sessionIDs.has(message.startLine.sessionID)) {
@@ -92,8 +87,6 @@ export class SessionTableComponent implements AfterViewInit {
         this.sessionIDsToSendToDataService = this.sessionIDList;
         this.dataSource.data.forEach((row) => {
           this.selection.select(row);
-          // const sessionID = row.SessionID;
-          // this.dataService.updateSelectedSession(sessionID);
         });
       },
       (error) => {
@@ -115,7 +108,6 @@ export class SessionTableComponent implements AfterViewInit {
       this.sessionIDsToSendToDataService
     );
     if (this.sessionIDsToSendToDataService.length === 0) {
-      // toggle header checkbox
       this.headerCheckbox.toggle();
       this.selection.clear();
     }
@@ -150,9 +142,10 @@ export class SessionTableComponent implements AfterViewInit {
         }
       });
     }
+    // Update data service to reflect selection
     this.dataService.updateSelectedSessionsByList(
       this.sessionIDsToSendToDataService
-    ); // Update data service to reflect selection
+    );
   }
 
   checkboxLabel(row?: any): string {
