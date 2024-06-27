@@ -7,6 +7,7 @@ import { SIPViewerComponent } from './sip-viewer/sip-viewer.component';
 import { FlowChartComponent } from './flow-chart/flow-chart.component';
 import { MessageDetailComponent } from './message-detail/message-detail.component';
 import { SessionTableComponent } from './session-table/session-table.component';
+import { FileUploadComponent } from './file-upload/file-upload.component';
 // Import material design
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -21,6 +22,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     FlowChartComponent,
     MessageDetailComponent,
     SessionTableComponent,
+    FileUploadComponent,
     MatToolbarModule,
     DragDropModule,
   ],

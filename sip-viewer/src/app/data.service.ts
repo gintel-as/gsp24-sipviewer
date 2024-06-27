@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { Message } from './message';
 import { Session } from './session';
+import { json } from 'd3';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +19,7 @@ export class DataService {
   private keyEventSource = new Subject<string>();
 
   constructor(private http: HttpClient) {
-    this.fetchMessages();
+    // this.fetchMessages();
 
     //Add listener to ineract with keyEvent subject
     const detectArrowUpDown = (event: KeyboardEvent) => {
@@ -53,6 +54,11 @@ export class DataService {
     this.selectedSessionIDs.next(this.sessionIDs);
   }
 
+  updateSelectedSessionsByList(sessionIDList: string[]) {
+    this.sessionIDs = sessionIDList;
+    this.selectedSessionIDs.next(this.sessionIDs);
+  }
+
   //Sets new messageID as selected in subject
   selectNewMessageByID(selectedID: string) {
     this.currentSelectedMessageIDSource.next(selectedID);
@@ -64,20 +70,20 @@ export class DataService {
   }
 
   //Fetches from http, should only be called by constructor
-  fetchMessages(): void {
-    this.http
-      .get<Message[]>('assets/adapter_bct.log.json')
-      .pipe(
-        map((data) => {
-          return data.map((message) => {
-            message.startLine.time = new Date(message.startLine.time);
-            return message;
-          });
-        }),
-        tap((data) => this.messages.next(data))
-      )
-      .subscribe();
-  }
+  // fetchMessages(): void {
+  //   this.http
+  //     .get<Message[]>('assets/adapter_bct.log.json')
+  //     .pipe(
+  //       map((data) => {
+  //         return data.map((message) => {
+  //           message.startLine.time = new Date(message.startLine.time);
+  //           return message;
+  //         });
+  //       }),
+  //       tap((data) => this.messages.next(data))
+  //     )
+  //     .subscribe();
+  // }
 
   getMessageByID(messageID: string): Observable<Message | undefined> {
     return this.getMessages().pipe(
@@ -105,5 +111,20 @@ export class DataService {
         messages.filter((message) => message.startLine.sessionID === sessionID)
       )
     );
+  }
+
+  // Upload JSON
+  uploadFileContent(fileContent: string) {
+    try {
+      const parsedJson = JSON.parse(fileContent);
+      const formattedMessages = parsedJson.map((message: Message) => {
+        message.startLine.time = new Date(message.startLine.time);
+        return message;
+      });
+      this.messages.next(formattedMessages);
+      console.log('File content received and stored: ', formattedMessages);
+    } catch (error) {
+      console.error('Error parsing or processing file content', error);
+    }
   }
 }
