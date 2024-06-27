@@ -58,12 +58,26 @@ export class SessionTableComponent implements OnInit {
             // Only add sender, receiver and time if it is the first message with this sessionID
             this.times.push(message.startLine.time);
             sessionIDs.add(message.startLine.sessionID);
-            const matchSender =
-              message.sipHeader['From'][0].match(phoneNumberPattern); // Keep only the phone number
-            this.senders.push(matchSender[1]);
-            const matchReceiver =
-              message.sipHeader['To'][0].match(phoneNumberPattern); // Keep only the phone number
-            this.receivers.push(matchReceiver[1]);
+            let matchSender = '';
+            try {
+              matchSender =
+                message.sipHeader['From'][0].match(phoneNumberPattern); // Keep only the phone number
+              this.senders.push(matchSender[1]);
+            } catch {
+              matchSender = message.sipHeader['From'][0];
+              this.senders.push('Not Found');
+              console.log(1, matchSender, message.sipHeader['From'][0]);
+            }
+            let matchReceiver = '';
+            try {
+              matchReceiver =
+                message.sipHeader['To'][0].match(phoneNumberPattern); // Keep only the phone number
+              this.receivers.push(matchReceiver[1]);
+            } catch {
+              matchReceiver = message.sipHeader['To'][0];
+              this.receivers.push(matchReceiver);
+              console.log(2, matchReceiver);
+            }
 
             // Create new dictionary and add it to tableData
             let newDict: { [key: string]: any } = {};

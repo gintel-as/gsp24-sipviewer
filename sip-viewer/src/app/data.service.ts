@@ -66,7 +66,7 @@ export class DataService {
   //Fetches from http, should only be called by constructor
   fetchMessages(): void {
     this.http
-      .get<Message[]>('assets/adapter_bct.log.json')
+      .get<Message[]>('assets/adapter.log.2024-06-17-12.log copy.json')
       .pipe(
         map((data) => {
           return data.map((message) => {
