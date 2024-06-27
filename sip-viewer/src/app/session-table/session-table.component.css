@@ -34,3 +34,10 @@
   top: 64px;
   z-index: 100;
 }
+
+.column-max-width {
+  max-width: 20em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
