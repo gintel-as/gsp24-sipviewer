@@ -20,6 +20,7 @@
     <ng-container matColumnDef="Select">
       <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox
+          #headerCheckbox
           (change)="$event ? toggleAllRows() : null"
           [checked]="selection.hasValue() && isAllSelected()"
           [indeterminate]="selection.hasValue() && !isAllSelected()"
