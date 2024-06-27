@@ -1,5 +1,5 @@
 import { NgFor } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { DataService } from '../data.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -26,7 +26,7 @@ import { SelectionModel } from '@angular/cdk/collections';
   templateUrl: './session-table.component.html',
   styleUrl: './session-table.component.css',
 })
-export class SessionTableComponent implements OnInit {
+export class SessionTableComponent implements AfterViewInit {
   sessionIDList: string[] = [];
   sessionIDsToSendToDataService: string[] = [];
   senders: string[] = []; // from: sender of the first message in the session (phone number)
@@ -44,7 +44,7 @@ export class SessionTableComponent implements OnInit {
 
   constructor(private dataService: DataService) {}
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.fetchSessions();
   }
 
@@ -52,11 +52,11 @@ export class SessionTableComponent implements OnInit {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
         this.tableData = []; // Empty the table to avoid duplicate copies of the sessions
-        this.selection.selected.forEach((message) => {
-          if (message && message.startLine) {
-            this.dataService.updateSelectedSession(message.startLine.sessionID);
-          }
-        });
+        // this.selection.selected.forEach((message) => {
+        //   if (message && message.startLine) {
+        //     this.dataService.updateSelectedSession(message.startLine.sessionID);
+        //   }
+        // });
         this.selection.clear(); // Set all sessions as not selected
 
         // Extract unique session IDs and add time, session ID, sender and receiver to lists
@@ -88,6 +88,7 @@ export class SessionTableComponent implements OnInit {
 
         // Select all sessions when the application is started
         this.dataService.updateSelectedSessionsByList(this.sessionIDList);
+        this.sessionIDsToSendToDataService = this.sessionIDList;
         this.dataSource.data.forEach((row) => {
           this.selection.select(row);
           // const sessionID = row.SessionID;
@@ -104,12 +105,22 @@ export class SessionTableComponent implements OnInit {
 
   onCheckboxClicked(row: any): void {
     // this.selection.toggle(row);
+    console.log(1, this.sessionIDsToSendToDataService);
     this.selection.select(row);
     const sessionID = row.SessionID;
-    this.sessionIDsToSendToDataService.push(sessionID);
+    if (this.sessionIDsToSendToDataService.indexOf(sessionID) !== -1) {
+      console.log('removed ', sessionID);
+      let index = this.sessionIDsToSendToDataService.indexOf(sessionID);
+      // this.sessionIDsToSendToDataService =
+      this.sessionIDsToSendToDataService.splice(index, 1);
+    } else {
+      console.log('addded ', sessionID);
+      this.sessionIDsToSendToDataService.push(sessionID);
+    }
     this.dataService.updateSelectedSessionsByList(
       this.sessionIDsToSendToDataService
     );
+    console.log(2, this.sessionIDsToSendToDataService);
   }
 
   isAllSelected() {
