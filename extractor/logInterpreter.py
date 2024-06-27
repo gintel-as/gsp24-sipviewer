@@ -138,18 +138,20 @@ class LogInterpreter:
     def createJsonPacketsFromExtractedHeaders(self, startLines, headers): 
         jsonPackets = []
         for i in range(len(startLines)):
-            time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
-            method, sipContent, body = self.extractHeader(headers[i])
-            jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
-            jsonPackets.append(jsonPct)
-            # try:
-            #     time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
-            #     method, sipContent, body = self.extractHeader(headers[i])
-            #     jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
-            #     jsonPackets.append(jsonPct)
-            # except Exception as e:
-            #     print("Packet not included due to error")
-            #     print(e)
+            #### Ideally maybe keep the code below, not try catch, however try/catch is very functional but does not communicate ### 
+
+            # time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
+            # method, sipContent, body = self.extractHeader(headers[i])
+            # jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
+            # jsonPackets.append(jsonPct)
+            try:
+                time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
+                method, sipContent, body = self.extractHeader(headers[i])
+                jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
+                jsonPackets.append(jsonPct)
+            except Exception as e:
+                print("Packet not included due to error")
+                print(e)
             
             
         return json.dumps(jsonPackets, indent=2)
