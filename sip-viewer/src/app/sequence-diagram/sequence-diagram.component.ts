@@ -1,9 +1,9 @@
-import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { DataService } from '../data.service';
 import * as d3 from 'd3';
 import Utils from './utils';
 import { DiagramMessage } from '../diagram-message';
-import { from, max, tap } from 'rxjs';
+import { tap } from 'rxjs';
 
 type messageIndexDict = { [key: number]: string };
 type sessionDict = { [key: string]: string };
@@ -15,12 +15,13 @@ type sessionDict = { [key: string]: string };
   templateUrl: './sequence-diagram.component.html',
   styleUrl: './sequence-diagram.component.css',
 })
-export class SequenceDiagramComponent implements AfterViewInit {
+export class SequenceDiagramComponent {
   controlsOn: boolean = false;
   @ViewChild('sequenceDiagram', { static: false })
   diagram!: ElementRef;
   @ViewChild('diagramLabels', { static: false })
   diagramLabels!: ElementRef;
+  private markedMessageId: string = '';
   private selectedPacketIndex: number = 0;
   private messageIndexDict: messageIndexDict = {};
   private arrowStyles: string[] = Utils.getArrowStyles();
@@ -71,6 +72,7 @@ export class SequenceDiagramComponent implements AfterViewInit {
   }
 
   markSelectedMessage(messageID: string): void {
+    this.markedMessageId = messageID;
     d3.select('#selected-message').attr('id', '');
     d3.select('#selected-message-text').attr('id', '');
     d3.select(`[message-id="${messageID}"`).attr('id', 'selected-message');
@@ -109,6 +111,20 @@ export class SequenceDiagramComponent implements AfterViewInit {
     this.selectedPacketIndex = msg.index;
   }
 
+  indexOfPreviouslySelectedMessageOrFirst(): number {
+    //Potentially remove this to always stay on first packet
+    if (this.selectedPacketIndex == 0) {
+      return 0;
+    }
+    let index = Object.values(this.messageIndexDict).indexOf(
+      this.markedMessageId
+    );
+    if (index == -1) {
+      return 0;
+    }
+    return index;
+  }
+
   onKeyUpDown(keyEvent: string) {
     let maxIndex = Object.keys(this.messageIndexDict).length;
     if (keyEvent === 'ArrowUp') {
@@ -135,26 +151,18 @@ export class SequenceDiagramComponent implements AfterViewInit {
     }, this.messageIndexDict);
   }
 
-  ngAfterViewInit(): void {
-    // Utils.importCombined(this.dataService.getMessages())
-    //   .pipe(
-    //     tap((data) =>
-    //       this.drawSequenceDiagram(data.diagramMessages, data.participants)
-    //     )
-    //   )
-    //   .subscribe();
-  }
-
   private drawSequenceDiagram(
     messages: DiagramMessage[],
     participants: string[]
   ): void {
     let ch = 'Call Handling';
-    participants.splice(1, 0, ch);
+    if (participants.length !== 0) {
+      participants.splice(1, 0, ch);
+    }
     let spaceForTime = 180;
     const svgWidth = Math.max(500, 200 * participants.length + spaceForTime);
-    const svgHeight = Math.max(500, 50 + 40 * messages.length);
-
+    const messageSpaceFromTop = 40;
+    const svgHeight = 40 * messages.length + messageSpaceFromTop;
     this.setMessageIndexToIDDictionary(messages);
 
     //Clear elements for blank canvas
@@ -184,11 +192,10 @@ export class SequenceDiagramComponent implements AfterViewInit {
       .range([spaceForTime, svgWidth])
       .padding(0.5);
 
-    const messageSeparator = Math.min(svgHeight, messages.length * 40);
     const yScale = d3
       .scaleLinear()
       .domain([0, messages.length])
-      .range([50, messageSeparator]);
+      .range([messageSpaceFromTop, svgHeight]);
 
     // Draw participant lines
     svg
@@ -297,6 +304,10 @@ export class SequenceDiagramComponent implements AfterViewInit {
       .attr('markerUnit', 'useSpaceOnUse')
       .attr('d', 'M 0 0 L 10 5 L 0 10 z');
 
-    this.selectMessage(messages[0]);
+    //Obtain index of message to mark, and select it after having drawn diagram
+    if (messages.length !== 0) {
+      let indexToMark = this.indexOfPreviouslySelectedMessageOrFirst();
+      this.selectMessage(messages[indexToMark]);
+    }
   }
 }
