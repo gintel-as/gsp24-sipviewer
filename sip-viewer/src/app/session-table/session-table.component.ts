@@ -131,18 +131,41 @@ export class SessionTableComponent implements AfterViewInit {
 
   toggleAllRows() {
     if (this.isAllSelected()) {
+      console.log('Remove all selection');
+      console.log('Session IDs before: ', this.sessionIDsToSendToDataService);
       // If all sessions are selected from before, clear selection
-      this.selection.selected.forEach((sessionID) => {
-        this.dataService.updateSelectedSession(sessionID); // Update data service to reflect deselection
-      });
+      this.sessionIDsToSendToDataService = [];
+      console.log('Session IDs after: ', this.sessionIDsToSendToDataService);
+      this.dataService.updateSelectedSessionsByList(
+        this.sessionIDsToSendToDataService
+      ); // Update data service to reflect deselection
       this.selection.clear();
-    } else {
-      // If not all are selected, select the ones that are not selected
+    }
+    // If no sessions are selected, select all
+    else if (this.selection.isEmpty()) {
+      console.log('Select all sessions');
+      console.log('Session IDs before: ', this.sessionIDsToSendToDataService);
+      this.dataSource.data.forEach((row) => {
+        this.selection.select(row);
+        this.sessionIDsToSendToDataService.push(row['SessionID']);
+        // this.selection.toggle(row);
+      });
+      console.log('Session IDs after: ', this.sessionIDsToSendToDataService);
+      this.dataService.updateSelectedSessionsByList(
+        this.sessionIDsToSendToDataService
+      );
+    }
+    // If not all are selected, select the ones that are not selected
+    else {
+      console.log('Select all unselected sessions');
       this.dataSource.data.forEach((row) => {
         if (!this.selection.isSelected(row)) {
           this.selection.select(row);
           const sessionID = row['SessionID'];
-          this.dataService.updateSelectedSession(sessionID); // Update data service to reflect selection
+          this.sessionIDsToSendToDataService.push(sessionID);
+          this.dataService.updateSelectedSessionsByList(
+            this.sessionIDsToSendToDataService
+          ); // Update data service to reflect selection
         }
       });
     }
