@@ -1,5 +1,10 @@
-.spacer {
-  flex: 1 1 auto;
+.file-upload-container {
+  display: flex;
+  align-items: center;
+}
+
+.file-upload-container p {
+  margin-right: 16px; /* Adjust the spacing as needed */
 }
 
 .file-input {
@@ -8,4 +13,5 @@
 
 .file-name-style {
   font-size: 14px;
+  margin: 0;
 }

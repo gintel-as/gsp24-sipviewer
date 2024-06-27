@@ -1,22 +1,14 @@
-<!-- <span class="spacer"></span> -->
-
 <div>
   <input type="file" (change)="onJsonFileSelected($event)" hidden #fileInput />
-  <button mat-raised-button color="primary" (click)="fileInput.click()">
-    Upload JSON
-  </button>
-  <p *ngIf="fileName" class="file-name-style">Selected File: {{ fileName }}</p>
-
-  <!-- <input
-    type="file"
-    (change)="onFileToConvertSelected($event)"
-    hidden
-    #fileInput
-  />
-  <button mat-raised-button color="primary" (click)="fileInput.click()">
-    Convert log to JSON
-  </button>
-  <p *ngIf="fileName" class="file-name-style">
-    This file will be converted: {{ fileName }}
-  </p> -->
+  <div class="file-upload-container">
+    <div *ngIf="!fileName">
+      <p class="file-name-style">No file selected</p>
+    </div>
+    <div *ngIf="fileName">
+      <p class="file-name-style">Selected File: {{ fileName }}</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="fileInput.click()">
+      Upload JSON
+    </button>
+  </div>
 </div>
