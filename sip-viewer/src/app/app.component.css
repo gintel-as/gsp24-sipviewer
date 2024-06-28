@@ -11,7 +11,10 @@ mat-toolbar {
 }
 
 
-
+.logo {
+  height: 40px; /* Adjust the height as needed */
+  margin-right: 16px; /* Space between the logo and the title */
+}
 
 
 
