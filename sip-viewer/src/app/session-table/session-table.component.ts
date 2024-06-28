@@ -63,19 +63,33 @@ export class SessionTableComponent implements AfterViewInit {
             // Only add sender, receiver and time if it is the first message with this sessionID
             this.times.push(message.startLine.time);
             sessionIDs.add(message.startLine.sessionID);
-            const matchSender =
-              message.sipHeader['From'][0].match(phoneNumberPattern); // Keep only the phone number
-            this.senders.push(matchSender[1]);
-            const matchReceiver =
-              message.sipHeader['To'][0].match(phoneNumberPattern); // Keep only the phone number
-            this.receivers.push(matchReceiver[1]);
+            let msgSender = 'Not Found';
+            let msgReciever = 'Not Found';
+            try {
+              msgSender =
+                message.sipHeader['From'][0].match(phoneNumberPattern)[1]; // Keep only the phone number
+              msgReciever =
+                message.sipHeader['To'][0].match(phoneNumberPattern)[1]; // Keep only the phone number
+            } catch {
+              try {
+                msgSender = message.sipHeader['From'][0];
+                msgReciever = message.sipHeader['To'][0];
+              } catch {
+                console.log(
+                  'Error with fetching sender/reciever from: ',
+                  message.sipHeader
+                );
+              }
+            }
+            this.senders.push(msgSender);
+            this.receivers.push(msgReciever);
 
             // Create new dictionary and add it to tableData
             let newDict: { [key: string]: any } = {};
             newDict['Time'] = message.startLine.time;
             newDict['SessionID'] = message.startLine.sessionID;
-            newDict['Sender'] = matchSender[1];
-            newDict['Receiver'] = matchReceiver[1];
+            newDict['Sender'] = msgSender;
+            newDict['Receiver'] = msgReciever;
             this.tableData.push(newDict);
           }
         });
