@@ -46,13 +46,10 @@
   </mat-toolbar>
 
   <div class="content">
-    <div *ngIf="messageIDList.length > 0">
-      <ul id="list">
-        <li *ngFor="let result of resultList" class="list-item">
-          {{ result }}
-        </li>
-      </ul>
-    </div>
-    <div *ngIf="messageIDList.length <= 0"></div>
+    <ul id="list">
+      <li *ngFor="let result of resultList" class="list-item">
+        {{ result }}
+      </li>
+    </ul>
   </div>
 </div>
