@@ -1,7 +1,9 @@
 <mat-toolbar>
   <mat-toolbar-row>
-    <span>SIP Viewer</span>
+    <span class="style-font">SIP Viewer</span>
     <span class="spacer"></span>
+    <button mat-raised-button (click)="toggleTheme()">Change theme</button>
+    <router-outlet></router-outlet>
     <app-file-upload></app-file-upload>
   </mat-toolbar-row>
 </mat-toolbar>

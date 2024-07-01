@@ -1,0 +1,26 @@
+/* Import the Angular Material theme */
+@use '@angular/material' as mat;
+// @import "src/m3-theme.scss";
+@use 'src/m3-theme.scss' as *;
+// @import "./app/sequence-diagram/svg-styles.css";
+@include mat.all-component-themes($light-theme);
+
+.dark-theme {
+  @include mat.all-component-themes($dark-theme)
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Prevent scrolling */
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
