@@ -10,6 +10,11 @@ mat-toolbar {
   flex: 1 1 auto;
 }
 
+.logo {
+  height: 40px; /* Adjust the height as needed */
+  margin-right: 16px; /* Space between the logo and the title */
+}
+
 .main-container {
   display: flex;
   height: calc(100vh - 64px); /* Adjust height to account for toolbar */
@@ -47,15 +52,13 @@ mat-toolbar {
 }
 
 .resizable-div-top {
-  /* background-color: lightblue; */
-  background-color: white;
+  background-color: lightgrey;
   overflow: auto;
   white-space: nowrap;
 }
 
 .resizable-div-bottom {
-  /* background-color: lightgreen; */
-  background-color: white;
+  background-color: lightgrey;
   flex: 1;
   /* Remember to remove overflow auto since the child div of this resizable-div-bottom should scrool */
   overflow: auto;

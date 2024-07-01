@@ -11,10 +11,9 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 // Import material design
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-// Imports for theme
+import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonModule } from '@angular/material/button';
+import { MatIconRegistry } from '@angular/material/icon';
 
 @Component({
   selector: 'app-root',
@@ -30,14 +29,21 @@ import { MatButtonModule } from '@angular/material/button';
     MatToolbarModule,
     DragDropModule,
     MatIconModule,
-    MatDividerModule,
-    MatButtonModule,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  title = 'SIP Graphical Viewer';
+  // Supposed to render svg logo, but does not work
+  constructor(
+    private matIconRegistry: MatIconRegistry,
+    private domSanitizer: DomSanitizer
+  ) {
+    this.matIconRegistry.addSvgIcon(
+      'gintel',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('gintel-logo-main.svg')
+    );
+  }
 
   resizing = false;
   horizontalResize = false;
@@ -50,8 +56,6 @@ export class AppComponent {
   initialHeight = 0;
   initialY = 0;
   topHeight = 0;
-
-  isLightTheme = true;
 
   ngOnInit() {
     this.topHeight = window.innerHeight * 0.5;
@@ -89,17 +93,4 @@ export class AppComponent {
     this.horizontalResize = false;
     this.verticalResize = false;
   }
-
-  // Dette funker ikke:
-  //   toggleTheme() {
-  //     console.log(this.isDarkTheme);
-  //     this.isLightTheme = !this.isLightTheme;
-  //     const body = document.body;
-  //     if (this.isDarkTheme) {
-  //       body.classList.add('dark-theme');
-  //     } else {
-  //       body.classList.remove('dark-theme');
-  //     }
-  //     console.log(this.isDarkTheme);
-  //   }
 }

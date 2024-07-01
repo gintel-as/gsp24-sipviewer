@@ -27,9 +27,8 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "@angular/material/prebuilt-themes/azure-blue.css",
-              "@angular/material/prebuilt-themes/cyan-orange.css"
+              "@angular/material/prebuilt-themes/rose-red.css",
+              "src/styles.css"
             ],
             "scripts": []
           },

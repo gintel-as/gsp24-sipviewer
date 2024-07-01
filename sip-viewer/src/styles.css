@@ -1,7 +1,6 @@
 /* Import the Angular Material theme */
-@import "@angular/material/prebuilt-themes/cyan-orange.css";
-@import "@angular/material/prebuilt-themes/azure-blue.css";
 @import "./app/sequence-diagram/svg-styles.css";
+@import "@angular/material/prebuilt-themes/rose-red.css";
 html,
 body {
   margin: 0;
