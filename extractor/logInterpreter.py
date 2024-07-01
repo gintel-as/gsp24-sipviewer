@@ -40,13 +40,16 @@ class LogInterpreter:
     def extractHeader(self, header):
         sipHeader, bodyElements = self.separateHeaderAndBody(header)
         sipContent = defaultdict(list)
-        pattern = r'(^[A-Za-z0-9.-]+): (.*)'
+        pattern = r'^([A-Za-z0-9.-]+)(?:\s*(sip:|:)\s*)(.*)$'
         sipContent["Header"].append(sipHeader[0])
         for i in range(1,len(sipHeader)):
             x = sipHeader[i]
             if x != "":
-                match = re.match(pattern, x)
-                sipContent[match.group(1)].append(match.group(2))
+                try:
+                    match = re.match(pattern, x)
+                    sipContent[match.group(1)].append(match.group(3))
+                except:
+                    sipContent['Unreadable Line'].append(x)
         method = self.findStartLine(sipContent, header)
         return method, sipContent, bodyElements  
 
@@ -114,13 +117,15 @@ class LogInterpreter:
     
     
     def interpretStartLineString(self, startLineString):
-        pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d+) .* id=([A-Fa-f0-9]+) (to|from) (\w+)'
+        pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d+|NoRefNo) .* id=([A-Fa-f0-9]+) (to|from) (\w+)'
         match = re.match(pattern, startLineString)
         timestamp = match.group(1)
         sessionId = match.group(2)
         messageId = match.group(3)
         direction = match.group(4)
         party = match.group(5)
+        if party == "NULL":
+            party = 'Not Identified'
         return timestamp, sessionId, messageId, direction, party
 
     def createJsonPacket(self, time, sessionID, messageID, direction, party, method, sipContent, body):
@@ -133,10 +138,22 @@ class LogInterpreter:
     def createJsonPacketsFromExtractedHeaders(self, startLines, headers): 
         jsonPackets = []
         for i in range(len(startLines)):
-            time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
-            method, sipContent, body = self.extractHeader(headers[i])
-            jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
-            jsonPackets.append(jsonPct)
+            #### Ideally maybe keep the code below, not try catch, however try/catch is very functional but does not communicate ### 
+
+            # time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
+            # method, sipContent, body = self.extractHeader(headers[i])
+            # jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
+            # jsonPackets.append(jsonPct)
+            try:
+                time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
+                method, sipContent, body = self.extractHeader(headers[i])
+                jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
+                jsonPackets.append(jsonPct)
+            except Exception as e:
+                print("Packet not included due to error")
+                print(e)
+            
+            
         return json.dumps(jsonPackets, indent=2)
     
     def writeJsonFileFromHeaders(self, startLines, headers, filePath):

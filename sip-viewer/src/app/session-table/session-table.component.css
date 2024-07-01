@@ -1,0 +1,43 @@
+.table-container {
+  position: relative;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  /* background-color: black; */
+  z-index: 100;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.filter-bar {
+  position: sticky;
+  /* background-color: inherit; */
+  /* display: block; */
+}
+
+.filter-bar input:focus {
+  color: white; /* Text color */
+  outline-color: #ca2f2c; /* Outline */
+  caret-color: white; /* Cursor color */
+}
+
+.filter-bar.mat-focused .mat-form-field-label {
+  color: #ca2f2c !important;
+}
+
+.table-header {
+  position: sticky;
+  top: 64px;
+  z-index: 100;
+}
+
+.column-max-width {
+  max-width: 20em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

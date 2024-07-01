@@ -1,0 +1,17 @@
+.file-upload-container {
+  display: flex;
+  align-items: center;
+}
+
+.file-upload-container p {
+  margin-right: 16px; /* Adjust the spacing as needed */
+}
+
+.file-input {
+  display: none;
+}
+
+.file-name-style {
+  font-size: 14px;
+  margin: 0;
+}

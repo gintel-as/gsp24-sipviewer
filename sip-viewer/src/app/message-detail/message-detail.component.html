@@ -1,0 +1,58 @@
+<!-- To do: make toolbar sticky and not scroll -->
+
+<div class="message-detail-wrapper">
+  <mat-toolbar>
+    <mat-toolbar-row>
+      <span id="packetDetailSpan"> Packet Detail </span>
+      <span class="spacer"></span>
+      <div *ngIf="messageIDList.length > 0">
+        <span id="packetNumber">
+          {{ packetIndex + 1 }} of {{ messageIDList.length }}
+        </span>
+      </div>
+      <div *ngIf="messageIDList.length <= 0">
+        <span id="packetNumber"> {{ 0 }} of {{ 0 }} </span>
+      </div>
+
+      <button
+        mat-icon-button
+        (click)="changePacket('previous')"
+        id="previousButton"
+        matTooltip="Go to the previous packet"
+        aria-label="Button goes to the previous packet"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="changePacket('next')"
+        id="nextButton"
+        matTooltip="Go to the next packet"
+        aria-label="Button goes to the next packet"
+      >
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="copyText()"
+        id="copyPacketButton"
+        [disabled]="messageIDList.length <= 0"
+        matTooltip="Copy packet details"
+        aria-label="Button that copies the text of packet detail"
+      >
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <div class="content">
+    <div *ngIf="messageIDList.length > 0">
+      <ul id="list">
+        <li *ngFor="let result of resultList" class="list-item">
+          {{ result }}
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="messageIDList.length <= 0"></div>
+  </div>
+</div>

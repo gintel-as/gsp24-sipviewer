@@ -1,0 +1,24 @@
+.label-container {
+  position: sticky;
+  top: 0;
+  width: 10000px;
+  background-color: white;
+  height: 40px;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.diagram {
+  position: relative;
+  z-index: 0;
+  /* scroll-margin-top: 40px; Might be needed later, when other stuff is fixed */
+}
+
+.diagram-container {
+  height: 100%;
+  display: flex;
+  flex-flow: nowrap;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
