@@ -1,7 +1,5 @@
 import { Message } from '../message';
-import { DiagramMessage } from '../diagram-message';
 import { Observable, forkJoin, map, take } from 'rxjs';
-import d3, { index } from 'd3';
 import { StartLine } from '../start-line';
 
 export default class Utils {
@@ -50,14 +48,6 @@ export default class Utils {
     }
   }
 
-  //Function to select color based on session string, might need to be moved elsewhere for dynamic logic
-  static selectArrowColor(session: string) {
-    if (session == '304286493') {
-      return 'red';
-    }
-    return 'blue';
-  }
-
   static getDateString(date: Date) {
     return `${date.getFullYear()}-${this.addZeroInFront(
       date.getMonth()
@@ -77,8 +67,8 @@ export default class Utils {
     return `${n}`;
   }
 
-  static getArrowStyles() {
-    return [
+  static getArrowStyles(num: number): string[] {
+    const uniqueStyles: string[] = [
       'colored-line-red', // Solid red
       'colored-line-purple dotted-line-short', // Short dotted purple
       'colored-line-yellow dotted-line-long', // Long dotted yellow
@@ -119,5 +109,22 @@ export default class Utils {
       'colored-line-magenta dotted-line-short', // Short dotted magenta
       'colored-line-green dotted-line-long', // Long dotted green
     ];
+    const returnStyles: string[] = [];
+
+    for (let i = 0; i < num; i++) {
+      returnStyles.push(uniqueStyles[i % uniqueStyles.length]);
+    }
+    return returnStyles;
+  }
+
+  static removeFirstOccurrenceOfStyle(
+    colors: string[],
+    colorToRemove: string
+  ): string[] {
+    const index = colors.indexOf(colorToRemove);
+    if (index !== -1) {
+      colors.splice(index, 1);
+    }
+    return colors;
   }
 }
