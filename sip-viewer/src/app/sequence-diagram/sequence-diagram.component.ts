@@ -172,7 +172,6 @@ export class SequenceDiagramComponent {
       xSpaceForTime =
         20 + messages[messages.length - 1].index.toString().length * 10;
     }
-    console.log(xSpaceForTime);
     this.setMessageIndexToIDDictionary(messages);
 
     //Clear elements for blank canvas
@@ -264,7 +263,7 @@ export class SequenceDiagramComponent {
       //Select style for message based on session
       let classes = this.sessionDict[`${msg.message.startLine.sessionID}`];
 
-      // Draw arrow to Highlight
+      // Draw invisibleline for highlights
       svg
         .append('line')
         .attr('x1', fromX)
@@ -272,12 +271,12 @@ export class SequenceDiagramComponent {
         .attr('y1', y)
         .attr('y2', y)
         .attr('marker-start', '1')
-        .attr('stroke', 'none')
+        .attr('stroke', 'none ')
         .attr('stroke-width', 10)
         .attr('message-id', msg.message.startLine.messageID)
         .on('click', () => this.selectMessage(msg));
 
-      // Draw arrow
+      // Draw arrow-line
       svg
         .append('line')
         .attr('x1', fromX)
@@ -285,9 +284,7 @@ export class SequenceDiagramComponent {
         .attr('y1', y)
         .attr('y2', y)
         .attr('marker-end', 'url(#arrow)')
-        .attr('marker-start', '1')
         .attr('class', `${classes} arrow-line`)
-        .attr('message-id', msg.message.startLine.messageID)
         .on('click', () => this.selectMessage(msg));
 
       // Draw message text

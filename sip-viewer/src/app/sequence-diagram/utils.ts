@@ -57,7 +57,9 @@ export default class Utils {
   static getTimeString(date: Date) {
     return `${this.addZeroInFront(date.getHours())}:${this.addZeroInFront(
       date.getMinutes()
-    )}:${this.addZeroInFront(date.getSeconds())}.${date.getMilliseconds()}`;
+    )}:${this.addZeroInFront(
+      date.getSeconds()
+    )}.${this.addZeroBehindForThreeDigits(date.getMilliseconds())}`;
   }
 
   static addZeroInFront(n: number) {
@@ -65,6 +67,17 @@ export default class Utils {
       return `0${n}`;
     }
     return `${n}`;
+  }
+
+  //Potentially remove later, as this will "fake" a three digit millisecond timestamp
+  static addZeroBehindForThreeDigits(n: number) {
+    if (n < 10) {
+      return n * 100;
+    }
+    if (n < 100) {
+      return n * 10;
+    }
+    return n;
   }
 
   static getArrowStyles(num: number): string[] {
