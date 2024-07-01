@@ -164,14 +164,17 @@ export class SequenceDiagramComponent {
       participants.splice(1, 0, ch);
     }
     const spaceForTime = 180;
-    const svgWidth = Math.max(500, 200 * participants.length + spaceForTime);
+
     const messageSpaceFromTop = 40;
     const svgHeight = 40 * messages.length + messageSpaceFromTop;
-    let xSpaceForTime = 0;
+    let xSpaceForIndex = 0;
     if (messages.length !== 0) {
-      xSpaceForTime =
+      xSpaceForIndex =
         20 + messages[messages.length - 1].index.toString().length * 10;
     }
+
+    const svgWidth = 200 * participants.length + spaceForTime + xSpaceForIndex;
+
     this.setMessageIndexToIDDictionary(messages);
 
     //Clear elements for blank canvas
@@ -248,9 +251,7 @@ export class SequenceDiagramComponent {
         directionOffset = -5;
       }
       const y = yScale(msg.index);
-      //Potentially change/remove labelSpace? Currently hard coded to 80px, but should probably be made flexible
-      // let labelSpace = msg.index.toString().length * 5 + 2;
-      let labelX = spaceForTime + xSpaceForTime; //80 here is labelSpace
+      let labelX = spaceForTime + xSpaceForIndex;
       let textLine = msg.message.startLine.method;
 
       //Add 'SDP' to each line with content length > 0, if no content length attr catch error
