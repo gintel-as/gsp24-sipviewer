@@ -71,6 +71,10 @@
   stroke: #f2b400;
 }
 
+#selected-message-timestamp {
+  stroke: #f2b400;
+}
+
 /* ToDo make arrowhead color separated by */
 #arrow {
   fill: black;
