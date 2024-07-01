@@ -61,7 +61,7 @@ export class SessionTableComponent implements AfterViewInit {
 
         // Extract unique session IDs and add time, session ID, sender and receiver to lists
         const sessionIDs = new Set<string>();
-        const phoneNumberPattern = /<sip:?(\+?\d+)@/; // Kunne det være annet type nummer?
+        const phoneNumberPattern = /<sip:?(\+?\d+)@/;
         messages.forEach((message) => {
           if (!sessionIDs.has(message.startLine.sessionID)) {
             // Only add sender, receiver and time if it is the first message with this sessionID
@@ -124,7 +124,7 @@ export class SessionTableComponent implements AfterViewInit {
     const selectedSessions = this.getSelectedSessions();
     if (selectedSessions.includes(row)) {
       this.selection.deselect(row);
-    } else if (!selectedSessions.includes(row)) {
+    } else {
       this.selection.select(row);
     }
     this.dataService.updateSelectedSessionsByList(this.getSelectedSessions());
