@@ -24,16 +24,17 @@
           (change)="$event ? toggleAllRows() : null"
           [checked]="selection.hasValue() && isAllSelected()"
           [indeterminate]="selection.hasValue() && !isAllSelected()"
-          [aria-label]="checkboxLabel()"
+          labelPosition="before"
         >
         </mat-checkbox>
       </th>
       <td mat-cell *matCellDef="let row">
         <mat-checkbox
-          (click)="$event.stopPropagation(); onCheckboxClicked(row)"
+          (click)="onCheckboxClicked(row)"
           [checked]="selection.isSelected(row)"
           [aria-label]="checkboxLabel(row)"
         >
+          <!-- Originally on click: "$event.stopPropagation(); onCheckboxClicked(row)" -->
         </mat-checkbox>
       </td>
     </ng-container>
