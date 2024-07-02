@@ -58,7 +58,7 @@ export class SequenceDiagramComponent {
       if (!oldSessionIDs.includes(sessionID)) {
         newSessionDict[sessionID] = styles.shift() ?? 'colored-line-orange';
       } else {
-        //Keep previous style of uncahnged sessions, but remove one occurence of the style
+        //Keep previous style of unchanged sessions, but remove one occurence of the style
         newSessionDict[sessionID] = this.sessionDict[sessionID];
         styles = Utils.removeFirstOccurrenceOfStyle(
           styles,
@@ -71,9 +71,11 @@ export class SequenceDiagramComponent {
 
   markSelectedMessage(messageID: string): void {
     this.markedMessageId = messageID;
+    //Select ID's marking the selected messages, and remove it from previously selected messages
     d3.select('#selected-message').attr('id', '');
     d3.select('#selected-message-text').attr('id', '');
     d3.select('#selected-message-timestamp').attr('id', '');
+    //Find new message to select and mark it with selected ID for styling
     d3.select(`[message-id="${messageID}"`).attr('id', 'selected-message');
     d3.select(`[message-text-id="${messageID}"`).attr(
       'id',
