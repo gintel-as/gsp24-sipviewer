@@ -5,15 +5,20 @@ class LogExtractor:
     def __init__(self, inputFile) -> None:
         self.inputFile = inputFile
         self.startLine = []
-        self.headerBody = []
+        self.header = []
+        self.body = []
     
 
     def getStartLine(self):
         return self.startLine
 
 
-    def getHeaderBody(self):
-        return self.headerBody
+    def getHeader(self):
+        return self.header
+    
+
+    def getBody(self):
+        return self.body
 
 
     def readLog(self):
@@ -60,38 +65,60 @@ class LogExtractor:
 
     def filterStandard(self, lines):
         tempLines = []
-
+        headerBodyTemp = []
+        headerTemp = []
+        bodyTemp = []
+        
         # Filter for or.sip.gen.SipLogMgr
         for line in lines:
             if 'or.sip.gen.SipLogMgr' in line:
                 tempLines.append(line)
         lines = tempLines
-        tempLines = []
+        # tempLines = []
 
         # Separates startLine from rest of SIP packet
         for line in lines:
             parts = line.split('<CR>', 1)
             self.startLine.append(parts[0])
-            self.headerBody.append(parts[1])
+            headerBodyTemp.append(parts[1])
 
-        # Removes <LF><CR> from SIP packet
-        for line in self.headerBody:
+        # Divides headerBody into separate arrays
+        for line in headerBodyTemp:
+            parts = line.split('<LF><CR><LF><CR>', 1)
+            self.header.append(parts[0])
+            self.body.append(parts[1])
+
+        # Removes <LF><CR> from header
+        for line in self.header:
             line = line.strip().split('<LF><CR>')
-            tempLines.append(line)
+            headerTemp.append(line)
+            
+        self.header = headerTemp
 
-        self.headerBody = tempLines
+        # Removes <LF><CR> from body
+        for line in self.body:
+            line = line.strip().split('<LF><CR>')
+            bodyTemp.append(line)
+
+        self.body = bodyTemp
+
 
 
 if __name__ == "__main__":
     logPath = "./logs"
 
-    logExtractor = LogExtractor( logPath + "/" + "1.adapter.log", "output.log")
-    # logExtractor = LogExtractor( logPath + "/" + "1.adapter copy.log", "output.log")
-    # logExtractor = LogExtractor( logPath + "/" + "1.adapter.windows.log", "output.log")
+    logExtractor = LogExtractor( logPath + "/" + "fjernDenne.log")
+    # logExtractor = LogExtractor( logPath + "/" + "1.adapter.log")
+    # logExtractor = LogExtractor( logPath + "/" + "1.adapter copy.log")
+    # logExtractor = LogExtractor( logPath + "/" + "1.adapter.windows.log")
 
     logExtractor.readLog()
 
     print(len(logExtractor.getStartLine()))
     print(logExtractor.getStartLine())
-    print(len(logExtractor.getHeaderBody()))
-    print(logExtractor.getHeaderBody())
+    print()
+    print(len(logExtractor.getHeader()))
+    print(logExtractor.getHeader())
+    print()
+    print(len(logExtractor.getBody()))
+    print(logExtractor.getBody())
