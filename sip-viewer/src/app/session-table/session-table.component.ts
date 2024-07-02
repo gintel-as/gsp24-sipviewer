@@ -114,10 +114,8 @@ export class SessionTableComponent implements AfterViewInit {
 
         // Select all sessions when the application is started
         this.selection.select(...this.dataSource.data);
-        const sessionIDsToPush: string[] = this.getSelectedSessions().map(
-          (dict) => dict.SessionID
-        );
-        this.dataService.updateSelectedSessionsByList(sessionIDsToPush);
+        this.dataService.updateSelectedSessionsByList(this.updatedSessions());
+        console.log('Selected sessions: ', this.selection.selected);
       },
       (error) => {
         console.error('Error fetching messages', error);
@@ -133,17 +131,27 @@ export class SessionTableComponent implements AfterViewInit {
     return selectedSessions;
   }
 
+  updatedSessions(): string[] {
+    const selectedSessions: SessionDict[] = [];
+    this.selection.selected.forEach((session) => {
+      selectedSessions.push(session);
+    });
+    const sessionIDsToPush: string[] = selectedSessions.map(
+      (dict) => dict.SessionID
+    );
+    return sessionIDsToPush;
+  }
+
   onCheckboxClicked(row: any): void {
     const selectedSessions = this.getSelectedSessions();
     if (selectedSessions.includes(row)) {
       this.selection.deselect(row);
+      console.log('Selected sessions: ', this.selection.selected);
     } else {
       this.selection.select(row);
+      console.log('Selected sessions: ', this.selection.selected);
     }
-    const sessionIDsToPush: string[] = this.getSelectedSessions().map(
-      (dict) => dict.SessionID
-    );
-    this.dataService.updateSelectedSessionsByList(sessionIDsToPush);
+    this.dataService.updateSelectedSessionsByList(this.updatedSessions());
   }
 
   isAllSelected() {
@@ -155,9 +163,13 @@ export class SessionTableComponent implements AfterViewInit {
   toggleAllRows() {
     if (this.isAllSelected()) {
       this.selection.clear();
+      this.dataService.updateSelectedSessionsByList(this.updatedSessions());
+      console.log('Selected sessions: ', this.selection.selected);
       return;
     }
     this.selection.select(...this.dataSource.data);
+    this.dataService.updateSelectedSessionsByList(this.updatedSessions());
+    console.log('Selected sessions: ', this.selection.selected);
   }
 
   checkboxLabel(row?: any): string {
