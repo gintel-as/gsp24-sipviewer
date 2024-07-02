@@ -124,9 +124,12 @@ class LogInterpreter:
         messageId = match.group(3)
         direction = match.group(4)
         party = match.group(5)
+        invalidSessionId = False
         if party == "NULL":
             party = 'Not Identified'
-        return timestamp, sessionId, messageId, direction, party
+        if sessionId == "NoRefNo":
+            invalidSessionId = True
+        return timestamp, sessionId, messageId, direction, party, invalidSessionId
 
     def createJsonPacket(self, time, sessionID, messageID, direction, party, method, sipContent, body):
         startLineDict = self.createStartLineDict(time, sessionID, messageID, direction, party, method)
@@ -137,6 +140,8 @@ class LogInterpreter:
     
     def createJsonPacketsFromExtractedHeaders(self, startLines, headers): 
         jsonPackets = []
+        invalidSessionPackets = {}
+        print("Len, JsonPackets = ", len(startLines))
         for i in range(len(startLines)):
             #### Ideally maybe keep the code below, not try catch, however try/catch is very functional but does not communicate ### 
 
@@ -145,14 +150,24 @@ class LogInterpreter:
             # jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
             # jsonPackets.append(jsonPct)
             try:
-                time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
+                time, sessionID, messageID, direction, party, invalidSessionID = self.interpretStartLineString(startLines[i])
                 method, sipContent, body = self.extractHeader(headers[i])
                 jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
                 jsonPackets.append(jsonPct)
+                if invalidSessionID:
+                    invalidSessionPackets[i] = [time, sessionID, messageID, direction, party, method, sipContent, body]
             except Exception as e:
                 print("Packet not included due to error")
                 print(e)
-            
+        for i in invalidSessionPackets.keys():
+            # Set
+            time, sessionID, messageID, direction, party, method, sipContent, body = invalidSessionPackets[i]
+            #Find correct session ID, let sessionID = correct sessionID
+            jsonPct = jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
+            #Replace packet with fixed packet
+            jsonPackets[i] = ["Hello", "Bai"]
+        for packet in jsonPackets:
+            print(packet,[0])
             
         return json.dumps(jsonPackets, indent=2)
     
