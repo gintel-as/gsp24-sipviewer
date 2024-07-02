@@ -115,7 +115,6 @@ export class SessionTableComponent implements AfterViewInit {
         // Select all sessions when the application is started
         this.selection.select(...this.dataSource.data);
         this.dataService.updateSelectedSessionsByList(this.updatedSessions());
-        console.log('Selected sessions: ', this.selection.selected);
       },
       (error) => {
         console.error('Error fetching messages', error);
@@ -146,10 +145,8 @@ export class SessionTableComponent implements AfterViewInit {
     const selectedSessions = this.getSelectedSessions();
     if (selectedSessions.includes(row)) {
       this.selection.deselect(row);
-      console.log('Selected sessions: ', this.selection.selected);
     } else {
       this.selection.select(row);
-      console.log('Selected sessions: ', this.selection.selected);
     }
     this.dataService.updateSelectedSessionsByList(this.updatedSessions());
   }
@@ -164,12 +161,10 @@ export class SessionTableComponent implements AfterViewInit {
     if (this.isAllSelected()) {
       this.selection.clear();
       this.dataService.updateSelectedSessionsByList(this.updatedSessions());
-      console.log('Selected sessions: ', this.selection.selected);
       return;
     }
     this.selection.select(...this.dataSource.data);
     this.dataService.updateSelectedSessionsByList(this.updatedSessions());
-    console.log('Selected sessions: ', this.selection.selected);
   }
 
   checkboxLabel(row?: any): string {
