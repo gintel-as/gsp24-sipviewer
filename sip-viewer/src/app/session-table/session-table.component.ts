@@ -10,6 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 
+interface SessionDict {
+  Time: string;
+  SessionID: string;
+  Sender: string;
+  Receiver: string;
+}
+
 @Component({
   selector: 'app-session-table',
   standalone: true,
@@ -89,7 +96,12 @@ export class SessionTableComponent implements AfterViewInit {
             this.receivers.push(msgReciever);
 
             // Create new dictionary and add it to tableData
-            let newDict: { [key: string]: any } = {};
+            let newDict: SessionDict = {
+              Time: '',
+              SessionID: '',
+              Sender: '',
+              Receiver: '',
+            };
             newDict['Time'] = message.startLine.time;
             newDict['SessionID'] = message.startLine.sessionID;
             newDict['Sender'] = msgSender;
@@ -102,9 +114,10 @@ export class SessionTableComponent implements AfterViewInit {
 
         // Select all sessions when the application is started
         this.selection.select(...this.dataSource.data);
-        this.dataService.updateSelectedSessionsByList(
-          this.getSelectedSessions()
+        const sessionIDsToPush: string[] = this.getSelectedSessions().map(
+          (dict) => dict.SessionID
         );
+        this.dataService.updateSelectedSessionsByList(sessionIDsToPush);
       },
       (error) => {
         console.error('Error fetching messages', error);
@@ -112,8 +125,8 @@ export class SessionTableComponent implements AfterViewInit {
     );
   }
 
-  getSelectedSessions(): any {
-    const selectedSessions: any[] = [];
+  getSelectedSessions(): SessionDict[] {
+    const selectedSessions: SessionDict[] = [];
     this.selection.selected.forEach((session) => {
       selectedSessions.push(session);
     });
@@ -127,7 +140,10 @@ export class SessionTableComponent implements AfterViewInit {
     } else {
       this.selection.select(row);
     }
-    this.dataService.updateSelectedSessionsByList(this.getSelectedSessions());
+    const sessionIDsToPush: string[] = this.getSelectedSessions().map(
+      (dict) => dict.SessionID
+    );
+    this.dataService.updateSelectedSessionsByList(sessionIDsToPush);
   }
 
   isAllSelected() {
