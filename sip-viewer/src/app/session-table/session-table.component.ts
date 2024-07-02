@@ -1,5 +1,5 @@
 import { NgFor } from '@angular/common';
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { DataService } from '../data.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -28,14 +28,17 @@ import { SelectionModel } from '@angular/cdk/collections';
 })
 export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
+
+  // Fetching data and creating table
   sessionIDList: string[] = [];
-  sessionIDsToSendToDataService: string[] = [];
   senders: string[] = [];
   receivers: string[] = [];
   times: string[] = [];
   tableData: any[] = []; //List of dictionaries which represent a session
   columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver'];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
+
+  // For checkboxes
   selection = new SelectionModel<any>(true, []); // Selected sessions
 
   applyFilter(event: Event) {
@@ -52,8 +55,9 @@ export class SessionTableComponent implements AfterViewInit {
   fetchSessions(): void {
     this.dataService.getMessages().subscribe(
       (messages: any[]) => {
-        this.tableData = []; // Empty the table to avoid duplicate copies of the sessions
-        this.selection.clear(); // Set all sessions as not selected
+        // Empty table and deselect sessions to avoid duplicates when uploading new file
+        this.tableData = [];
+        this.selection.clear();
 
         // Extract unique session IDs and add time, session ID, sender and receiver to lists
         const sessionIDs = new Set<string>();
@@ -97,11 +101,10 @@ export class SessionTableComponent implements AfterViewInit {
         this.dataSource = new MatTableDataSource(this.tableData);
 
         // Select all sessions when the application is started
-        this.dataService.updateSelectedSessionsByList(this.sessionIDList);
-        this.sessionIDsToSendToDataService = this.sessionIDList;
-        this.dataSource.data.forEach((row) => {
-          this.selection.select(row);
-        });
+        this.selection.select(...this.dataSource.data);
+        this.dataService.updateSelectedSessionsByList(
+          this.getSelectedSessions()
+        );
       },
       (error) => {
         console.error('Error fetching messages', error);
@@ -109,22 +112,22 @@ export class SessionTableComponent implements AfterViewInit {
     );
   }
 
+  getSelectedSessions(): any {
+    const selectedSessions: any[] = [];
+    this.selection.selected.forEach((session) => {
+      selectedSessions.push(session.SessionID);
+    });
+    return selectedSessions;
+  }
+
   onCheckboxClicked(row: any): void {
-    this.selection.select(row);
-    const sessionID = row.SessionID;
-    if (this.sessionIDsToSendToDataService.indexOf(sessionID) !== -1) {
-      let index = this.sessionIDsToSendToDataService.indexOf(sessionID);
-      this.sessionIDsToSendToDataService.splice(index, 1);
+    const selectedSessions = this.getSelectedSessions();
+    if (selectedSessions.includes(row)) {
+      this.selection.deselect(row);
     } else {
-      this.sessionIDsToSendToDataService.push(sessionID);
+      this.selection.select(row);
     }
-    this.dataService.updateSelectedSessionsByList(
-      this.sessionIDsToSendToDataService
-    );
-    if (this.sessionIDsToSendToDataService.length === 0) {
-      this.headerCheckbox.toggle();
-      this.selection.clear();
-    }
+    this.dataService.updateSelectedSessionsByList(this.getSelectedSessions());
   }
 
   isAllSelected() {
@@ -135,31 +138,10 @@ export class SessionTableComponent implements AfterViewInit {
 
   toggleAllRows() {
     if (this.isAllSelected()) {
-      // If all sessions are selected from before, clear selection
-      this.sessionIDsToSendToDataService = [];
       this.selection.clear();
+      return;
     }
-    // If no sessions are selected, select all
-    else if (this.selection.isEmpty()) {
-      this.dataSource.data.forEach((row) => {
-        this.selection.select(row);
-        this.sessionIDsToSendToDataService.push(row['SessionID']);
-      });
-    }
-    // If not all are selected, select the ones that are not selected
-    else {
-      this.dataSource.data.forEach((row) => {
-        if (!this.selection.isSelected(row)) {
-          this.selection.select(row);
-          const sessionID = row['SessionID'];
-          this.sessionIDsToSendToDataService.push(sessionID);
-        }
-      });
-    }
-    // Update data service to reflect selection
-    this.dataService.updateSelectedSessionsByList(
-      this.sessionIDsToSendToDataService
-    );
+    this.selection.select(...this.dataSource.data);
   }
 
   checkboxLabel(row?: any): string {
