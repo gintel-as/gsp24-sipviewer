@@ -11,7 +11,8 @@ class Main:
         self.destinationPath = destinationPath
         # Extractor variables
         self.startLine = []
-        self.headerBody = []
+        self.header = []
+        self.body = []
         # tempVariables
         self.logInterperterOutput = None
 
@@ -20,7 +21,8 @@ class Main:
         extractor = LogExtractor(input)
         extractor.readLog()
         self.startLine = extractor.getStartLine()
-        self.headerBody = extractor.getHeaderBody()
+        self.header = extractor.getHeader()
+        self.body = extractor.getBody()
 
     def logInterperter(self):
         if self.destinationPath == "":
@@ -30,7 +32,7 @@ class Main:
 
         self.logInterperterOutput = dest + self.inputFile + ".json"
         logInterpreter = LogInterpreter()
-        logInterpreter.writeJsonFileFromHeaders(self.startLine, self.headerBody, self.logInterperterOutput)
+        logInterpreter.writeJsonFileFromHeaders(self.startLine, self.header,self.body, self.logInterperterOutput)
 
     def jsonFilter(self):
         if self.destinationPath == "":
