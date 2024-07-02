@@ -71,6 +71,39 @@
       </td>
     </ng-container>
 
+    <!-- Color Column -->
+    <ng-container matColumnDef="Color">
+      <th mat-header-cell *matHeaderCellDef>Color</th>
+      <!-- <td mat-cell *matCellDef="let element" class="column-max-width">
+        {{ element.Receiver }}
+      </td> -->
+      <mat-form-field>
+        <mat-label>Choose color</mat-label>
+        <mat-select [formControl]="colors" multiple>
+          <mat-select-trigger>
+            {{colors.value?.[0] || ''}}
+            @if ((colors.value?.length || 0) > 1) {
+            <span class="example-additional-selection">
+              (+{{ (colors.value?.length || 0) - 1 }}
+              {{ colors.value?.length === 2 ? "other" : "others" }})
+            </span>
+            }
+          </mat-select-trigger>
+          @for (color of colorList; track color) {
+          <mat-option [value]="color">{{ color }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
+
+    <!-- ArrowStyle Column -->
+    <ng-container matColumnDef="ArrowStyle">
+      <th mat-header-cell *matHeaderCellDef>Arrow style</th>
+      <td mat-cell *matCellDef="let element" class="column-max-width">
+        {{ element.Receiver }}
+      </td>
+    </ng-container>
+
     <tr
       mat-header-row
       *matHeaderRowDef="columnsToDisplay"

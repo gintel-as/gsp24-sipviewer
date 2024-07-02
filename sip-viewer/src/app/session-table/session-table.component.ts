@@ -9,6 +9,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
+import { MatSelectModule, matSelectAnimations } from '@angular/material/select';
+import { FormControl } from '@angular/forms';
 
 interface SessionDict {
   Time: string;
@@ -29,6 +31,7 @@ interface SessionDict {
     MatTooltipModule,
     MatIconModule,
     MatCheckboxModule,
+    MatSelectModule,
   ],
   templateUrl: './session-table.component.html',
   styleUrl: './session-table.component.css',
@@ -42,11 +45,33 @@ export class SessionTableComponent implements AfterViewInit {
   receivers: string[] = [];
   times: string[] = [];
   tableData: any[] = []; //List of dictionaries which represent a session
-  columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver'];
+  columnsToDisplay = [
+    'Select',
+    'Time',
+    'Session ID',
+    'Sender',
+    'Receiver',
+    'Color',
+    'ArrowStyle',
+  ];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
-
-  // For checkboxes
   selection = new SelectionModel<any>(true, []); // Selected sessions
+
+  // Color and arrow style
+  colorList: string[] = [
+    'Red',
+    'Blue',
+    'Green',
+    'Yellow',
+    'Orange',
+    'Purple',
+    'Cyan',
+    'Magenta',
+    'Brown',
+    'Black',
+  ];
+  arrowStyleList: string[] = ['Connected', 'Dotted long', 'Dotted short'];
+  colors = new FormControl('');
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
