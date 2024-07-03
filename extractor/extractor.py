@@ -44,7 +44,7 @@ class LogExtractor:
         else:
             self.filterNonStandard(lines)
         
-        # removes all instances of <CR> and <LF> in arrays
+        # removes all instances of <LF> and <CR> in arrays
         self.header = [
             [self.cleanLogs(item) for item in sub_array if self.cleanLogs(item) is not None]
             for sub_array in self.header
@@ -67,7 +67,7 @@ class LogExtractor:
             if timestampPattern.match(line):    # If line is startline
                 currentHeader = []
                 currentBody = []
-                # stores to global variables
+
                 self.header.append(currentHeader)
                 self.body.append(currentBody)
 
@@ -140,35 +140,13 @@ if __name__ == "__main__":
 
     logExtractor = LogExtractor( logPath + "/" + "standard.log")
     logExtractor.readLog()
-    start1 = logExtractor.getStartLine()
-    header1 = logExtractor.getHeader()
-    body1 = logExtractor.getBody()
 
-    logExtractor = LogExtractor( logPath + "/" + "non-standard.log")
-    logExtractor.readLog()
-    start2 = logExtractor.getStartLine()
-    header2 = logExtractor.getHeader()
-    body2 = logExtractor.getBody()
+    startLine = logExtractor.getStartLine()
+    header = logExtractor.getHeader()
+    body = logExtractor.getBody()
 
-    # if start1 == start2:
-    #     print(True, 'start')
-    # else:
-    #     print(False, 'start')
-
-    # if header1 == header2:
-    #     print(True, 'header')
-    # else:
-    #     print(False, 'header')
-
-    # if body1 == body2:
-    #     print(True, 'body')
-    # else:
-    #     print(False, 'body')
-
-
-    # print()
-    # print(len(header1[0]))
-    # print(header1[0])
-    # print()
-    # print(len(header2[0]))
-    # print(header2[0])
+    print(startLine)
+    print()
+    print(header)
+    print()
+    print(body)
