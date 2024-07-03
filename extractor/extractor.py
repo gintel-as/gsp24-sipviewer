@@ -5,22 +5,32 @@ class LogExtractor:
     def __init__(self, inputFile) -> None:
         self.inputFile = inputFile
         self.startLine = []
-        self.headerBody = []
+        self.header = []
+        self.body = []
     
 
     def getStartLine(self):
         return self.startLine
 
 
-    def getHeaderBody(self):
-        return self.headerBody
+    def getHeader(self):
+        return self.header
+    
+
+    def getBody(self):
+        return self.body
+
+
+    def cleanLogs(self, element):
+        cleaned_element = element.replace('<LF>', '').replace('<CR>', '')
+        return cleaned_element if cleaned_element else None
 
 
     def readLog(self):
         with open(self.inputFile, 'r') as file:
             lines = file.readlines()
 
-        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')    
+        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+')
         isFormatted = True
 
         for line in lines:
@@ -33,65 +43,108 @@ class LogExtractor:
             self.filterStandard(lines)
         else:
             self.filterNonStandard(lines)
+        
+        # removes all instances of <LF> and <CR> in arrays
+        self.header = [
+            [self.cleanLogs(item) for item in sub_array if self.cleanLogs(item) is not None]
+            for sub_array in self.header
+        ]
+        self.body = [
+            [self.cleanLogs(item) for item in sub_array if self.cleanLogs(item) is not None]
+            for sub_array in self.body
+        ]
 
-
+    # non-standard logs does not have a timestamp on every line
     def filterNonStandard(self, lines):
-        # pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}.*?or.sip.gen.SipLogMgr.*?\n')
-        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
-
-        reading = False # When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
-        currentEntry = []
+        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+')
+        startLine = False
+        content = False
+        body = False
+        currentHeader = []
+        currentBody = []
 
         for line in lines:
-            if timestampPattern.match(line):
-                if 'or.sip.gen.SipLogMgr' in line:  # Find startLine for SIP packet
-                    reading = True
-                    self.startLine.append(line.strip())
-                else:  
-                    reading = False
+            if timestampPattern.match(line):    # If line is startline
+                currentHeader = []
+                currentBody = []
 
-                    if currentEntry:   # if array not empty
-                        self.headerBody.append(currentEntry)
-                    currentEntry = []
+                self.header.append(currentHeader)
+                self.body.append(currentBody)
 
-            if reading and not 'or.sip.gen.SipLogMgr' in line:
-                    currentEntry.append(line.strip())   # appends to headerBody in next loop if there are entries
+                startLine = True
+                content = False
+                body = False
+            else:                               # If line is content (header and body)
+                startLine = False
+                content = True
 
+                if line == '\n':                # checks if line is body
+                    body = True
+            
+            # append lines to temp arrays
+            if startLine:
+                self.startLine.append(line.strip())                
 
+            if content:
+                if body:    
+                    currentBody.append(line.strip())
+                else:
+                    currentHeader.append(line.strip())
+
+    # stadard logs have a timestamp on every line
     def filterStandard(self, lines):
         tempLines = []
-
+        headerBodyTemp = []
+        headerTemp = []
+        bodyTemp = []
+        
         # Filter for or.sip.gen.SipLogMgr
         for line in lines:
             if 'or.sip.gen.SipLogMgr' in line:
                 tempLines.append(line)
         lines = tempLines
-        tempLines = []
 
         # Separates startLine from rest of SIP packet
         for line in lines:
             parts = line.split('<CR>', 1)
             self.startLine.append(parts[0])
-            self.headerBody.append(parts[1])
+            
+            headerBodyTemp.append(parts[1])
 
-        # Removes <LF><CR> from SIP packet
-        for line in self.headerBody:
+        # Divides headerBody into separate arrays
+        for line in headerBodyTemp:
+            parts = line.split('<LF><CR><LF><CR>', 1)
+            self.header.append(parts[0])
+            self.body.append(parts[1])
+
+        # Removes <LF><CR> from header
+        for line in self.header:
             line = line.strip().split('<LF><CR>')
-            tempLines.append(line)
+            headerTemp.append(line)
+            
+        self.header = headerTemp
 
-        self.headerBody = tempLines
+        # Removes <LF><CR> from body
+        for line in self.body:
+            line = line.strip().split('<LF><CR>')
+            bodyTemp.append(line)
+
+        self.body = bodyTemp
+
 
 
 if __name__ == "__main__":
     logPath = "./logs"
 
-    logExtractor = LogExtractor( logPath + "/" + "1.adapter.log", "output.log")
-    # logExtractor = LogExtractor( logPath + "/" + "1.adapter copy.log", "output.log")
-    # logExtractor = LogExtractor( logPath + "/" + "1.adapter.windows.log", "output.log")
-
+    logExtractor = LogExtractor( logPath + "/" + "standard.log")
     logExtractor.readLog()
 
-    print(len(logExtractor.getStartLine()))
-    print(logExtractor.getStartLine())
-    print(len(logExtractor.getHeaderBody()))
-    print(logExtractor.getHeaderBody())
+    startLine = logExtractor.getStartLine()
+    header = logExtractor.getHeader()
+    body = logExtractor.getBody()
+
+    print(startLine)
+    print()
+    print(header)
+    print()
+    print(body)
