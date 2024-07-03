@@ -5,28 +5,29 @@
 .toolbar {
   position: sticky;
   top: 0;
-  /* background-color: black; */
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .spacer {
-  flex: 1 1 auto;
+  flex: 1;
 }
 
-.filter-bar {
-  position: sticky;
-  /* background-color: inherit; */
-  /* display: block; */
+.toolbar-checkbox {
+  margin-right: 16 px;
+  /* flex: 1 1 auto; */
+}
+
+.toolbar-filter {
+  margin-left: 16 px;
+  /* flex: 1; */
 }
 
 .filter-bar input:focus {
-  color: white; /* Text color */
-  outline-color: #ca2f2c; /* Outline */
-  caret-color: white; /* Cursor color */
-}
-
-.filter-bar.mat-focused .mat-form-field-label {
-  color: #ca2f2c !important;
+  color: black; /* Text color */
+  caret-color: black; /* Cursor color */
 }
 
 .table-header {
