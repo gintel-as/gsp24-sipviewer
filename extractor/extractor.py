@@ -41,26 +41,47 @@ class LogExtractor:
 
 
     def filterNonStandard(self, lines):
-        # pattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}.*?or.sip.gen.SipLogMgr.*?\n')
-        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}')
+        timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+')
 
-        reading = False # When a line is following a line with timestamp and SipLogMgr, needs to be added to the list of entries
-        currentEntry = []
+        # boolean for reading
+        startLine = False
+        content = False
+        body = False
+        currentStartLine = []
+        currentHeader = []
+        currentBody = []
 
         for line in lines:
-            if timestampPattern.match(line):
-                if 'or.sip.gen.SipLogMgr' in line:  # Find startLine for SIP packet
-                    reading = True
-                    self.startLine.append(line.strip())
-                else:  
-                    reading = False
+            if timestampPattern.match(line):    # If line is startline
+                # empties temp arrays
+                currentStartLine = []
+                currentHeader = []
+                currentBody = []
+                # stores to global variables
+                self.startLine.append(currentStartLine)
+                self.header.append(currentHeader)
+                self.body.append(currentBody)
 
-                    if currentEntry:   # if array not empty
-                        self.headerBody.append(currentEntry)
-                    currentEntry = []
+                startLine = True
+                content = False
+                body = False
+            else:                               # If line is content (header and body)
+                startLine = False
+                content = True
 
-            if reading and not 'or.sip.gen.SipLogMgr' in line:
-                    currentEntry.append(line.strip())   # appends to headerBody in next loop if there are entries
+                if line == '\n':                # checks if line is body
+                    body = True
+            
+            # append lines to temp arrays
+            if startLine:
+                currentStartLine.append(line.strip())
+            if content:
+                if body:    
+                    currentBody.append(line.strip())
+                else:
+                    currentHeader.append(line.strip())
+
+
 
 
     def filterStandard(self, lines):
@@ -114,11 +135,17 @@ if __name__ == "__main__":
 
     logExtractor.readLog()
 
+    print()
+    print()
+    print()
+    
+    x = 1
+
     print(len(logExtractor.getStartLine()))
-    print(logExtractor.getStartLine())
+    print(logExtractor.getStartLine()[x])
     print()
     print(len(logExtractor.getHeader()))
-    print(logExtractor.getHeader())
+    print(logExtractor.getHeader()[x])
     print()
     print(len(logExtractor.getBody()))
-    print(logExtractor.getBody())
+    print(logExtractor.getBody()[x])
