@@ -54,7 +54,7 @@ class LogExtractor:
             for sub_array in self.body
         ]
 
-
+    # non-standard logs does not have a timestamp on every line
     def filterNonStandard(self, lines):
         timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+')
         startLine = False
@@ -83,7 +83,6 @@ class LogExtractor:
             
             # append lines to temp arrays
             if startLine:
-                # currentStartLine.append(line.strip())
                 self.startLine.append(line.strip())                
 
             if content:
@@ -92,7 +91,7 @@ class LogExtractor:
                 else:
                     currentHeader.append(line.strip())
 
-
+    # stadard logs have a timestamp on every line
     def filterStandard(self, lines):
         tempLines = []
         headerBodyTemp = []
@@ -104,7 +103,6 @@ class LogExtractor:
             if 'or.sip.gen.SipLogMgr' in line:
                 tempLines.append(line)
         lines = tempLines
-        # tempLines = []
 
         # Separates startLine from rest of SIP packet
         for line in lines:
