@@ -308,7 +308,7 @@ export class SequenceDiagramComponent {
         .attr('class', 'side-details')
         .attr('message-timestamp-id', msg.message.startLine.messageID)
         .text(
-          `${msg.index}: ${Utils.getDateString(msg.message.startLine.time)}`
+          `${msg.index + 1}: ${Utils.getDateString(msg.message.startLine.time)}`
         )
         .on('click', () => this.selectMessage(msg));
     });
@@ -332,6 +332,10 @@ export class SequenceDiagramComponent {
     if (messages.length !== 0) {
       let indexToMark = this.indexOfPreviouslySelectedMessageOrFirst();
       this.selectMessage(messages[indexToMark]);
+    } else {
+      //Reset marking values to default if messages is empty
+      this.markedMessageId = '';
+      this.selectedPacketIndex = 0;
     }
   }
 }
