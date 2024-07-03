@@ -3,12 +3,20 @@
     <mat-toolbar-row>
       <span id="sessionIDSpan">Session IDs </span>
       <span class="spacer"></span>
-      <mat-form-field class="filter-bar" subscriptSizing="dynamic">
+      <td>
+        <mat-checkbox
+          (click)="$event.stopPropagation(); onRelationsCheckboxClicked()"
+          [checked]="relationsActivated"
+        >
+          Choose all related sessions
+        </mat-checkbox>
+      </td>
+      <mat-form-field subscriptSizing="dynamic">
         <mat-label>Filter</mat-label>
         <input
           matInput
           (keyup)="applyFilter($event)"
-          placeholder="Filter by ex. session ID"
+          placeholder="Filter by ex. session id="
           #input
         />
       </mat-form-field>
@@ -80,7 +88,7 @@
 
     <!-- Row shown when there is no matching data. -->
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="4">
+      <td class="mat-cell" colspan="4" *ngIf="filterActive">
         No data matching the filter "{{ input.value }}"
       </td>
     </tr>
