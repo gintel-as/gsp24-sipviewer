@@ -20,15 +20,11 @@ class LogExtractor:
     def getBody(self):
         return self.body
 
-    def formatLogs(self):
-        # self.startLine = [string for string in self.startLine if string]
-        # self.header = [string for string in self.header if string]
-        # self.body = [string for string in self.body if string]
-        # self.startLine = [[item for item in sub_array if item != ''] for sub_array in self.startLine]
-        # self.header = [[item for item in sub_array if item != ''] for sub_array in self.header]
-        self.body = [[item for item in sub_array if item != ''] for sub_array in self.body]
-        print()
-        # Add code that removes any instance of <LF> and <CR>
+
+    def cleanLogs(self, element):
+        cleaned_element = element.replace('<LF>', '').replace('<CR>', '')
+        return cleaned_element if cleaned_element else None
+
 
     def readLog(self):
         with open(self.inputFile, 'r') as file:
@@ -48,7 +44,16 @@ class LogExtractor:
         else:
             self.filterNonStandard(lines)
         
-        self.formatLogs()
+        # removes all instances of <CR> and <LF> in arrays
+        self.header = [
+            [self.cleanLogs(item) for item in sub_array if self.cleanLogs(item) is not None]
+            for sub_array in self.header
+        ]
+        self.body = [
+            [self.cleanLogs(item) for item in sub_array if self.cleanLogs(item) is not None]
+            for sub_array in self.body
+        ]
+
 
     def filterNonStandard(self, lines):
         timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+')
@@ -133,24 +138,6 @@ class LogExtractor:
 if __name__ == "__main__":
     logPath = "./logs"
 
-    # logExtractor = LogExtractor( logPath + "/" + "standard.log")
-    # logExtractor = LogExtractor( logPath + "/" + "1.adapter.log")
-    # logExtractor = LogExtractor( logPath + "/" + "1.adapter copy.log")
-    # logExtractor = LogExtractor( logPath + "/" + "1.adapter.windows.log")
-
-    # logExtractor.readLog()
-
-    # x = 1
-    # print(len(logExtractor.getStartLine()))
-    # print(logExtractor.getStartLine()[x])
-    # print()
-    # print(len(logExtractor.getHeader()))
-    # print(logExtractor.getHeader()[x])
-    # print()
-    # print(len(logExtractor.getBody()))
-    # print(logExtractor.getBody()[x])
-
-
     logExtractor = LogExtractor( logPath + "/" + "standard.log")
     logExtractor.readLog()
     start1 = logExtractor.getStartLine()
@@ -163,17 +150,25 @@ if __name__ == "__main__":
     header2 = logExtractor.getHeader()
     body2 = logExtractor.getBody()
 
-    if start1 == start2:
-        print(True, 'start')
-    else:
-        print(False, 'start')
+    # if start1 == start2:
+    #     print(True, 'start')
+    # else:
+    #     print(False, 'start')
 
-    if header1 == header2:
-        print(True, 'header')
-    else:
-        print(False, 'header')
+    # if header1 == header2:
+    #     print(True, 'header')
+    # else:
+    #     print(False, 'header')
 
-    if body1 == body2:
-        print(True, 'body')
-    else:
-        print(False, 'body')
+    # if body1 == body2:
+    #     print(True, 'body')
+    # else:
+    #     print(False, 'body')
+
+
+    # print()
+    # print(len(header1[0]))
+    # print(header1[0])
+    # print()
+    # print(len(header2[0]))
+    # print(header2[0])
