@@ -15,14 +15,8 @@
   flex: 1;
 }
 
-.toolbar-checkbox {
-  margin-right: 16 px;
-  /* flex: 1 1 auto; */
-}
-
-.toolbar-filter {
-  margin-left: 16 px;
-  /* flex: 1; */
+mat-checkbox {
+  margin-right: 20px;
 }
 
 .filter-bar input:focus {
