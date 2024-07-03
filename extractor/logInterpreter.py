@@ -16,6 +16,8 @@ class LogInterpreter:
         }
         return startLineDict
     
+
+    
     def createSipHeaderDict(self, method, sipTo, sipFrom, content):
         sipHeaderDict = {
             "method": method,
@@ -25,11 +27,13 @@ class LogInterpreter:
         }
         return sipHeaderDict
     
+
     def createBodyDict(self, content):
         bodyDict = {
             "content": content
         }
         return bodyDict
+
 
     def createPacketDict(self, startLineDict, sipHeaderDict, bodyDict):
         packetDict = {
@@ -38,7 +42,8 @@ class LogInterpreter:
             "body": bodyDict 
         }
         return packetDict
-    
+
+
     def extractHeader(self, sipHeader):
         sipContent = defaultdict(list)
         pattern = r'^([A-Za-z0-9.-]+)(?:\s*(sip:|:)\s*)(.*)$'
@@ -75,8 +80,6 @@ class LogInterpreter:
             method = method + ' (' + startLineCseq + ')'
             return method
            
-            
-
         # If message is request, remove excess information
         elif startLineEntry.endswith('SIP/2.0'):
             requestPattern = r'^(ACK|PRACK|INVITE|BYE|CANCEL|UPDATE|INFO|SUBSCRIBE|NOTIFY|REFER|MESSAGE|OPTIONS|PUBLISH|REGISTER) .*'
@@ -86,37 +89,6 @@ class LogInterpreter:
                 return method 
 
 
-
-    # Separate SIP header and body when body exsist
-    # def separateHeaderAndBody(self, header):
-    #     contentLength = None
-    #     bodyExists = False
-    #     for x in header:
-    #         if x.startswith("Content-Length:"):
-    #             contentLength = x
-
-    #     _, numberStr = contentLength.split(":")
-    #     contentLengthValue = int(numberStr)
-    #     if contentLengthValue > 0:
-    #         bodyExists = True
-
-    #     pattern = r'^[A-Za-z0-9.-]+: .*'
-
-    #     sipHeader = []
-    #     bodyElements = []
-    #     if bodyExists:
-    #         sipHeader.append(header.pop(0))
-    #         for x in header:
-    #             if re.match(pattern, x):
-    #                 sipHeader.append(x)
-    #             else:
-    #                 bodyElements.append(x)
-    #     else:
-    #         sipHeader = header
-
-    #     return sipHeader, bodyElements
-    
-    
     def interpretStartLineString(self, startLineString):
         pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d+|NoRefNo) .* id=([A-Fa-f0-9]+) (to|from) (\w+)'
         match = re.match(pattern, startLineString)
@@ -136,6 +108,7 @@ class LogInterpreter:
         packetDict = self.createPacketDict(startLineDict, sipHeaderDict, bodyDict)
         return packetDict
     
+    
     def createJsonPacketsFromExtractedHeaders(self, startLines, headers, body): 
         jsonPackets = []
         for i in range(len(startLines)):
@@ -153,7 +126,6 @@ class LogInterpreter:
             except Exception as e:
                 print("Packet not included due to error")
                 print(e)
-            
             
         return json.dumps(jsonPackets, indent=2)
     
@@ -213,11 +185,14 @@ class LogInterpreter:
         jsonText = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
         f.write(jsonText)
         f.close()
-        
-
 
 
 if __name__ == "__main__":  
     logInterpreter = LogInterpreter()
-    #  filePath = "./json/test.json"
-    # logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath)
+    filePath = "./json/test.json"
+    
+    # Remember to add to the arrays for testing
+    startLines = []
+    headers = []
+    body = []
+    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath)
