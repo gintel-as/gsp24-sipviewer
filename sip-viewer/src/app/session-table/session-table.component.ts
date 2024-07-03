@@ -215,30 +215,23 @@ export class SessionTableComponent implements AfterViewInit {
     let column: string | null = null;
     let searchValue = filterValue;
 
-    if (filterValue.startsWith('time=')) {
-      column = 'Time';
-      searchValue = filterValue.replace('time=', '').trim();
-    } else if (filterValue.startsWith('session id=')) {
-      column = 'SessionID';
-      searchValue = filterValue.replace('session id=', '').trim();
-    } else if (filterValue.startsWith('sender=')) {
-      column = 'Sender';
-      searchValue = filterValue.replace('sender=', '').trim();
-    } else if (filterValue.startsWith('receiver=')) {
-      column = 'Receiver';
-      searchValue = filterValue.replace('receiver=', '').trim();
+    const regex = /^(time|session id|sender|receiver)\s*=\s*(.*)$/i;
+    const match = regex.exec(filterValue);
+
+    if (match) {
+      column =
+        match[1].charAt(0).toUpperCase() +
+        match[1].slice(1).replace(/\s+/g, '');
+      searchValue = match[2].trim();
     }
 
     this.filterActive = filterValue.length > 0;
 
     // Set custom filter predicate based on the column
     this.dataSource.filterPredicate = (data: any, filter: string) => {
-      // If column is specified
       if (column) {
         return data[column]?.toString().toLowerCase().includes(filter);
-      }
-      // If column is not specified
-      else {
+      } else {
         return Object.values(data).some((value) => {
           if (typeof value === 'string' || typeof value === 'number') {
             return value.toString().toLowerCase().includes(filter);
