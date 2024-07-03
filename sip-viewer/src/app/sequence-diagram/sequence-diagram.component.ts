@@ -332,6 +332,10 @@ export class SequenceDiagramComponent {
     if (messages.length !== 0) {
       let indexToMark = this.indexOfPreviouslySelectedMessageOrFirst();
       this.selectMessage(messages[indexToMark]);
+    } else {
+      //Reset marking values to default if messages is empty
+      this.markedMessageId = '';
+      this.selectedPacketIndex = 0;
     }
   }
 }
