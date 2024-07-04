@@ -31,6 +31,4 @@ export class FileUploadComponent {
       reader.readAsText(file);
     }
   }
-
-  onFileToConvertSelected(event: Event) {}
 }

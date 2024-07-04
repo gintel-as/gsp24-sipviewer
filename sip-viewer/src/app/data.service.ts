@@ -13,6 +13,9 @@ export class DataService {
   private messages: BehaviorSubject<Message[]> = new BehaviorSubject<Message[]>(
     []
   );
+  private sessions: BehaviorSubject<Session[]> = new BehaviorSubject<Session[]>(
+    []
+  );
   private currentSelectedMessageIDSource = new Subject<string>();
   private selectedSessionIDs = new Subject<string[]>();
   private sessionIDs: string[] = new Array<string>();
@@ -69,6 +72,10 @@ export class DataService {
     return this.messages.asObservable();
   }
 
+  getSessions(): Observable<Session[]> {
+    return this.sessions.asObservable();
+  }
+
   //Fetches from http, should only be called by constructor
   // fetchMessages(): void {
   //   this.http
@@ -117,12 +124,31 @@ export class DataService {
   uploadFileContent(fileContent: string) {
     try {
       const parsedJson = JSON.parse(fileContent);
-      const formattedMessages = parsedJson.map((message: Message) => {
-        message.startLine.time = new Date(message.startLine.time);
-        return message;
+      const formattedSessions = parsedJson.map((session: Session) => {
+        console.log('Check for date format here 1: ', session);
+        session.sessionInfo.time = new Date(session.sessionInfo.time);
+        console.log('Check for date format here 2: ', session);
+        session.messages = session.messages.map((message: Message) => {
+          message.startLine.time = new Date(message.startLine.time);
+          return message;
+        });
+        return session;
       });
-      this.messages.next(formattedMessages);
-      console.log('File content received and stored: ', formattedMessages);
+      this.sessions.next(formattedSessions);
+
+      const allMessages: Message[] = formattedSessions.reduce(
+        (messagesInSession: Message[], session: Session) => {
+          messagesInSession.push(...session.messages);
+          return messagesInSession;
+        },
+        []
+      );
+      allMessages.sort(
+        (a, b) => a.startLine.time.getTime() - b.startLine.time.getTime()
+      );
+      this.messages.next(allMessages);
+      console.log('Messages', allMessages);
+      console.log('File content received and stored: ', formattedSessions);
     } catch (error) {
       console.error('Error parsing or processing file content', error);
     }
