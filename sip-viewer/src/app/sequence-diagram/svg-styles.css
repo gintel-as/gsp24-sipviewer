@@ -63,16 +63,14 @@
 }
 
 /* ToDo add  */
-#selected-message {
+#selected-message,
+#selected-message-text,
+#selected-message-timestamp {
   stroke: #f2b400;
 }
 
 #selected-message-text {
-  stroke: #f2b400;
-}
-
-#selected-message-timestamp {
-  stroke: #f2b400;
+  font-weight: bold;
 }
 
 /* ToDo make arrowhead color separated by */
