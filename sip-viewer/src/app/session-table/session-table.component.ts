@@ -9,7 +9,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
-import { filter } from 'd3';
 import { Session } from '../session';
 
 interface SessionDict {
@@ -39,17 +38,12 @@ interface SessionDict {
 export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
 
-  sessionIDList: string[] = [];
-  from: string[] = [];
-  to: string[] = [];
-  times: string[] = [];
   tableData: any[] = []; //List of dictionaries which represent a session
   columnsToDisplay = ['Select', 'Time', 'Session ID', 'From', 'To'];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
   selection = new SelectionModel<any>(true, []); // Selected sessions
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
-  // relationSelection = new SelectionModel<boolean>(true, []);
 
   constructor(private dataService: DataService) {}
 
@@ -58,21 +52,6 @@ export class SessionTableComponent implements AfterViewInit {
   }
 
   fetchSessions(): void {
-    //   this.dataService.getSessions().subscribe(
-    //     (sessions: Session[]) => {
-    //       // sessions.forEach((session) => {
-    //       // Add session ID to sessionIDList
-    //       // })
-    //       this.tableData = sessions;
-    //       this.dataSource = new MatTableDataSource(this.tableData);
-    //       console.log('Table data: ', this.tableData);
-    //       console.log('Data source: ', this.dataSource);
-    //     },
-    //     (error) => {
-    //       console.error('Error fetching sessions', error);
-    //     }
-    //   );
-    // }
     this.dataService.getSessions().subscribe(
       (sessions: Session[]) => {
         // Empty table and deselect sessions to avoid duplicates when uploading new file
@@ -81,24 +60,20 @@ export class SessionTableComponent implements AfterViewInit {
 
         // Extract unique session IDs and add time, session ID, from and to to lists
         const sessionIDs = new Set<string>();
-        // const phoneNumberPattern = /<sip:?(\+?\d+)@/; // Maybe change this to include more than the digits of the number
         const phoneNumberPattern = /<sip:(\+?\d+)(?=@)/;
         const otherPattern = /<sip:([^>]+)>/;
         sessions.forEach((session) => {
           if (!sessionIDs.has(session.sessionInfo.sessionID)) {
-            // Only add from, to and time if it is the first message with this sessionID
-            // this.times.push(session.sessionInfo.time);
             sessionIDs.add(session.sessionInfo.sessionID);
             let msgFrom = 'Not Found';
             let msgTo = 'Not Found';
             try {
-              // Sender is retrieved from list of senders, how to decide which sender it is??? Is it the first due to sending the first message
               if (session.sessionInfo.from && session.sessionInfo.from[0]) {
                 const matchResult =
                   session.sessionInfo.from[0].match(phoneNumberPattern) ||
                   session.sessionInfo.from[0].match(otherPattern);
                 if (matchResult) {
-                  msgFrom = matchResult[1]; // Keep only the phone number
+                  msgFrom = matchResult[1];
                 }
               }
 
@@ -107,7 +82,7 @@ export class SessionTableComponent implements AfterViewInit {
                   session.sessionInfo.to[0].match(phoneNumberPattern) ||
                   session.sessionInfo.to[0].match(otherPattern);
                 if (matchResult) {
-                  msgTo = matchResult[1]; // Keep only the phone number
+                  msgTo = matchResult[1];
                 }
               }
             } catch {
@@ -121,8 +96,6 @@ export class SessionTableComponent implements AfterViewInit {
                 );
               }
             }
-            this.from.push(msgFrom);
-            this.to.push(msgTo);
 
             // Create new dictionary and add it to tableData
             let newDict: SessionDict = {
@@ -132,7 +105,6 @@ export class SessionTableComponent implements AfterViewInit {
               To: '',
             };
 
-            console.log('Session object to check date', session);
             const date = this.getDateString(session.sessionInfo.time);
             newDict['Time'] = date;
             newDict['SessionID'] = session.sessionInfo.sessionID;
@@ -141,7 +113,6 @@ export class SessionTableComponent implements AfterViewInit {
             this.tableData.push(newDict);
           }
         });
-        this.sessionIDList = Array.from(sessionIDs);
         this.dataSource = new MatTableDataSource(this.tableData);
 
         // Select all sessions when the application is started
