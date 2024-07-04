@@ -174,8 +174,9 @@ export class SequenceDiagramComponent {
       xSpaceForIndex =
         20 + messages[messages.length - 1].index.toString().length * 10;
     }
-
-    const svgWidth = 200 * participants.length + spaceForTime + xSpaceForIndex;
+    const svgDrawWidth =
+      200 * participants.length + spaceForTime + xSpaceForIndex;
+    const svgViewWidth = svgDrawWidth + 4000;
 
     this.setMessageIndexToIDDictionary(messages);
 
@@ -187,7 +188,7 @@ export class SequenceDiagramComponent {
     const svg = d3
       .select(this.diagram.nativeElement)
       .append('svg')
-      .attr('width', svgWidth)
+      .attr('width', svgViewWidth)
       .attr('height', svgHeight)
       .attr('y', 0)
       .attr('id', 'diagramSVG')
@@ -197,13 +198,13 @@ export class SequenceDiagramComponent {
     const svg2 = d3
       .select(this.diagramLabels.nativeElement)
       .append('svg')
-      .attr('width', svgWidth)
+      .attr('width', svgDrawWidth)
       .attr('height', 50);
 
     const xScale = d3
       .scaleBand()
       .domain(participants)
-      .range([spaceForTime, svgWidth])
+      .range([spaceForTime, svgDrawWidth])
       .padding(0.5);
 
     const yScale = d3
@@ -255,6 +256,11 @@ export class SequenceDiagramComponent {
       const y = yScale(msg.index);
       let labelX = spaceForTime + xSpaceForIndex;
       let textLine = msg.message.startLine.method;
+      let rectClass = '';
+      // If even index, set background rectangle class with color background
+      if (msg.index % 2 == 0) {
+        rectClass = 'message-background-line';
+      }
 
       //Add 'SDP' to each line with content length > 0, if no content length attr catch error
       try {
@@ -266,6 +272,16 @@ export class SequenceDiagramComponent {
       //Select style for message based on session
       let classes = this.sessionDict[`${msg.message.startLine.sessionID}`];
 
+      // Draw background rectangle
+      svg
+        .append('rect')
+        .attr('x', 0)
+        .attr('width', svgViewWidth)
+        .attr('y', y - 25)
+        .attr('height', 40)
+        .attr('class', rectClass)
+        .on('click', () => this.selectMessage(msg));
+
       // Draw invisibleline for highlights
       svg
         .append('line')
@@ -273,7 +289,6 @@ export class SequenceDiagramComponent {
         .attr('x2', toX)
         .attr('y1', y)
         .attr('y2', y)
-        .attr('marker-start', '1')
         .attr('stroke', 'none ')
         .attr('stroke-width', 10)
         .attr('message-id', msg.message.startLine.messageID)
