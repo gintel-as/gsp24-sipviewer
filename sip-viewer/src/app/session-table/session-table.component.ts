@@ -68,27 +68,27 @@ export class SessionTableComponent implements AfterViewInit {
             let msgFrom = 'Not Found';
             let msgTo = 'Not Found';
             try {
-              if (session.sessionInfo.from && session.sessionInfo.from[0]) {
+              if (session.sessionInfo.from) {
                 const matchResult =
-                  session.sessionInfo.from[0].match(phoneNumberPattern) ||
-                  session.sessionInfo.from[0].match(otherPattern);
+                  session.sessionInfo.from.match(phoneNumberPattern) ||
+                  session.sessionInfo.from.match(otherPattern);
                 if (matchResult) {
                   msgFrom = matchResult[1];
                 }
               }
 
-              if (session.sessionInfo.to && session.sessionInfo.to[0]) {
+              if (session.sessionInfo.to) {
                 const matchResult =
-                  session.sessionInfo.to[0].match(phoneNumberPattern) ||
-                  session.sessionInfo.to[0].match(otherPattern);
+                  session.sessionInfo.to.match(phoneNumberPattern) ||
+                  session.sessionInfo.to.match(otherPattern);
                 if (matchResult) {
                   msgTo = matchResult[1];
                 }
               }
             } catch {
               try {
-                msgFrom = session.sessionInfo.from[0];
-                msgTo = session.sessionInfo.to[0];
+                msgFrom = session.sessionInfo.from;
+                msgTo = session.sessionInfo.to;
               } catch {
                 console.log(
                   'Error with fetching from/to from: ',
