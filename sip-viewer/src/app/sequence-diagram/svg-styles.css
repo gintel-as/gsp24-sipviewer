@@ -64,12 +64,12 @@
 
 /* ToDo add  */
 #selected-message,
-#selected-message-text,
 #selected-message-timestamp {
   stroke: #f2b400;
 }
 
 #selected-message-text {
+  stroke: black;
   font-weight: bold;
 }
 
