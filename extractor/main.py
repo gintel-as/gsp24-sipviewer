@@ -46,7 +46,8 @@ class Main:
 if __name__ == "__main__":
 
     # input = input()
-    inputFile = "adapter.log.2024-06-17-12.log"
+    inputFile = "adapter-as01.log.2024-07-03-09"
+    # inputFile = "adapter.log.2024-06-17-12.log"
     # inputFile = "1.adapter.windows.log"
     # inputFile = "2.Two-Calls.adapter.log"
     # inputFile = "adapter_BCT.log"
@@ -58,7 +59,8 @@ if __name__ == "__main__":
 
     main.extractor()
     main.logInterperter()
-    main.jsonFilter()
+    # main.jsonFilter()
+    
 
 
     # print(main.preHeader)

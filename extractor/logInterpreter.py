@@ -16,7 +16,6 @@ class LogInterpreter:
         }
         return startLineDict
     
-
     
     def createSipHeaderDict(self, method, sipTo, sipFrom, content):
         sipHeaderDict = {
@@ -112,12 +111,6 @@ class LogInterpreter:
     def createJsonPacketsFromExtractedHeaders(self, startLines, headers, body): 
         jsonPackets = []
         for i in range(len(startLines)):
-            #### Ideally maybe keep the code below, not try catch, however try/catch is very functional but does not communicate ### 
-
-            # time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
-            # method, sipContent, body = self.extractHeader(headers[i])
-            # jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
-            # jsonPackets.append(jsonPct)
             try:
                 time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
                 method, sipContent = self.extractHeader(headers[i])
@@ -146,6 +139,7 @@ class LogInterpreter:
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
         sessionPackets = {}
+        #Iterate over all sessions
         for i in range(len(startLines)):
             try:
                 #Fetch message details
@@ -155,6 +149,8 @@ class LogInterpreter:
                 
                 if sessionID not in sessionPackets.keys():
                     sessionPackets[sessionID] = self.createEmptySessionDict(sessionID, time)
+
+                #Add to SessionInfo if attribtes exsist in message
                 currentSession = sessionPackets[sessionID]
                 currentSession['messages'].append(message)
                 currentSessionInfo = currentSession['sessionInfo']
@@ -176,8 +172,6 @@ class LogInterpreter:
                 print("Packet not included due to error")
                 print(e)
 
-        # print(json.dumps(list(sessionPackets.values()), indent=2))
-        # return sessionPackets
         return json.dumps(list(sessionPackets.values()), indent=2)
     
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath):
