@@ -2,6 +2,11 @@ import json, re
 from collections import defaultdict
 
 class LogInterpreter:
+
+
+    def __init__(self):
+        self.relatedSessionFormatPattern = r'X-Gt(?:-[A-Za-z0-9]+)?-SessionId'
+
     
     def createStartLineDict(self, time, sessionID, messageID, direction, party, method):
         startLineDict = {
@@ -14,7 +19,7 @@ class LogInterpreter:
         }
         return startLineDict
     
-
+    
     def createSipHeaderDict(self, method, sipTo, sipFrom, content):
         sipHeaderDict = {
             "method": method,
@@ -97,39 +102,79 @@ class LogInterpreter:
         if party == "NULL":
             party = 'Not Identified'
         return timestamp, sessionId, messageId, direction, party
+    
 
-
-    def createJsonPacket(self, time, sessionID, messageID, direction, party, method, sipContent, body):
+    def createJsonFormattedMessagePacket(self, time, sessionID, messageID, direction, party, method, sipContent, body):
         startLineDict = self.createStartLineDict(time, sessionID, messageID, direction, party, method)
         sipHeaderDict = dict(sipContent)
         bodyDict = self.createBodyDict(body)
         packetDict = self.createPacketDict(startLineDict, sipHeaderDict, bodyDict)
         return packetDict
-    
-    
-    def createJsonPacketsFromExtractedHeaders(self, startLines, headers, body): 
-        jsonPackets = []
-        for i in range(len(startLines)):
-            #### Ideally maybe keep the code below, not try catch, however try/catch is very functional but does not communicate ### 
 
-            # time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
-            # method, sipContent, body = self.extractHeader(headers[i])
-            # jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body)
-            # jsonPackets.append(jsonPct)
+    
+    def createSessionInfoDict(self, sessionID, time):
+        return {
+            "sessionID": sessionID,
+            "time": time,
+            "sender": [],
+            "reciever": [],
+            "associatedSessions": []
+        }
+    
+    
+    def createEmptySessionDict(self, sessionID, time):
+        return {
+            "sessionInfo": self.createSessionInfoDict( sessionID, time),
+            "messages": []
+        }
+    
+    def checkIfDictKeysContainsRelatedSessions(self, sipHeader):
+        pattern = re.compile(self.relatedSessionFormatPattern)
+        matchingHeaders = [key for key in sipHeader if pattern.search(key)]
+        return matchingHeaders
+    
+
+    def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
+        sessionPackets = {}
+        #Iterate over all sessions
+        for i in range(len(startLines)):
             try:
+                #Fetch message details
                 time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
-                method, sipContent= self.extractHeader(headers[i])
-                jsonPct = self.createJsonPacket(time, sessionID, messageID, direction, party, method, sipContent, body[i])
-                jsonPackets.append(jsonPct)
+                method, sipContent = self.extractHeader(headers[i])
+                message = self.createJsonFormattedMessagePacket(time, sessionID, messageID, direction, party, method, sipContent, body[i])
+                
+                if sessionID not in sessionPackets.keys():
+                    sessionPackets[sessionID] = self.createEmptySessionDict(sessionID, time)
+                associatedSessionIDKeys = self.checkIfDictKeysContainsRelatedSessions(sipContent)
+                #Add to SessionInfo if attribtes exsist in message
+                currentSession = sessionPackets[sessionID]
+                currentSession['messages'].append(message)
+                currentSessionInfo = currentSession['sessionInfo']
+                if sipContent['To']:
+                    for el in sipContent['To']:
+                        if el not in currentSessionInfo['reciever']:
+                             currentSessionInfo['reciever'].append(el)
+                if sipContent['From']:
+                    for el in sipContent['From']:
+                        if el not in currentSessionInfo['sender']:
+                             currentSessionInfo['sender'].append(el)
+                for associatedSessionKey in associatedSessionIDKeys:
+                    relatedSessionIDs = sipContent[associatedSessionKey][0].replace(' ', '').split(',')
+                    for el in relatedSessionIDs:
+                        if el not in currentSessionInfo['associatedSessions']:
+                            currentSessionInfo['associatedSessions'].append(el)
+
             except Exception as e:
                 print("Packet not included due to error")
                 print(e)
-            
-        return json.dumps(jsonPackets, indent=2)
+
+        return json.dumps(list(sessionPackets.values()), indent=2)
+    
     
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath):
         f = open(filePath, "w")
-        jsonText = self.createJsonPacketsFromExtractedHeaders(startLines, headers, body)
+        jsonText = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
         f.write(jsonText)
         f.close()
 
