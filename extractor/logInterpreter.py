@@ -112,19 +112,20 @@ class LogInterpreter:
         return packetDict
 
     
-    def createSessionInfoDict(self, sessionID, time):
+    def createSessionInfoDict(self, sessionID, time, sipTo, sipFrom):
         return {
             "sessionID": sessionID,
             "time": time,
-            "sender": [],
-            "receiver": [],
+            "to": sipTo,
+            "from": sipFrom,
+            "participants": [],
             "associatedSessions": []
         }
     
     
-    def createEmptySessionDict(self, sessionID, time):
+    def createEmptySessionDict(self, sessionID, time, sipTo, sipFrom):
         return {
-            "sessionInfo": self.createSessionInfoDict( sessionID, time),
+            "sessionInfo": self.createSessionInfoDict( sessionID, time, sipTo, sipFrom),
             "messages": []
         }
     
@@ -145,7 +146,7 @@ class LogInterpreter:
                 message = self.createJsonFormattedMessagePacket(time, sessionID, messageID, direction, party, method, sipContent, body[i])
                 
                 if sessionID not in sessionPackets.keys():
-                    sessionPackets[sessionID] = self.createEmptySessionDict(sessionID, time)
+                    sessionPackets[sessionID] = self.createEmptySessionDict(sessionID, time, sipContent["To"][0], sipContent["From"][0])
                 associatedSessionIDKeys = self.checkIfDictKeysContainsRelatedSessions(sipContent)
                 #Add to SessionInfo if attribtes exsist in message
                 currentSession = sessionPackets[sessionID]
@@ -153,12 +154,12 @@ class LogInterpreter:
                 currentSessionInfo = currentSession['sessionInfo']
                 if sipContent['To']:
                     for el in sipContent['To']:
-                        if el not in currentSessionInfo['receiver']:
-                             currentSessionInfo['receiver'].append(el)
+                        if el not in currentSessionInfo['participants']:
+                             currentSessionInfo['participants'].append(el)
                 if sipContent['From']:
                     for el in sipContent['From']:
-                        if el not in currentSessionInfo['sender']:
-                             currentSessionInfo['sender'].append(el)
+                        if el not in currentSessionInfo['participants']:
+                             currentSessionInfo['participants'].append(el)
                 for associatedSessionKey in associatedSessionIDKeys:
                     relatedSessionIDs = sipContent[associatedSessionKey][0].replace(' ', '').split(',')
                     for el in relatedSessionIDs:
