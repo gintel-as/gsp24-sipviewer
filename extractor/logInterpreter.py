@@ -2,8 +2,11 @@ import json, re
 from collections import defaultdict
 
 class LogInterpreter:
+
+    
     def __init__(self):
         self.relatedSessionFormat = "X-Gt-MBN-SessionId"
+
     
     def createStartLineDict(self, time, sessionID, messageID, direction, party, method):
         startLineDict = {
@@ -99,6 +102,7 @@ class LogInterpreter:
         if party == "NULL":
             party = 'Not Identified'
         return timestamp, sessionId, messageId, direction, party
+    
 
     def createJsonFormattedMessagePacket(self, time, sessionID, messageID, direction, party, method, sipContent, body):
         startLineDict = self.createStartLineDict(time, sessionID, messageID, direction, party, method)
@@ -106,21 +110,7 @@ class LogInterpreter:
         bodyDict = self.createBodyDict(body)
         packetDict = self.createPacketDict(startLineDict, sipHeaderDict, bodyDict)
         return packetDict
-    
-    
-    def createJsonPacketsFromExtractedHeaders(self, startLines, headers, body): 
-        jsonPackets = []
-        for i in range(len(startLines)):
-            try:
-                time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
-                method, sipContent = self.extractHeader(headers[i])
-                jsonPct = self.createJsonFormattedMessagePacket(time, sessionID, messageID, direction, party, method, sipContent, body[i])
-                jsonPackets.append(jsonPct)
-            except Exception as e:
-                print("Packet not included due to error")
-                print(e)
-            
-        return json.dumps(jsonPackets, indent=2)
+
     
     def createSessionInfoDict(self, sessionID, time):
         return {
@@ -131,11 +121,13 @@ class LogInterpreter:
             "associatedSessions": []
         }
     
+    
     def createEmptySessionDict(self, sessionID, time):
         return {
             "sessionInfo": self.createSessionInfoDict( sessionID, time),
             "messages": []
         }
+    
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
         sessionPackets = {}
@@ -173,6 +165,7 @@ class LogInterpreter:
                 print(e)
 
         return json.dumps(list(sessionPackets.values()), indent=2)
+    
     
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath):
         f = open(filePath, "w")
