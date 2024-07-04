@@ -117,7 +117,7 @@ class LogInterpreter:
             "sessionID": sessionID,
             "time": time,
             "sender": [],
-            "reciever": [],
+            "receiver": [],
             "associatedSessions": []
         }
     
@@ -153,8 +153,8 @@ class LogInterpreter:
                 currentSessionInfo = currentSession['sessionInfo']
                 if sipContent['To']:
                     for el in sipContent['To']:
-                        if el not in currentSessionInfo['reciever']:
-                             currentSessionInfo['reciever'].append(el)
+                        if el not in currentSessionInfo['receiver']:
+                             currentSessionInfo['receiver'].append(el)
                 if sipContent['From']:
                     for el in sipContent['From']:
                         if el not in currentSessionInfo['sender']:
