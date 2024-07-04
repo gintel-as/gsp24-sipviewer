@@ -3,9 +3,9 @@ from collections import defaultdict
 
 class LogInterpreter:
 
-    
+
     def __init__(self):
-        self.relatedSessionFormat = "X-Gt-MBN-SessionId"
+        self.relatedSessionFormatPattern = r'X-Gt(?:-[A-Za-z0-9]+)?-SessionId'
 
     
     def createStartLineDict(self, time, sessionID, messageID, direction, party, method):
@@ -128,6 +128,11 @@ class LogInterpreter:
             "messages": []
         }
     
+    def checkIfDictKeysContainsRelatedSessions(self, sipHeader):
+        pattern = re.compile(self.relatedSessionFormatPattern)
+        matchingHeaders = [key for key in sipHeader if pattern.search(key)]
+        return matchingHeaders
+    
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
         sessionPackets = {}
@@ -141,7 +146,7 @@ class LogInterpreter:
                 
                 if sessionID not in sessionPackets.keys():
                     sessionPackets[sessionID] = self.createEmptySessionDict(sessionID, time)
-
+                associatedSessionIDKeys = self.checkIfDictKeysContainsRelatedSessions(sipContent)
                 #Add to SessionInfo if attribtes exsist in message
                 currentSession = sessionPackets[sessionID]
                 currentSession['messages'].append(message)
@@ -154,8 +159,8 @@ class LogInterpreter:
                     for el in sipContent['From']:
                         if el not in currentSessionInfo['sender']:
                              currentSessionInfo['sender'].append(el)
-                if sipContent[self.relatedSessionFormat]:
-                    relatedSessionIDs = sipContent[self.relatedSessionFormat][0].replace(' ', '').split(',')
+                for associatedSessionKey in associatedSessionIDKeys:
+                    relatedSessionIDs = sipContent[associatedSessionKey][0].replace(' ', '').split(',')
                     for el in relatedSessionIDs:
                         if el not in currentSessionInfo['associatedSessions']:
                             currentSessionInfo['associatedSessions'].append(el)
