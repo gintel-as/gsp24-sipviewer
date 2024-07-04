@@ -75,6 +75,7 @@ export class SequenceDiagramComponent {
     d3.select('#selected-message').attr('id', '');
     d3.select('#selected-message-text').attr('id', '');
     d3.select('#selected-message-timestamp').attr('id', '');
+    d3.select('#selected-message-rect').attr('id', '');
     //Find new message to select and mark it with selected ID for styling
     d3.select(`[message-id="${messageID}"`).attr('id', 'selected-message');
     d3.select(`[message-text-id="${messageID}"`).attr(
@@ -84,6 +85,10 @@ export class SequenceDiagramComponent {
     d3.select(`[message-timestamp-id="${messageID}`).attr(
       'id',
       'selected-message-timestamp'
+    );
+    d3.select(`[message-rect-id="${messageID}`).attr(
+      'id',
+      'selected-message-rect'
     );
 
     const nativeElement = d3.select('#selected-message').node() as Element;
@@ -259,7 +264,7 @@ export class SequenceDiagramComponent {
       let rectClass = '';
       // If even index, set background rectangle class with color background
       if (msg.index % 2 == 0) {
-        rectClass = 'message-background-line';
+        rectClass = 'message-background-line-red';
       }
 
       //Add 'SDP' to each line with content length > 0, if no content length attr catch error
@@ -280,6 +285,7 @@ export class SequenceDiagramComponent {
         .attr('y', y - 25)
         .attr('height', 40)
         .attr('class', rectClass)
+        .attr('message-rect-id', msg.message.startLine.messageID)
         .on('click', () => this.selectMessage(msg));
 
       // Draw invisibleline for highlights

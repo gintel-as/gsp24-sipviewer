@@ -70,15 +70,18 @@
 
 #selected-message-text {
   stroke: black;
-  font-weight: bold;
 }
 
+#selected-message-rect {
+  fill: #00274d;
+  fill-opacity: 0.2;
+}
 /* ToDo make arrowhead color separated by */
 #arrow {
   fill: black;
 }
 
-.message-background-line {
+.message-background-line-red {
   fill: #ca2f2c;
   fill-opacity: 0.1;
 }
