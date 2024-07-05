@@ -125,9 +125,7 @@ export class DataService {
     try {
       const parsedJson = JSON.parse(fileContent);
       const formattedSessions = parsedJson.map((session: Session) => {
-        console.log('Check for date format here 1: ', session);
         session.sessionInfo.time = new Date(session.sessionInfo.time);
-        console.log('Check for date format here 2: ', session);
         session.messages = session.messages.map((message: Message) => {
           message.startLine.time = new Date(message.startLine.time);
           return message;
@@ -147,7 +145,6 @@ export class DataService {
         (a, b) => a.startLine.time.getTime() - b.startLine.time.getTime()
       );
       this.messages.next(allMessages);
-      console.log('Messages', allMessages);
       console.log('File content received and stored: ', formattedSessions);
     } catch (error) {
       console.error('Error parsing or processing file content', error);

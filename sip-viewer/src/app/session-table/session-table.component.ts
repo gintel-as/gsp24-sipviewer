@@ -182,7 +182,6 @@ export class SessionTableComponent implements AfterViewInit {
     } else {
       this.selection.select(row);
     }
-    console.log('Selected sessions: ', this.selection.selected);
     this.dataService.updateSelectedSessionsByList(this.updatedSessions());
   }
 
