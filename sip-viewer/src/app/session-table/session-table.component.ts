@@ -9,13 +9,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
-import { filter } from 'd3';
+import { Session } from '../session';
 
 interface SessionDict {
   Time: string;
   SessionID: string;
-  Sender: string;
-  Receiver: string;
+  From: string;
+  To: string;
 }
 
 @Component({
@@ -38,18 +38,12 @@ interface SessionDict {
 export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
 
-  // Fetching data and creating table
-  sessionIDList: string[] = [];
-  senders: string[] = [];
-  receivers: string[] = [];
-  times: string[] = [];
   tableData: any[] = []; //List of dictionaries which represent a session
-  columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver'];
+  columnsToDisplay = ['Select', 'Time', 'Session ID', 'From', 'To'];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
   selection = new SelectionModel<any>(true, []); // Selected sessions
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
-  // relationSelection = new SelectionModel<boolean>(true, []);
 
   constructor(private dataService: DataService) {}
 
@@ -58,61 +52,70 @@ export class SessionTableComponent implements AfterViewInit {
   }
 
   fetchSessions(): void {
-    this.dataService.getMessages().subscribe(
-      (messages: any[]) => {
+    this.dataService.getSessions().subscribe(
+      (sessions: Session[]) => {
         // Empty table and deselect sessions to avoid duplicates when uploading new file
         this.tableData = [];
         this.selection.clear();
 
-        // Extract unique session IDs and add time, session ID, sender and receiver to lists
+        // Extract unique session IDs and add time, session ID, from and to to lists
         const sessionIDs = new Set<string>();
-        const phoneNumberPattern = /<sip:?(\+?\d+)@/;
-        messages.forEach((message) => {
-          if (!sessionIDs.has(message.startLine.sessionID)) {
-            // Only add sender, receiver and time if it is the first message with this sessionID
-            this.times.push(message.startLine.time);
-            sessionIDs.add(message.startLine.sessionID);
-            let msgSender = 'Not Found';
-            let msgReciever = 'Not Found';
+        const phoneNumberPattern = /<sip:(\+?\d+)(?=@)/;
+        const otherPattern = /<sip:([^>]+)>/;
+        sessions.forEach((session) => {
+          if (!sessionIDs.has(session.sessionInfo.sessionID)) {
+            sessionIDs.add(session.sessionInfo.sessionID);
+            let msgFrom = 'Not Found';
+            let msgTo = 'Not Found';
             try {
-              msgSender =
-                message.sipHeader['From'][0].match(phoneNumberPattern)[1]; // Keep only the phone number
-              msgReciever =
-                message.sipHeader['To'][0].match(phoneNumberPattern)[1]; // Keep only the phone number
+              if (session.sessionInfo.from) {
+                const matchResult =
+                  session.sessionInfo.from.match(phoneNumberPattern) ||
+                  session.sessionInfo.from.match(otherPattern);
+                if (matchResult) {
+                  msgFrom = matchResult[1];
+                }
+              }
+
+              if (session.sessionInfo.to) {
+                const matchResult =
+                  session.sessionInfo.to.match(phoneNumberPattern) ||
+                  session.sessionInfo.to.match(otherPattern);
+                if (matchResult) {
+                  msgTo = matchResult[1];
+                }
+              }
             } catch {
               try {
-                msgSender = message.sipHeader['From'][0];
-                msgReciever = message.sipHeader['To'][0];
+                msgFrom = session.sessionInfo.from;
+                msgTo = session.sessionInfo.to;
               } catch {
                 console.log(
-                  'Error with fetching sender/reciever from: ',
-                  message.sipHeader
+                  'Error with fetching from/to from: ',
+                  session.sessionInfo
                 );
               }
             }
-            this.senders.push(msgSender);
-            this.receivers.push(msgReciever);
 
             // Create new dictionary and add it to tableData
             let newDict: SessionDict = {
               Time: '',
               SessionID: '',
-              Sender: '',
-              Receiver: '',
+              From: '',
+              To: '',
             };
 
-            const date = this.getDateString(message.startLine.time);
+            const date = this.getDateString(session.sessionInfo.time);
             newDict['Time'] = date;
-            newDict['SessionID'] = message.startLine.sessionID;
-            newDict['Sender'] = msgSender;
-            newDict['Receiver'] = msgReciever;
+            newDict['SessionID'] = session.sessionInfo.sessionID;
+            newDict['From'] = msgFrom;
+            newDict['To'] = msgTo;
             this.tableData.push(newDict);
           }
         });
-        this.sessionIDList = Array.from(sessionIDs);
         this.dataSource = new MatTableDataSource(this.tableData);
 
-        // // Select all sessions when the application is started
+        // Select all sessions when the application is started
         // this.selection.select(...this.dataSource.data);
         // this.dataService.updateSelectedSessionsByList(this.updatedSessions());
       },
@@ -215,7 +218,7 @@ export class SessionTableComponent implements AfterViewInit {
     let column: string | null = null;
     let searchValue = filterValue;
 
-    const regex = /^(time|session id|sender|receiver)\s*=\s*(.*)$/i;
+    const regex = /^(time|session id|from|to)\s*=\s*(.*)$/i;
     const match = regex.exec(filterValue);
 
     if (match) {

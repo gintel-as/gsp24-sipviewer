@@ -1,6 +1,7 @@
-import { Message } from "./message";
+import { SessionInfo } from './sessionInfo';
+import { Message } from './message';
 
 export interface Session {
-    id: number;
-    messages: Message[];
+  sessionInfo: SessionInfo;
+  messages: Message[];
 }
