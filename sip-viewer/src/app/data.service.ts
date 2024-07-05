@@ -124,17 +124,26 @@ export class DataService {
   uploadFileContent(fileContent: string) {
     try {
       const parsedJson = JSON.parse(fileContent);
-      const formattedSessions = parsedJson.map((session: Session) => {
-        session.sessionInfo.time = new Date(session.sessionInfo.time);
-        session.messages = session.messages.map((message: Message) => {
-          message.startLine.time = new Date(message.startLine.time);
-          return message;
-        });
-        return session;
+      const formattedSessions: Session[] = parsedJson.map(
+        (session: Session) => {
+          session.sessionInfo.time = new Date(session.sessionInfo.time);
+          session.messages = session.messages.map((message: Message) => {
+            message.startLine.time = new Date(message.startLine.time);
+            return message;
+          });
+          return session;
+        }
+      );
+      let currentSessions: Session[] = [];
+      this.getSessions().subscribe((sessions: Session[]) => {
+        currentSessions = sessions;
       });
-      this.sessions.next(formattedSessions);
+      formattedSessions.forEach((session: Session) => {
+        currentSessions.push(session);
+      });
+      this.sessions.next(currentSessions);
 
-      const allMessages: Message[] = formattedSessions.reduce(
+      const allMessages: Message[] = currentSessions.reduce(
         (messagesInSession: Message[], session: Session) => {
           messagesInSession.push(...session.messages);
           return messagesInSession;
@@ -149,5 +158,12 @@ export class DataService {
     } catch (error) {
       console.error('Error parsing or processing file content', error);
     }
+  }
+
+  clearUploadedFileContent() {
+    this.sessions.next([]);
+    this.messages.next([]);
+    this.selectNewMessageByID('');
+    this.updateSelectedSessionsByList([]);
   }
 }

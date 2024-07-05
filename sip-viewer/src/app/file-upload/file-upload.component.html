@@ -5,8 +5,11 @@
       <p class="file-name-style">No file selected</p>
     </div>
     <div *ngIf="fileName">
-      <p class="file-name-style">Selected File: {{ fileName }}</p>
+      <p class="file-name-style">Selected File(s): {{ fileName }}</p>
     </div>
+    <button id="remove-button" mat-flat-button (click)="clearSelectedFiles()">
+      Remove All
+    </button>
     <button mat-raised-button color="primary" (click)="fileInput.click()">
       Upload JSON
     </button>
