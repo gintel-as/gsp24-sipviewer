@@ -155,6 +155,7 @@ export class SequenceDiagramComponent {
   }
 
   setMessageIndexToIDDictionary(messages: DiagramMessage[]) {
+    this.messageIndexDict = {};
     this.messageIndexDict = messages.reduce((acc, message) => {
       acc[message.index] = message.message.startLine.messageID;
       return acc;
