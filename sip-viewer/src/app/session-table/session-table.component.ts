@@ -44,11 +44,13 @@ export class SessionTableComponent implements AfterViewInit {
   selection = new SelectionModel<any>(true, []); // Selected sessions
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
+  relatedSessions: { [key: string]: Session[] } = {};
 
   constructor(private dataService: DataService) {}
 
   ngAfterViewInit(): void {
     this.fetchSessions();
+    this.getRelatedSessions();
   }
 
   fetchSessions(): void {
@@ -177,10 +179,32 @@ export class SessionTableComponent implements AfterViewInit {
 
   onCheckboxClicked(row: any): void {
     const selectedSessions = this.getSelectedSessions();
-    if (selectedSessions.includes(row)) {
-      this.selection.deselect(row);
-    } else {
-      this.selection.select(row);
+    if (this.relationsActivated === false) {
+      if (selectedSessions.includes(row)) {
+        this.selection.deselect(row);
+        console.log('Selected session: ', this.selection.selected);
+      } else {
+        this.selection.select(row);
+        console.log('Selected session: ', this.selection.selected);
+      }
+    }
+    // Automatically select/deselect all related sessions
+    else if (this.relationsActivated === true) {
+      const relatedSessionsForRow = this.relatedSessions[row.SessionID];
+      console.log('Related sessions for row: ', relatedSessionsForRow);
+      if (selectedSessions.includes(row)) {
+        relatedSessionsForRow.forEach((session) =>
+          this.selection.deselect(session)
+        );
+        console.log('Selected session: ', this.selection.selected);
+      } else {
+        relatedSessionsForRow.forEach((session) =>
+          this.selection.select(session)
+        );
+        console.log('Selected session: ', this.selection.selected);
+      }
+
+      // TODO: selection works, but deselction does not work
     }
     this.dataService.updateSelectedSessionsByList(this.updatedSessions());
   }
@@ -244,6 +268,30 @@ export class SessionTableComponent implements AfterViewInit {
       }
     };
     this.dataSource.filter = searchValue;
+  }
+
+  getRelatedSessions() {
+    this.dataService.getSessions().subscribe((sessions: Session[]) => {
+      const sessionMap: { [id: string]: Session } = {};
+      sessions.forEach((session) => {
+        sessionMap[session.sessionInfo.sessionID] = session;
+      });
+
+      sessions.forEach((session) => {
+        console.log('Session ID', session.sessionInfo.sessionID);
+        console.log(
+          'Related sessions:',
+          session.sessionInfo.associatedSessions
+        );
+        const currentSessionID = session.sessionInfo.sessionID;
+        const relatedSessionIDs = session.sessionInfo.associatedSessions;
+        const relatedSessions = relatedSessionIDs
+          .map((id) => sessionMap[id])
+          .filter(Boolean);
+        this.relatedSessions[currentSessionID] = relatedSessions;
+      });
+    });
+    console.log('These are the related sessions:', this.relatedSessions);
   }
 
   onRelationsCheckboxClicked() {
