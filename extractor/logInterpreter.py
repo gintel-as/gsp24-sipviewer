@@ -46,24 +46,17 @@ class LogInterpreter:
         return packetDict
 
 
-    def checkForInitialInvite(self, sipHeader, direction, party):
-        sipContent = defaultdict(list)
-        # toWithTag = r'^To:\s*<sip:[A-Za-z0-9+]+@.*>;tag=.*$'
-        toWithoutTag = r'^To:\s*<sip:[A-Za-z0-9+]+@.*>(?!;tag=.*$)'
+    def checkForInitialInvite(self, line, direction):
+        toWithoutTag = r'^<sip:[A-Za-z0-9+]+@.*>(?!;tag=.*$)'
         initialInvite = False
-        sipContent["Header"].append(sipHeader[0])
 
-        for i in range(1,len(sipHeader)):
-            x = sipHeader[i]
-            if x != "":
-                try:
-                    match = re.match(toWithoutTag, x)
-                    if match and direction == 'from':
-                        initialInvite = True
-                    print(x)
-                    print(initialInvite)
-                except Exception as e:
-                    print(f"Error processing line: {x}, Error: {e}")
+        if line != "":
+            try:
+                match = re.match(toWithoutTag, line)
+                if match and direction == 'from':
+                    initialInvite = True
+            except Exception as e:
+                print(f"Error processing line: {line}, Error: {e}")
         return initialInvite
 
     def extractHeader(self, sipHeader):
@@ -164,14 +157,7 @@ class LogInterpreter:
             try:
                 #Fetch message details
                 time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
-                
-                
-
                 method, sipContent = self.extractHeader(headers[i])
-                initialInviteBool = self.checkForInitialInvite(headers[i], direction, party)
-                # if initialInviteBool:
-                #     print('packet: ', i, initialInviteBool)
-
                 message = self.createJsonFormattedMessagePacket(time, sessionID, messageID, direction, party, method, sipContent, body[i])
                 
                 if sessionID not in sessionPackets.keys():
@@ -183,6 +169,9 @@ class LogInterpreter:
                 currentSessionInfo = currentSession['sessionInfo']
                 if sipContent['To']:
                     for el in sipContent['To']:
+                        initialInviteBool = self.checkForInitialInvite(el, direction)
+                        if initialInviteBool:
+                            print('packet: ', i, initialInviteBool)
                         if el not in currentSessionInfo['participants']:
                              currentSessionInfo['participants'].append(el)
                 if sipContent['From']:
