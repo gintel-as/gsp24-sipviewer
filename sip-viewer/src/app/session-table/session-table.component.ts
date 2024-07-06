@@ -1,5 +1,11 @@
 import { NgFor, NgIf } from '@angular/common';
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Inject,
+  LOCALE_ID,
+  ViewChild,
+} from '@angular/core';
 import { DataService } from '../data.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -10,13 +16,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Session } from '../session';
-
-interface SessionDict {
-  Time: string;
-  SessionID: string;
-  From: string;
-  To: string;
-}
 
 @Component({
   selector: 'app-session-table',
@@ -38,21 +37,28 @@ interface SessionDict {
 export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
 
-  tableData: any[] = []; //List of dictionaries which represent a session
-  columnsToDisplay = ['Select', 'Time', 'Session ID', 'From', 'To'];
+  tableData: Session[] = []; //List of dictionaries which represent a session
+  columnsToDisplay = [
+    'Select',
+    'Time',
+    'Session ID',
+    'From',
+    'To',
+    'Related Sessions',
+  ];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
-  selection = new SelectionModel<any>(true, []); // Selected sessions
+  selection = new SelectionModel<Session>(true, []); // Selected sessions
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
-  relatedSessions: { [key: string]: Session[] } = {};
 
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    @Inject(LOCALE_ID) private locale: string
+  ) {}
 
   ngAfterViewInit(): void {
     this.fetchSessions();
-    this.getRelatedSessions();
   }
-
   fetchSessions(): void {
     this.dataService.getSessions().subscribe(
       (sessions: Session[]) => {
@@ -99,20 +105,22 @@ export class SessionTableComponent implements AfterViewInit {
               }
             }
 
-            // Create new dictionary and add it to tableData
-            let newDict: SessionDict = {
-              Time: '',
-              SessionID: '',
-              From: '',
-              To: '',
-            };
+            // TODO: Format date
+            const formattedDate = this.getDateString(session.sessionInfo.time);
 
-            const date = this.getDateString(session.sessionInfo.time);
-            newDict['Time'] = date;
-            newDict['SessionID'] = session.sessionInfo.sessionID;
-            newDict['From'] = msgFrom;
-            newDict['To'] = msgTo;
-            this.tableData.push(newDict);
+            let newSession: Session = {
+              sessionInfo: {
+                sessionID: session.sessionInfo.sessionID,
+                time: session.sessionInfo.time,
+                from: msgFrom,
+                to: msgTo,
+                associatedSessions: session.sessionInfo.associatedSessions,
+              },
+              messages: session.messages,
+            };
+            newSession.sessionInfo.from = msgFrom;
+            newSession.sessionInfo.to = msgTo;
+            this.tableData.push(newSession);
           }
         });
         this.dataSource = new MatTableDataSource(this.tableData);
@@ -158,8 +166,8 @@ export class SessionTableComponent implements AfterViewInit {
     return n;
   }
 
-  getSelectedSessions(): SessionDict[] {
-    const selectedSessions: SessionDict[] = [];
+  getSelectedSessions(): Session[] {
+    const selectedSessions: Session[] = [];
     this.selection.selected.forEach((session) => {
       selectedSessions.push(session);
     });
@@ -167,44 +175,51 @@ export class SessionTableComponent implements AfterViewInit {
   }
 
   updatedSessions(): string[] {
-    const selectedSessions: SessionDict[] = [];
+    const selectedSessions: Session[] = [];
     this.selection.selected.forEach((session) => {
       selectedSessions.push(session);
     });
     const sessionIDsToPush: string[] = selectedSessions.map(
-      (dict) => dict.SessionID
+      (session) => session.sessionInfo.sessionID
     );
     return sessionIDsToPush;
   }
 
-  onCheckboxClicked(row: any): void {
+  onCheckboxClicked(row: Session): void {
     const selectedSessions = this.getSelectedSessions();
     if (this.relationsActivated === false) {
       if (selectedSessions.includes(row)) {
         this.selection.deselect(row);
-        console.log('Selected session: ', this.selection.selected);
       } else {
         this.selection.select(row);
-        console.log('Selected session: ', this.selection.selected);
       }
     }
     // Automatically select/deselect all related sessions
     else if (this.relationsActivated === true) {
-      const relatedSessionsForRow = this.relatedSessions[row.SessionID];
-      console.log('Related sessions for row: ', relatedSessionsForRow);
-      if (selectedSessions.includes(row)) {
-        relatedSessionsForRow.forEach((session) =>
-          this.selection.deselect(session)
+      const relatedSessionIDsForRow = row.sessionInfo.associatedSessions;
+      const relatedSessionsForRow = [];
+      for (let i = 0; i < relatedSessionIDsForRow.length; i++) {
+        const relatedSessionID = relatedSessionIDsForRow[i];
+        const relatedSession = this.tableData.find(
+          (session) => session.sessionInfo.sessionID === relatedSessionID
         );
-        console.log('Selected session: ', this.selection.selected);
+        if (relatedSession) {
+          relatedSessionsForRow.push(relatedSession);
+        } else {
+          console.warn(
+            `Session with ID ${relatedSessionID} not found in tableData.`
+          );
+        }
+      }
+      if (selectedSessions.includes(row)) {
+        relatedSessionsForRow.forEach((session) => {
+          this.selection.deselect(session);
+        });
       } else {
         relatedSessionsForRow.forEach((session) =>
           this.selection.select(session)
         );
-        console.log('Selected session: ', this.selection.selected);
       }
-
-      // TODO: selection works, but deselction does not work
     }
     this.dataService.updateSelectedSessionsByList(this.updatedSessions());
   }
@@ -270,30 +285,6 @@ export class SessionTableComponent implements AfterViewInit {
     this.dataSource.filter = searchValue;
   }
 
-  getRelatedSessions() {
-    this.dataService.getSessions().subscribe((sessions: Session[]) => {
-      const sessionMap: { [id: string]: Session } = {};
-      sessions.forEach((session) => {
-        sessionMap[session.sessionInfo.sessionID] = session;
-      });
-
-      sessions.forEach((session) => {
-        console.log('Session ID', session.sessionInfo.sessionID);
-        console.log(
-          'Related sessions:',
-          session.sessionInfo.associatedSessions
-        );
-        const currentSessionID = session.sessionInfo.sessionID;
-        const relatedSessionIDs = session.sessionInfo.associatedSessions;
-        const relatedSessions = relatedSessionIDs
-          .map((id) => sessionMap[id])
-          .filter(Boolean);
-        this.relatedSessions[currentSessionID] = relatedSessions;
-      });
-    });
-    console.log('These are the related sessions:', this.relatedSessions);
-  }
-
   onRelationsCheckboxClicked() {
     if (this.relationsActivated === true) {
       console.log('Checkbox was untoggled!');
@@ -302,6 +293,5 @@ export class SessionTableComponent implements AfterViewInit {
       console.log('Checkbox was toggled!');
       this.relationsActivated = true;
     }
-    // Logic for choosing all related sessions in the session table
   }
 }
