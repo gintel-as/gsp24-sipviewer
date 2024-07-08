@@ -248,8 +248,8 @@ export class SessionTableComponent implements AfterViewInit {
     let column: string | null = null;
     let searchValue = filterValue;
 
-    const regex = /^(time|session id|from|to)\s*=\s*(.*)$/i;
-    const match = regex.exec(filterValue);
+    const filterPattern = /^(time|sessionid|session id|from|to)\s*=\s*(.*)$/i;
+    const match = filterPattern.exec(filterValue);
 
     if (match) {
       column =

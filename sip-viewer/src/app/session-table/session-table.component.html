@@ -91,6 +91,16 @@
       </td>
     </ng-container>
 
+    <!-- Related Sessions Column -->
+    <ng-container matColumnDef="Related Sessions">
+      <th mat-header-cell *matHeaderCellDef>Related Sessions</th>
+      <td mat-cell *matCellDef="let element" class="column-max-width">
+        <span matTooltip="{{ element.RelatedSessions.join(', ') }}">
+          {{ element.RelatedSessions.join(", ") }}
+        </span>
+      </td>
+    </ng-container>
+
     <tr
       mat-header-row
       *matHeaderRowDef="columnsToDisplay"
