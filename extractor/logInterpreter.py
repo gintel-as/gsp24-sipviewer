@@ -152,6 +152,7 @@ class LogInterpreter:
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
         sessionPackets = {}
+        sessionIDtoAssociatedDict = defaultdict(set)
         #Iterate over all sessions
         for i in range(len(startLines)):
             try:
@@ -170,8 +171,8 @@ class LogInterpreter:
                 if sipContent['To']:
                     for el in sipContent['To']:
                         initialInviteBool = self.checkForInitialInvite(el, direction)
-                        if initialInviteBool:
-                            print('packet: ', i, initialInviteBool)
+                        # if initialInviteBool:
+                        #     print('packet: ', i, initialInviteBool)
                         if el not in currentSessionInfo['participants']:
                              currentSessionInfo['participants'].append(el)
                 if sipContent['From']:
@@ -181,13 +182,20 @@ class LogInterpreter:
                 for associatedSessionKey in associatedSessionIDKeys:
                     relatedSessionIDs = sipContent[associatedSessionKey][0].replace(' ', '').split(',')
                     for el in relatedSessionIDs:
-                        if el not in currentSessionInfo['associatedSessions']:
-                            currentSessionInfo['associatedSessions'].append(el)
+                        if len(sessionIDtoAssociatedDict[el]) > 0:
+                          relatedSessionIDs= relatedSessionIDs + list(sessionIDtoAssociatedDict[el])
+                    relatedSessionIDs = set(relatedSessionIDs)
+                    for el in relatedSessionIDs:
+                        sessionIDtoAssociatedDict[el].update(relatedSessionIDs)
 
             except Exception as e:
                 print("Packet not included due to error")
                 print(e)
 
+        for sessionID in sessionPackets.keys():
+            if sessionID in sessionIDtoAssociatedDict.keys():
+                sessionPackets[sessionID]["sessionInfo"]["associatedSessions"] = list(sessionIDtoAssociatedDict[sessionID])
+                
         return json.dumps(list(sessionPackets.values()), indent=2)
     
     
