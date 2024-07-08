@@ -273,31 +273,36 @@ export class SessionTableComponent implements AfterViewInit {
 
     this.filterActive = filterValue.length > 0;
 
-    // Set custom filter predicate based on the column
+    // Set custom filter predicate based on filter
     this.dataSource.filterPredicate = (data: any, filter: string) => {
+      //If filter predicate matches column, only look at selected column
       if (column) {
         if (column == 'Sessionid') {
           return data.sessionInfo.sessionID
             ?.toString()
             .toLowerCase()
             .startsWith(filter);
-        } else if (column == 'From') {
+        }
+        if (column == 'From') {
           //potentially change to smarter .startsWith using either country code or not
           return data.sessionInfo.from
             ?.toString()
             .toLowerCase()
             .includes(filter);
-        } else if (column == 'To') {
+        }
+        if (column == 'To') {
           return data.sessionInfo.to?.toString().toLowerCase().includes(filter);
-        } else if (column == 'Time') {
+        }
+        if (column == 'Time') {
           return this.getDateString(data.sessionInfo.time)
             ?.toLowerCase()
             .includes(filter);
-        } else {
-          return false;
         }
+        //No column matches
+        return false;
       } else {
-        if (
+        // Returns true if any column content matches filter
+        return (
           data.sessionInfo.sessionID
             ?.toString()
             .toLowerCase()
@@ -307,11 +312,7 @@ export class SessionTableComponent implements AfterViewInit {
           this.getDateString(data.sessionInfo.time)
             ?.toLowerCase()
             .includes(filter)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
+        );
       }
     };
     this.dataSource.filter = searchValue;
