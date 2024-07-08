@@ -144,11 +144,35 @@ class LogInterpreter:
             "messages": []
         }
     
+
     def checkIfDictKeysContainsRelatedSessions(self, sipHeader):
         pattern = re.compile(self.relatedSessionFormatPattern)
         matchingHeaders = [key for key in sipHeader if pattern.search(key)]
         return matchingHeaders
-    
+
+
+    def filterAssociatedSessions(self, dict, sessionID):
+        result = {}
+        relatedSessions = []
+
+        if sessionID == '':
+            print('No sessionID')
+            return json.dumps(list(dict.values()), indent=2)
+        else:
+            print('SessionID: ', sessionID)
+            # Finds relatedSessions for selected sessionID
+            if sessionID in dict:
+                relatedSessions = dict[sessionID]['sessionInfo']['associatedSessions']
+                print(f"Related sessions: {relatedSessions}")
+                # Filters out all sessions not in relatedSessions[]
+                for session in relatedSessions:
+                    if session in dict:
+                        result[session] = dict[session]
+            else:
+                print(f"SessionID {sessionID} not found.")
+                result = {}
+            return json.dumps(list(result.values()), indent=2)
+
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
         #SessionPackets is dict for session data, sessionIDtoAssociatedDict is a defaultDict for bidirecitonal linking of associated sessions
@@ -161,25 +185,29 @@ class LogInterpreter:
                 time, sessionID, messageID, direction, party = self.interpretStartLineString(startLines[i])
                 method, sipContent = self.extractHeader(headers[i])
                 message = self.createJsonFormattedMessagePacket(time, sessionID, messageID, direction, party, method, sipContent, body[i])
-                
+
                 if sessionID not in sessionPackets.keys():
                     sessionPackets[sessionID] = self.createEmptySessionDict(sessionID, time, sipContent["To"][0], sipContent["From"][0])
                 associatedSessionIDKeys = self.checkIfDictKeysContainsRelatedSessions(sipContent)
+
                 #Add to SessionInfo if attribtes exsist in message
                 currentSession = sessionPackets[sessionID]
                 currentSession['messages'].append(message)
                 currentSessionInfo = currentSession['sessionInfo']
+
                 if sipContent['To']:
                     for el in sipContent['To']:
                         initialInviteBool = self.checkForInitialInvite(el, direction)
                         # if initialInviteBool:
                         #     print('packet: ', i, initialInviteBool)
                         if el not in currentSessionInfo['participants']:
-                             currentSessionInfo['participants'].append(el)
+                            currentSessionInfo['participants'].append(el)
+                
                 if sipContent['From']:
                     for el in sipContent['From']:
                         if el not in currentSessionInfo['participants']:
-                             currentSessionInfo['participants'].append(el)
+                            currentSessionInfo['participants'].append(el)
+                
                 for associatedSessionKey in associatedSessionIDKeys:
                     relatedSessionIDs = sipContent[associatedSessionKey][0].replace(' ', '').split(',')
                     #For each related sessionID to current session, fetch all their associated sessionIDs and populate array
@@ -199,12 +227,13 @@ class LogInterpreter:
             if sessionID in sessionIDtoAssociatedDict.keys():
                 sessionPackets[sessionID]["sessionInfo"]["associatedSessions"] = list(sessionIDtoAssociatedDict[sessionID])
                 
-        return json.dumps(list(sessionPackets.values()), indent=2)
+        return sessionPackets
     
     
-    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath):
+    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionID):
         f = open(filePath, "w")
         jsonText = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
+        jsonText = self.filterAssociatedSessions(jsonText, sessionID)        
         f.write(jsonText)
         f.close()
 
@@ -217,4 +246,7 @@ if __name__ == "__main__":
     startLines = []
     headers = []
     body = []
-    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath)
+
+    session = '103969265'
+
+    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath, session)
