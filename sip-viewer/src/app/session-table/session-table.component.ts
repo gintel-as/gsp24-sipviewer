@@ -276,14 +276,42 @@ export class SessionTableComponent implements AfterViewInit {
     // Set custom filter predicate based on the column
     this.dataSource.filterPredicate = (data: any, filter: string) => {
       if (column) {
-        return data[column]?.toString().toLowerCase().includes(filter);
-      } else {
-        return Object.values(data).some((value) => {
-          if (typeof value === 'string' || typeof value === 'number') {
-            return value.toString().toLowerCase().includes(filter);
-          }
+        if (column == 'Sessionid') {
+          return data.sessionInfo.sessionID
+            ?.toString()
+            .toLowerCase()
+            .startsWith(filter);
+        } else if (column == 'From') {
+          //potentially change to smarter .startsWith using either country code or not
+          return data.sessionInfo.from
+            ?.toString()
+            .toLowerCase()
+            .includes(filter);
+        } else if (column == 'To') {
+          return data.sessionInfo.to?.toString().toLowerCase().includes(filter);
+        } else if (column == 'Time') {
+          return this.getDateString(data.sessionInfo.time)
+            ?.toLowerCase()
+            .includes(filter);
+        } else {
           return false;
-        });
+        }
+      } else {
+        if (
+          data.sessionInfo.sessionID
+            ?.toString()
+            .toLowerCase()
+            .startsWith(filter) ||
+          data.sessionInfo.to?.toString().toLowerCase().includes(filter) ||
+          data.sessionInfo.from?.toString().toLowerCase().includes(filter) ||
+          this.getDateString(data.sessionInfo.time)
+            ?.toLowerCase()
+            .includes(filter)
+        ) {
+          return true;
+        } else {
+          return false;
+        }
       }
     };
     this.dataSource.filter = searchValue;
