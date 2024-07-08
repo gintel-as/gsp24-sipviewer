@@ -13,6 +13,9 @@ export class DataService {
   private messages: BehaviorSubject<Message[]> = new BehaviorSubject<Message[]>(
     []
   );
+  private sessions: BehaviorSubject<Session[]> = new BehaviorSubject<Session[]>(
+    []
+  );
   private currentSelectedMessageIDSource = new Subject<string>();
   private selectedSessionIDs = new Subject<string[]>();
   private sessionIDs: string[] = new Array<string>();
@@ -69,6 +72,10 @@ export class DataService {
     return this.messages.asObservable();
   }
 
+  getSessions(): Observable<Session[]> {
+    return this.sessions.asObservable();
+  }
+
   //Fetches from http, should only be called by constructor
   // fetchMessages(): void {
   //   this.http
@@ -117,14 +124,92 @@ export class DataService {
   uploadFileContent(fileContent: string) {
     try {
       const parsedJson = JSON.parse(fileContent);
-      const formattedMessages = parsedJson.map((message: Message) => {
-        message.startLine.time = new Date(message.startLine.time);
-        return message;
+      const formattedSessions: Session[] = parsedJson.map(
+        (session: Session) => {
+          session.sessionInfo.time = new Date(session.sessionInfo.time);
+          session.messages = session.messages.map((message: Message) => {
+            message.startLine.time = new Date(message.startLine.time);
+            return message;
+          });
+          return session;
+        }
+      );
+
+      let currentSessions: Session[] = [];
+      this.getSessions().subscribe((sessions: Session[]) => {
+        currentSessions = sessions;
       });
-      this.messages.next(formattedMessages);
-      console.log('File content received and stored: ', formattedMessages);
+      currentSessions = this.mergeSessionLists(
+        currentSessions,
+        formattedSessions
+      );
+      this.sessions.next(currentSessions);
+
+      const allMessages: Message[] = currentSessions.reduce(
+        (messagesInSession: Message[], session: Session) => {
+          messagesInSession.push(...session.messages);
+          return messagesInSession;
+        },
+        []
+      );
+      allMessages.sort(
+        (a, b) => a.startLine.time.getTime() - b.startLine.time.getTime()
+      );
+      this.messages.next(allMessages);
+      console.log('File content received and stored: ', formattedSessions);
     } catch (error) {
       console.error('Error parsing or processing file content', error);
     }
+  }
+
+  mergeSessionLists(sessions1: Session[], sessions2: Session[]) {
+    const mergeSessionMap: { [key: string]: Session } = {};
+    const addOrMerge = (session: Session) => {
+      if (mergeSessionMap[session.sessionInfo.sessionID]) {
+        let currentSessionEntry =
+          mergeSessionMap[session.sessionInfo.sessionID];
+        if (currentSessionEntry.sessionInfo.time > session.sessionInfo.time) {
+          //If currentSessionEntry older than new entry, replace starttime
+          currentSessionEntry.sessionInfo = session.sessionInfo;
+        }
+        currentSessionEntry.sessionInfo.associatedSessions = Array.from(
+          new Set(
+            currentSessionEntry.sessionInfo.associatedSessions.concat(
+              session.sessionInfo.associatedSessions
+            )
+          )
+        );
+        currentSessionEntry.messages = this.mergeMessageLists(
+          currentSessionEntry.messages,
+          session.messages
+        );
+      } else {
+        mergeSessionMap[session.sessionInfo.sessionID] = { ...session };
+      }
+    };
+    sessions1.forEach((session) => addOrMerge(session));
+    sessions2.forEach((session) => addOrMerge(session));
+
+    return Object.values(mergeSessionMap);
+  }
+
+  mergeMessageLists(messages1: Message[], messages2: Message[]) {
+    let mergedMessageMap: { [key: string]: Message } = {};
+    const addIfNew = (message: Message) => {
+      //If messageID not in map, add message
+      if (!mergedMessageMap[message.startLine.messageID]) {
+        mergedMessageMap[message.startLine.messageID] = message;
+      }
+    };
+    messages1.forEach((message) => addIfNew(message));
+    messages2.forEach((message) => addIfNew(message));
+    return Object.values(mergedMessageMap);
+  }
+
+  clearUploadedFileContent() {
+    this.sessions.next([]);
+    this.messages.next([]);
+    this.selectNewMessageByID('');
+    this.updateSelectedSessionsByList([]);
   }
 }

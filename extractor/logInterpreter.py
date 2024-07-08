@@ -180,7 +180,9 @@ class LogInterpreter:
 
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
+        #SessionPackets is dict for session data, sessionIDtoAssociatedDict is a defaultDict for bidirecitonal linking of associated sessions
         sessionPackets = {}
+        sessionIDtoAssociatedDict = defaultdict(set)
         #Iterate over all sessions
         for i in range(len(startLines)):
             try:
@@ -200,7 +202,7 @@ class LogInterpreter:
 
                 if sipContent['To']:
                     for el in sipContent['To']:
-                        initialInviteBool = self.checkForInitialInvite(el, direction)                           # initialInviteBool
+                        initialInviteBool = self.checkForInitialInvite(el, direction)
                         # if initialInviteBool:
                         #     print('packet: ', i, initialInviteBool)
                         if el not in currentSessionInfo['participants']:
@@ -213,16 +215,24 @@ class LogInterpreter:
                 
                 for associatedSessionKey in associatedSessionIDKeys:
                     relatedSessionIDs = sipContent[associatedSessionKey][0].replace(' ', '').split(',')
+                    #For each related sessionID to current session, fetch all their associated sessionIDs and populate array
                     for el in relatedSessionIDs:
-                        if el not in currentSessionInfo['associatedSessions']:
-                            currentSessionInfo['associatedSessions'].append(el)
+                        if len(sessionIDtoAssociatedDict[el]) > 0:
+                          relatedSessionIDs= relatedSessionIDs + list(sessionIDtoAssociatedDict[el])
+                    #Convert to set to remove duplicates, and update dictionary entry of all sessionIDs
+                    relatedSessionIDs = set(relatedSessionIDs)
+                    for el in relatedSessionIDs:
+                        sessionIDtoAssociatedDict[el].update(relatedSessionIDs)
 
             except Exception as e:
                 print("Packet not included due to error")
                 print(e)
 
-        return sessionPackets   # dict
-        # return json.dumps(list(sessionPackets.values()), indent=2)  # string
+        for sessionID in sessionPackets.keys():
+            if sessionID in sessionIDtoAssociatedDict.keys():
+                sessionPackets[sessionID]["sessionInfo"]["associatedSessions"] = list(sessionIDtoAssociatedDict[sessionID])
+                
+        return json.dumps(list(sessionPackets.values()), indent=2)
     
     
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath):

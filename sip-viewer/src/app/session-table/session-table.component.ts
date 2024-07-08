@@ -9,14 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
-import { filter } from 'd3';
-
-interface SessionDict {
-  Time: string;
-  SessionID: string;
-  Sender: string;
-  Receiver: string;
-}
+import { Session } from '../session';
 
 @Component({
   selector: 'app-session-table',
@@ -38,81 +31,105 @@ interface SessionDict {
 export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
 
-  // Fetching data and creating table
-  sessionIDList: string[] = [];
-  senders: string[] = [];
-  receivers: string[] = [];
-  times: string[] = [];
-  tableData: any[] = []; //List of dictionaries which represent a session
-  columnsToDisplay = ['Select', 'Time', 'Session ID', 'Sender', 'Receiver'];
+  tableData: Session[] = [];
+  columnsToDisplay = [
+    'Select',
+    'Time',
+    'Session ID',
+    'From',
+    'To',
+    'Related Sessions',
+  ];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
-  selection = new SelectionModel<any>(true, []); // Selected sessions
+  selection = new SelectionModel<Session>(true, []); // Selected sessions
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
-  // relationSelection = new SelectionModel<boolean>(true, []);
 
   constructor(private dataService: DataService) {}
 
   ngAfterViewInit(): void {
     this.fetchSessions();
   }
-
   fetchSessions(): void {
-    this.dataService.getMessages().subscribe(
-      (messages: any[]) => {
-        // Empty table and deselect sessions to avoid duplicates when uploading new file
+    this.dataService.getSessions().subscribe(
+      (sessions: Session[]) => {
+        // Empty table and deselect sessions to avoid duplicates when uploading new file, but keep ID to reselect selected
+        let oldSelectedSessionIDs: string[] = this.selection.selected.map(
+          (session) => session.sessionInfo.sessionID
+        );
         this.tableData = [];
         this.selection.clear();
 
-        // Extract unique session IDs and add time, session ID, sender and receiver to lists
+        // Extract unique session IDs and add time, session ID, from and to to lists
         const sessionIDs = new Set<string>();
-        const phoneNumberPattern = /<sip:?(\+?\d+)@/;
-        messages.forEach((message) => {
-          if (!sessionIDs.has(message.startLine.sessionID)) {
-            // Only add sender, receiver and time if it is the first message with this sessionID
-            this.times.push(message.startLine.time);
-            sessionIDs.add(message.startLine.sessionID);
-            let msgSender = 'Not Found';
-            let msgReciever = 'Not Found';
+        const phoneNumberPattern = /<sip:(\+?\d+)(?=@)/;
+        const otherPattern = /<sip:([^>]+)>/;
+        sessions.forEach((session) => {
+          if (!sessionIDs.has(session.sessionInfo.sessionID)) {
+            sessionIDs.add(session.sessionInfo.sessionID);
+            let msgFrom = 'Not Found';
+            let msgTo = 'Not Found';
             try {
-              msgSender =
-                message.sipHeader['From'][0].match(phoneNumberPattern)[1]; // Keep only the phone number
-              msgReciever =
-                message.sipHeader['To'][0].match(phoneNumberPattern)[1]; // Keep only the phone number
+              if (session.sessionInfo.from) {
+                const matchResult =
+                  session.sessionInfo.from.match(phoneNumberPattern) ||
+                  session.sessionInfo.from.match(otherPattern);
+                if (matchResult) {
+                  msgFrom = matchResult[1];
+                }
+              }
+
+              if (session.sessionInfo.to) {
+                const matchResult =
+                  session.sessionInfo.to.match(phoneNumberPattern) ||
+                  session.sessionInfo.to.match(otherPattern);
+                if (matchResult) {
+                  msgTo = matchResult[1];
+                }
+              }
             } catch {
               try {
-                msgSender = message.sipHeader['From'][0];
-                msgReciever = message.sipHeader['To'][0];
+                msgFrom = session.sessionInfo.from;
+                msgTo = session.sessionInfo.to;
               } catch {
                 console.log(
-                  'Error with fetching sender/reciever from: ',
-                  message.sipHeader
+                  'Error with fetching from/to from: ',
+                  session.sessionInfo
                 );
               }
             }
-            this.senders.push(msgSender);
-            this.receivers.push(msgReciever);
 
-            // Create new dictionary and add it to tableData
-            let newDict: SessionDict = {
-              Time: '',
-              SessionID: '',
-              Sender: '',
-              Receiver: '',
+            // TODO: Format date - not possible to format and still keep Date type. Possible solution: change from Date to string in SessionInfo interface, but this also requires changes other places (e.g., uploadFileContent in data service)
+            const formattedDate = this.getDateString(session.sessionInfo.time);
+
+            let newSession: Session = {
+              sessionInfo: {
+                sessionID: session.sessionInfo.sessionID,
+                time: session.sessionInfo.time,
+                from: msgFrom,
+                to: msgTo,
+                associatedSessions: session.sessionInfo.associatedSessions,
+              },
+              messages: session.messages,
             };
-
-            const date = this.getDateString(message.startLine.time);
-            newDict['Time'] = date;
-            newDict['SessionID'] = message.startLine.sessionID;
-            newDict['Sender'] = msgSender;
-            newDict['Receiver'] = msgReciever;
-            this.tableData.push(newDict);
+            newSession.sessionInfo.from = msgFrom;
+            newSession.sessionInfo.to = msgTo;
+            this.tableData.push(newSession);
           }
         });
-        this.sessionIDList = Array.from(sessionIDs);
+        //For each session in tabledata, if it was selected previously select again
+        this.tableData.forEach((session) => {
+          if (
+            oldSelectedSessionIDs.indexOf(session.sessionInfo.sessionID) !== -1
+          ) {
+            this.selection.select(session);
+          }
+
+          this.dataService.updateSelectedSessionsByList(this.updatedSessions());
+        });
         this.dataSource = new MatTableDataSource(this.tableData);
 
-        // // Select all sessions when the application is started
+        // Select all sessions when the application is started
         // this.selection.select(...this.dataSource.data);
         // this.dataService.updateSelectedSessionsByList(this.updatedSessions());
       },
@@ -153,8 +170,8 @@ export class SessionTableComponent implements AfterViewInit {
     return n;
   }
 
-  getSelectedSessions(): SessionDict[] {
-    const selectedSessions: SessionDict[] = [];
+  getSelectedSessions(): Session[] {
+    const selectedSessions: Session[] = [];
     this.selection.selected.forEach((session) => {
       selectedSessions.push(session);
     });
@@ -162,22 +179,51 @@ export class SessionTableComponent implements AfterViewInit {
   }
 
   updatedSessions(): string[] {
-    const selectedSessions: SessionDict[] = [];
+    const selectedSessions: Session[] = [];
     this.selection.selected.forEach((session) => {
       selectedSessions.push(session);
     });
     const sessionIDsToPush: string[] = selectedSessions.map(
-      (dict) => dict.SessionID
+      (session) => session.sessionInfo.sessionID
     );
     return sessionIDsToPush;
   }
 
-  onCheckboxClicked(row: any): void {
+  onCheckboxClicked(row: Session): void {
     const selectedSessions = this.getSelectedSessions();
-    if (selectedSessions.includes(row)) {
-      this.selection.deselect(row);
-    } else {
-      this.selection.select(row);
+    if (this.relationsActivated === false) {
+      if (selectedSessions.includes(row)) {
+        this.selection.deselect(row);
+      } else {
+        this.selection.select(row);
+      }
+    }
+    // Automatically select/deselect all related sessions
+    else if (this.relationsActivated === true) {
+      const relatedSessionIDsForRow = row.sessionInfo.associatedSessions;
+      const relatedSessionsForRow = [];
+      for (let i = 0; i < relatedSessionIDsForRow.length; i++) {
+        const relatedSessionID = relatedSessionIDsForRow[i];
+        const relatedSession = this.tableData.find(
+          (session) => session.sessionInfo.sessionID === relatedSessionID
+        );
+        if (relatedSession) {
+          relatedSessionsForRow.push(relatedSession);
+        } else {
+          console.warn(
+            `Session with ID ${relatedSessionID} not found in tableData.`
+          );
+        }
+      }
+      if (selectedSessions.includes(row)) {
+        relatedSessionsForRow.forEach((session) => {
+          this.selection.deselect(session);
+        });
+      } else {
+        relatedSessionsForRow.forEach((session) =>
+          this.selection.select(session)
+        );
+      }
     }
     this.dataService.updateSelectedSessionsByList(this.updatedSessions());
   }
@@ -215,8 +261,8 @@ export class SessionTableComponent implements AfterViewInit {
     let column: string | null = null;
     let searchValue = filterValue;
 
-    const regex = /^(time|session id|sender|receiver)\s*=\s*(.*)$/i;
-    const match = regex.exec(filterValue);
+    const filterPattern = /^(time|sessionid|session id|from|to)\s*=\s*(.*)$/i;
+    const match = filterPattern.exec(filterValue);
 
     if (match) {
       column =
@@ -251,6 +297,5 @@ export class SessionTableComponent implements AfterViewInit {
       console.log('Checkbox was toggled!');
       this.relationsActivated = true;
     }
-    // Logic for choosing all related sessions in the session table
   }
 }
