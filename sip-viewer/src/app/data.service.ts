@@ -134,13 +134,15 @@ export class DataService {
           return session;
         }
       );
+
       let currentSessions: Session[] = [];
       this.getSessions().subscribe((sessions: Session[]) => {
         currentSessions = sessions;
       });
-      formattedSessions.forEach((session: Session) => {
-        currentSessions.push(session);
-      });
+      currentSessions = this.mergeSessionLists(
+        currentSessions,
+        formattedSessions
+      );
       this.sessions.next(currentSessions);
 
       const allMessages: Message[] = currentSessions.reduce(
@@ -158,6 +160,29 @@ export class DataService {
     } catch (error) {
       console.error('Error parsing or processing file content', error);
     }
+  }
+
+  mergeSessionLists(sessions1: Session[], sessions2: Session[]) {
+    const mergeSessionMap: { [key: string]: Session } = {};
+    function addOrMerge(session: Session) {
+      if (mergeSessionMap[session.sessionInfo.sessionID]) {
+        let currentSessionEntry =
+          mergeSessionMap[session.sessionInfo.sessionID];
+        if (currentSessionEntry.sessionInfo.time > session.sessionInfo.time) {
+          //If currentSessionEntry older than new entry
+          currentSessionEntry.sessionInfo = session.sessionInfo;
+        }
+        currentSessionEntry.messages = currentSessionEntry.messages.concat(
+          session.messages
+        );
+      } else {
+        mergeSessionMap[session.sessionInfo.sessionID] = { ...session };
+      }
+    }
+    sessions1.forEach((session) => addOrMerge(session));
+    sessions2.forEach((session) => addOrMerge(session));
+
+    return Object.values(mergeSessionMap);
   }
 
   clearUploadedFileContent() {
