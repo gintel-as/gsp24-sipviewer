@@ -11,13 +11,6 @@ import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Session } from '../session';
 
-interface SessionDict {
-  Time: string;
-  SessionID: string;
-  From: string;
-  To: string;
-}
-
 @Component({
   selector: 'app-session-table',
   standalone: true,
@@ -38,10 +31,17 @@ interface SessionDict {
 export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
 
-  tableData: any[] = []; //List of dictionaries which represent a session
-  columnsToDisplay = ['Select', 'Time', 'Session ID', 'From', 'To'];
+  tableData: Session[] = [];
+  columnsToDisplay = [
+    'Select',
+    'Time',
+    'Session ID',
+    'From',
+    'To',
+    'Related Sessions',
+  ];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
-  selection = new SelectionModel<any>(true, []); // Selected sessions
+  selection = new SelectionModel<Session>(true, []); // Selected sessions
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
 
@@ -50,7 +50,6 @@ export class SessionTableComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.fetchSessions();
   }
-
   fetchSessions(): void {
     this.dataService.getSessions().subscribe(
       (sessions: Session[]) => {
@@ -97,20 +96,22 @@ export class SessionTableComponent implements AfterViewInit {
               }
             }
 
-            // Create new dictionary and add it to tableData
-            let newDict: SessionDict = {
-              Time: '',
-              SessionID: '',
-              From: '',
-              To: '',
-            };
+            // TODO: Format date - not possible to format and still keep Date type. Possible solution: change from Date to string in SessionInfo interface, but this also requires changes other places (e.g., uploadFileContent in data service)
+            const formattedDate = this.getDateString(session.sessionInfo.time);
 
-            const date = this.getDateString(session.sessionInfo.time);
-            newDict['Time'] = date;
-            newDict['SessionID'] = session.sessionInfo.sessionID;
-            newDict['From'] = msgFrom;
-            newDict['To'] = msgTo;
-            this.tableData.push(newDict);
+            let newSession: Session = {
+              sessionInfo: {
+                sessionID: session.sessionInfo.sessionID,
+                time: session.sessionInfo.time,
+                from: msgFrom,
+                to: msgTo,
+                associatedSessions: session.sessionInfo.associatedSessions,
+              },
+              messages: session.messages,
+            };
+            newSession.sessionInfo.from = msgFrom;
+            newSession.sessionInfo.to = msgTo;
+            this.tableData.push(newSession);
           }
         });
         this.dataSource = new MatTableDataSource(this.tableData);
@@ -156,8 +157,8 @@ export class SessionTableComponent implements AfterViewInit {
     return n;
   }
 
-  getSelectedSessions(): SessionDict[] {
-    const selectedSessions: SessionDict[] = [];
+  getSelectedSessions(): Session[] {
+    const selectedSessions: Session[] = [];
     this.selection.selected.forEach((session) => {
       selectedSessions.push(session);
     });
@@ -165,22 +166,51 @@ export class SessionTableComponent implements AfterViewInit {
   }
 
   updatedSessions(): string[] {
-    const selectedSessions: SessionDict[] = [];
+    const selectedSessions: Session[] = [];
     this.selection.selected.forEach((session) => {
       selectedSessions.push(session);
     });
     const sessionIDsToPush: string[] = selectedSessions.map(
-      (dict) => dict.SessionID
+      (session) => session.sessionInfo.sessionID
     );
     return sessionIDsToPush;
   }
 
-  onCheckboxClicked(row: any): void {
+  onCheckboxClicked(row: Session): void {
     const selectedSessions = this.getSelectedSessions();
-    if (selectedSessions.includes(row)) {
-      this.selection.deselect(row);
-    } else {
-      this.selection.select(row);
+    if (this.relationsActivated === false) {
+      if (selectedSessions.includes(row)) {
+        this.selection.deselect(row);
+      } else {
+        this.selection.select(row);
+      }
+    }
+    // Automatically select/deselect all related sessions
+    else if (this.relationsActivated === true) {
+      const relatedSessionIDsForRow = row.sessionInfo.associatedSessions;
+      const relatedSessionsForRow = [];
+      for (let i = 0; i < relatedSessionIDsForRow.length; i++) {
+        const relatedSessionID = relatedSessionIDsForRow[i];
+        const relatedSession = this.tableData.find(
+          (session) => session.sessionInfo.sessionID === relatedSessionID
+        );
+        if (relatedSession) {
+          relatedSessionsForRow.push(relatedSession);
+        } else {
+          console.warn(
+            `Session with ID ${relatedSessionID} not found in tableData.`
+          );
+        }
+      }
+      if (selectedSessions.includes(row)) {
+        relatedSessionsForRow.forEach((session) => {
+          this.selection.deselect(session);
+        });
+      } else {
+        relatedSessionsForRow.forEach((session) =>
+          this.selection.select(session)
+        );
+      }
     }
     this.dataService.updateSelectedSessionsByList(this.updatedSessions());
   }
@@ -218,8 +248,8 @@ export class SessionTableComponent implements AfterViewInit {
     let column: string | null = null;
     let searchValue = filterValue;
 
-    const regex = /^(time|session id|from|to)\s*=\s*(.*)$/i;
-    const match = regex.exec(filterValue);
+    const filterPattern = /^(time|sessionid|session id|from|to)\s*=\s*(.*)$/i;
+    const match = filterPattern.exec(filterValue);
 
     if (match) {
       column =
@@ -254,6 +284,5 @@ export class SessionTableComponent implements AfterViewInit {
       console.log('Checkbox was toggled!');
       this.relationsActivated = true;
     }
-    // Logic for choosing all related sessions in the session table
   }
 }
