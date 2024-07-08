@@ -16,6 +16,7 @@ interface SessionDict {
   SessionID: string;
   From: string;
   To: string;
+  RelatedSessions: string[];
 }
 
 @Component({
@@ -39,7 +40,14 @@ export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
 
   tableData: any[] = []; //List of dictionaries which represent a session
-  columnsToDisplay = ['Select', 'Time', 'Session ID', 'From', 'To'];
+  columnsToDisplay = [
+    'Select',
+    'Time',
+    'Session ID',
+    'From',
+    'To',
+    'Related Sessions',
+  ];
   dataSource = new MatTableDataSource(this.tableData); // Data used in the table
   selection = new SelectionModel<any>(true, []); // Selected sessions
   filterActive = false; // Used to check whether filter is given input
@@ -103,6 +111,7 @@ export class SessionTableComponent implements AfterViewInit {
               SessionID: '',
               From: '',
               To: '',
+              RelatedSessions: [],
             };
 
             const date = this.getDateString(session.sessionInfo.time);
@@ -110,6 +119,7 @@ export class SessionTableComponent implements AfterViewInit {
             newDict['SessionID'] = session.sessionInfo.sessionID;
             newDict['From'] = msgFrom;
             newDict['To'] = msgTo;
+            newDict['RelatedSessions'] = session.sessionInfo.associatedSessions;
             this.tableData.push(newDict);
           }
         });
