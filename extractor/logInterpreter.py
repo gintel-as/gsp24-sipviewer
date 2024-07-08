@@ -235,11 +235,10 @@ class LogInterpreter:
         return sessionPackets
     
     
-    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath):
+    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionID):
         f = open(filePath, "w")
-        session = '103969265'
         jsonText = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
-        jsonText = self.filterAssociatedSessions(jsonText, session)        
+        jsonText = self.filterAssociatedSessions(jsonText, sessionID)        
         f.write(jsonText)
         f.close()
 
@@ -252,4 +251,7 @@ if __name__ == "__main__":
     startLines = []
     headers = []
     body = []
-    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath)
+
+    session = '103969265'
+
+    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath, session)
