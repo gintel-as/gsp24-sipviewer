@@ -1,11 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  Inject,
-  LOCALE_ID,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { DataService } from '../data.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -51,10 +45,7 @@ export class SessionTableComponent implements AfterViewInit {
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
 
-  constructor(
-    private dataService: DataService,
-    @Inject(LOCALE_ID) private locale: string
-  ) {}
+  constructor(private dataService: DataService) {}
 
   ngAfterViewInit(): void {
     this.fetchSessions();
