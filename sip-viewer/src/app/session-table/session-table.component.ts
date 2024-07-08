@@ -31,7 +31,7 @@ import { Session } from '../session';
 export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
 
-  tableData: Session[] = []; //List of dictionaries which represent a session
+  tableData: Session[] = [];
   columnsToDisplay = [
     'Select',
     'Time',
