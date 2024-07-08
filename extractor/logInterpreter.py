@@ -151,6 +151,7 @@ class LogInterpreter:
     
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
+        #SessionPackets is dict for session data, sessionIDtoAssociatedDict is a defaultDict for bidirecitonal linking of associated sessions
         sessionPackets = {}
         sessionIDtoAssociatedDict = defaultdict(set)
         #Iterate over all sessions
@@ -181,9 +182,11 @@ class LogInterpreter:
                              currentSessionInfo['participants'].append(el)
                 for associatedSessionKey in associatedSessionIDKeys:
                     relatedSessionIDs = sipContent[associatedSessionKey][0].replace(' ', '').split(',')
+                    #For each related sessionID to current session, fetch all their associated sessionIDs and populate array
                     for el in relatedSessionIDs:
                         if len(sessionIDtoAssociatedDict[el]) > 0:
                           relatedSessionIDs= relatedSessionIDs + list(sessionIDtoAssociatedDict[el])
+                    #Convert to set to remove duplicates, and update dictionary entry of all sessionIDs
                     relatedSessionIDs = set(relatedSessionIDs)
                     for el in relatedSessionIDs:
                         sessionIDtoAssociatedDict[el].update(relatedSessionIDs)
