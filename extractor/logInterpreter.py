@@ -232,7 +232,7 @@ class LogInterpreter:
             if sessionID in sessionIDtoAssociatedDict.keys():
                 sessionPackets[sessionID]["sessionInfo"]["associatedSessions"] = list(sessionIDtoAssociatedDict[sessionID])
                 
-        return json.dumps(list(sessionPackets.values()), indent=2)
+        return sessionPackets
     
     
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath):
