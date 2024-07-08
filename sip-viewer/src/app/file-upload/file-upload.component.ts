@@ -21,7 +21,11 @@ export class FileUploadComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length) {
       const file = input.files[0];
-      this.fileName = file.name;
+      if (!this.fileName) {
+        this.fileName = file.name;
+      } else {
+        this.fileName = `${this.fileName}, ${file.name}`;
+      }
 
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -30,5 +34,10 @@ export class FileUploadComponent {
       };
       reader.readAsText(file);
     }
+  }
+
+  clearSelectedFiles() {
+    this.dataService.clearUploadedFileContent();
+    this.fileName = '';
   }
 }

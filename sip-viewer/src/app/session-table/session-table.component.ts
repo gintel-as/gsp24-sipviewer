@@ -53,7 +53,10 @@ export class SessionTableComponent implements AfterViewInit {
   fetchSessions(): void {
     this.dataService.getSessions().subscribe(
       (sessions: Session[]) => {
-        // Empty table and deselect sessions to avoid duplicates when uploading new file
+        // Empty table and deselect sessions to avoid duplicates when uploading new file, but keep ID to reselect selected
+        let oldSelectedSessionIDs: string[] = this.selection.selected.map(
+          (session) => session.sessionInfo.sessionID
+        );
         this.tableData = [];
         this.selection.clear();
 
@@ -113,6 +116,16 @@ export class SessionTableComponent implements AfterViewInit {
             newSession.sessionInfo.to = msgTo;
             this.tableData.push(newSession);
           }
+        });
+        //For each session in tabledata, if it was selected previously select again
+        this.tableData.forEach((session) => {
+          if (
+            oldSelectedSessionIDs.indexOf(session.sessionInfo.sessionID) !== -1
+          ) {
+            this.selection.select(session);
+          }
+
+          this.dataService.updateSelectedSessionsByList(this.updatedSessions());
         });
         this.dataSource = new MatTableDataSource(this.tableData);
 
