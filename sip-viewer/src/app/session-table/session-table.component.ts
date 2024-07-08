@@ -1,4 +1,4 @@
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { DataService } from '../data.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -11,12 +11,13 @@ import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatSelectModule, matSelectAnimations } from '@angular/material/select';
 import { FormControl } from '@angular/forms';
+import { Session } from '../session';
 
 interface SessionDict {
   Time: string;
   SessionID: string;
-  Sender: string;
-  Receiver: string;
+  From: string;
+  To: string;
 }
 
 @Component({
@@ -24,6 +25,7 @@ interface SessionDict {
   standalone: true,
   imports: [
     NgFor,
+    NgIf,
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
@@ -39,11 +41,6 @@ interface SessionDict {
 export class SessionTableComponent implements AfterViewInit {
   @ViewChild('headerCheckbox') headerCheckbox!: MatCheckbox;
 
-  // Fetching data and creating table
-  sessionIDList: string[] = [];
-  senders: string[] = [];
-  receivers: string[] = [];
-  times: string[] = [];
   tableData: any[] = []; //List of dictionaries which represent a session
   columnsToDisplay = [
     'Select',
@@ -72,11 +69,8 @@ export class SessionTableComponent implements AfterViewInit {
   ];
   arrowStyleList: string[] = ['Connected', 'Dotted long', 'Dotted short'];
   colors = new FormControl('');
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
+  filterActive = false; // Used to check whether filter is given input
+  relationsActivated = false;
 
   constructor(private dataService: DataService) {}
 
@@ -85,66 +79,108 @@ export class SessionTableComponent implements AfterViewInit {
   }
 
   fetchSessions(): void {
-    this.dataService.getMessages().subscribe(
-      (messages: any[]) => {
+    this.dataService.getSessions().subscribe(
+      (sessions: Session[]) => {
         // Empty table and deselect sessions to avoid duplicates when uploading new file
         this.tableData = [];
         this.selection.clear();
 
-        // Extract unique session IDs and add time, session ID, sender and receiver to lists
+        // Extract unique session IDs and add time, session ID, from and to to lists
         const sessionIDs = new Set<string>();
-        const phoneNumberPattern = /<sip:?(\+?\d+)@/;
-        messages.forEach((message) => {
-          if (!sessionIDs.has(message.startLine.sessionID)) {
-            // Only add sender, receiver and time if it is the first message with this sessionID
-            this.times.push(message.startLine.time);
-            sessionIDs.add(message.startLine.sessionID);
-            let msgSender = 'Not Found';
-            let msgReciever = 'Not Found';
+        const phoneNumberPattern = /<sip:(\+?\d+)(?=@)/;
+        const otherPattern = /<sip:([^>]+)>/;
+        sessions.forEach((session) => {
+          if (!sessionIDs.has(session.sessionInfo.sessionID)) {
+            sessionIDs.add(session.sessionInfo.sessionID);
+            let msgFrom = 'Not Found';
+            let msgTo = 'Not Found';
             try {
-              msgSender =
-                message.sipHeader['From'][0].match(phoneNumberPattern)[1]; // Keep only the phone number
-              msgReciever =
-                message.sipHeader['To'][0].match(phoneNumberPattern)[1]; // Keep only the phone number
+              if (session.sessionInfo.from) {
+                const matchResult =
+                  session.sessionInfo.from.match(phoneNumberPattern) ||
+                  session.sessionInfo.from.match(otherPattern);
+                if (matchResult) {
+                  msgFrom = matchResult[1];
+                }
+              }
+
+              if (session.sessionInfo.to) {
+                const matchResult =
+                  session.sessionInfo.to.match(phoneNumberPattern) ||
+                  session.sessionInfo.to.match(otherPattern);
+                if (matchResult) {
+                  msgTo = matchResult[1];
+                }
+              }
             } catch {
               try {
-                msgSender = message.sipHeader['From'][0];
-                msgReciever = message.sipHeader['To'][0];
+                msgFrom = session.sessionInfo.from;
+                msgTo = session.sessionInfo.to;
               } catch {
                 console.log(
-                  'Error with fetching sender/reciever from: ',
-                  message.sipHeader
+                  'Error with fetching from/to from: ',
+                  session.sessionInfo
                 );
               }
             }
-            this.senders.push(msgSender);
-            this.receivers.push(msgReciever);
 
             // Create new dictionary and add it to tableData
             let newDict: SessionDict = {
               Time: '',
               SessionID: '',
-              Sender: '',
-              Receiver: '',
+              From: '',
+              To: '',
             };
-            newDict['Time'] = message.startLine.time;
-            newDict['SessionID'] = message.startLine.sessionID;
-            newDict['Sender'] = msgSender;
-            newDict['Receiver'] = msgReciever;
+
+            const date = this.getDateString(session.sessionInfo.time);
+            newDict['Time'] = date;
+            newDict['SessionID'] = session.sessionInfo.sessionID;
+            newDict['From'] = msgFrom;
+            newDict['To'] = msgTo;
             this.tableData.push(newDict);
           }
         });
-        this.sessionIDList = Array.from(sessionIDs);
         this.dataSource = new MatTableDataSource(this.tableData);
 
         // Select all sessions when the application is started
-        this.selection.select(...this.dataSource.data);
-        this.dataService.updateSelectedSessionsByList(this.updatedSessions());
+        // this.selection.select(...this.dataSource.data);
+        // this.dataService.updateSelectedSessionsByList(this.updatedSessions());
       },
       (error) => {
         console.error('Error fetching messages', error);
       }
     );
+  }
+
+  addZeroInFront(n: number) {
+    if (n < 10) {
+      return `0${n}`;
+    }
+    return `${n}`;
+  }
+
+  getDateString(date: Date) {
+    return `${date.getFullYear()}-${this.addZeroInFront(
+      date.getMonth()
+    )}-${this.addZeroInFront(date.getDay())} ${this.getTimeString(date)}`;
+  }
+
+  getTimeString(date: Date) {
+    return `${this.addZeroInFront(date.getHours())}:${this.addZeroInFront(
+      date.getMinutes()
+    )}:${this.addZeroInFront(
+      date.getSeconds()
+    )}.${this.addZeroBehindForThreeDigits(date.getMilliseconds())}`;
+  }
+
+  addZeroBehindForThreeDigits(n: number) {
+    if (n < 10) {
+      return n * 100;
+    }
+    if (n < 100) {
+      return n * 10;
+    }
+    return n;
   }
 
   getSelectedSessions(): SessionDict[] {
@@ -199,5 +235,52 @@ export class SessionTableComponent implements AfterViewInit {
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
       row.position + 1
     }`;
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value
+      .trim()
+      .toLowerCase();
+
+    let column: string | null = null;
+    let searchValue = filterValue;
+
+    const filterPattern = /^(time|sessionid|session id|from|to)\s*=\s*(.*)$/i;
+    const match = filterPattern.exec(filterValue);
+
+    if (match) {
+      column =
+        match[1].charAt(0).toUpperCase() +
+        match[1].slice(1).replace(/\s+/g, '');
+      searchValue = match[2].trim();
+    }
+
+    this.filterActive = filterValue.length > 0;
+
+    // Set custom filter predicate based on the column
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      if (column) {
+        return data[column]?.toString().toLowerCase().includes(filter);
+      } else {
+        return Object.values(data).some((value) => {
+          if (typeof value === 'string' || typeof value === 'number') {
+            return value.toString().toLowerCase().includes(filter);
+          }
+          return false;
+        });
+      }
+    };
+    this.dataSource.filter = searchValue;
+  }
+
+  onRelationsCheckboxClicked() {
+    if (this.relationsActivated === true) {
+      console.log('Checkbox was untoggled!');
+      this.relationsActivated = false;
+    } else if (this.relationsActivated === false) {
+      console.log('Checkbox was toggled!');
+      this.relationsActivated = true;
+    }
+    // Logic for choosing all related sessions in the session table
   }
 }
