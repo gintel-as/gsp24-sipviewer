@@ -162,17 +162,12 @@ class LogInterpreter:
             print('SessionID: ', sessionID)
             # Finds relatedSessions for selected sessionID
             if sessionID in dict:
-                for key in dict:
-                    if key == sessionID:
-                        relatedSessions = dict[key]['sessionInfo']['associatedSessions']
-                
+                relatedSessions = dict[sessionID]['sessionInfo']['associatedSessions']
                 print(f"Related sessions: {relatedSessions}")
-
                 # Filters out all sessions not in relatedSessions[]
-                for x in relatedSessions:
-                    for key in dict:
-                        if key == x:
-                            result[key] = dict[key]
+                for session in relatedSessions:
+                    if session in dict:
+                        result[session] = dict[session]
             else:
                 print(f"SessionID {sessionID} not found.")
                 result = {}
