@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Session } from '../session';
+import Utils from '../sequence-diagram/utils';
 
 @Component({
   selector: 'app-session-table',
@@ -97,7 +98,7 @@ export class SessionTableComponent implements AfterViewInit {
             }
 
             // TODO: Format date - not possible to format and still keep Date type. Possible solution: change from Date to string in SessionInfo interface, but this also requires changes other places (e.g., uploadFileContent in data service)
-            const formattedDate = this.getDateString(session.sessionInfo.time);
+            const formattedDate = Utils.getDateString(session.sessionInfo.time);
 
             let newSession: Session = {
               sessionInfo: {
@@ -124,37 +125,6 @@ export class SessionTableComponent implements AfterViewInit {
         console.error('Error fetching messages', error);
       }
     );
-  }
-
-  addZeroInFront(n: number) {
-    if (n < 10) {
-      return `0${n}`;
-    }
-    return `${n}`;
-  }
-
-  getDateString(date: Date) {
-    return `${date.getFullYear()}-${this.addZeroInFront(
-      date.getMonth()
-    )}-${this.addZeroInFront(date.getDay())} ${this.getTimeString(date)}`;
-  }
-
-  getTimeString(date: Date) {
-    return `${this.addZeroInFront(date.getHours())}:${this.addZeroInFront(
-      date.getMinutes()
-    )}:${this.addZeroInFront(
-      date.getSeconds()
-    )}.${this.addZeroBehindForThreeDigits(date.getMilliseconds())}`;
-  }
-
-  addZeroBehindForThreeDigits(n: number) {
-    if (n < 10) {
-      return n * 100;
-    }
-    if (n < 100) {
-      return n * 10;
-    }
-    return n;
   }
 
   getSelectedSessions(): Session[] {
