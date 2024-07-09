@@ -53,7 +53,10 @@ export class SessionTableComponent implements AfterViewInit {
   fetchSessions(): void {
     this.dataService.getSessions().subscribe(
       (sessions: Session[]) => {
-        // Empty table and deselect sessions to avoid duplicates when uploading new file
+        // Empty table and deselect sessions to avoid duplicates when uploading new file, but keep ID to reselect selected
+        let oldSelectedSessionIDs: string[] = this.selection.selected.map(
+          (session) => session.sessionInfo.sessionID
+        );
         this.tableData = [];
         this.selection.clear();
 
@@ -113,6 +116,16 @@ export class SessionTableComponent implements AfterViewInit {
             newSession.sessionInfo.to = msgTo;
             this.tableData.push(newSession);
           }
+        });
+        //For each session in tabledata, if it was selected previously select again
+        this.tableData.forEach((session) => {
+          if (
+            oldSelectedSessionIDs.indexOf(session.sessionInfo.sessionID) !== -1
+          ) {
+            this.selection.select(session);
+          }
+
+          this.dataService.updateSelectedSessionsByList(this.updatedSessions());
         });
         this.dataSource = new MatTableDataSource(this.tableData);
 
@@ -261,17 +274,46 @@ export class SessionTableComponent implements AfterViewInit {
 
     this.filterActive = filterValue.length > 0;
 
-    // Set custom filter predicate based on the column
+    // Set custom filter predicate based on filter
     this.dataSource.filterPredicate = (data: any, filter: string) => {
+      //If filter predicate matches column, only look at selected column
       if (column) {
-        return data[column]?.toString().toLowerCase().includes(filter);
+        if (column == 'Sessionid') {
+          return data.sessionInfo.sessionID
+            ?.toString()
+            .toLowerCase()
+            .startsWith(filter);
+        }
+        if (column == 'From') {
+          //potentially change to smarter .startsWith using either country code or not
+          return data.sessionInfo.from
+            ?.toString()
+            .toLowerCase()
+            .includes(filter);
+        }
+        if (column == 'To') {
+          return data.sessionInfo.to?.toString().toLowerCase().includes(filter);
+        }
+        if (column == 'Time') {
+          return this.getDateString(data.sessionInfo.time)
+            ?.toLowerCase()
+            .includes(filter);
+        }
+        //No column matches
+        return false;
       } else {
-        return Object.values(data).some((value) => {
-          if (typeof value === 'string' || typeof value === 'number') {
-            return value.toString().toLowerCase().includes(filter);
-          }
-          return false;
-        });
+        // Returns true if any column content matches filter
+        return (
+          data.sessionInfo.sessionID
+            ?.toString()
+            .toLowerCase()
+            .startsWith(filter) ||
+          data.sessionInfo.to?.toString().toLowerCase().includes(filter) ||
+          data.sessionInfo.from?.toString().toLowerCase().includes(filter) ||
+          this.getDateString(data.sessionInfo.time)
+            ?.toLowerCase()
+            .includes(filter)
+        );
       }
     };
     this.dataSource.filter = searchValue;
