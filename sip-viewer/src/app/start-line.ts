@@ -1,5 +1,5 @@
 export interface StartLine {
-  time: Date;
+  time: string;
   sessionID: string;
   messageID: string;
   direction: string;
