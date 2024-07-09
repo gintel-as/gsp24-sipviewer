@@ -96,7 +96,11 @@
       *matHeaderRowDef="columnsToDisplay"
       class="table-header"
     ></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: columnsToDisplay"
+      [class.selected]="selection.isSelected(row)"
+    ></tr>
 
     <!-- Row shown when there is no matching data. -->
     <tr class="mat-row" *matNoDataRow>

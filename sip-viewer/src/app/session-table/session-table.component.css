@@ -36,3 +36,7 @@ mat-checkbox {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.selected {
+  background-color: #f3dde1; /* Example color, change as needed */
+}
