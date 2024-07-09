@@ -1,0 +1,72 @@
+.portal-container {
+  height: 100%;
+  padding: 3em;
+
+  display: flex;
+  justify-content: center;
+  background-color: #a52a2a;
+}
+
+.portal-grid-container {
+  background-color: #f0f8ff;
+  height: 60%;
+  width: 80%;
+  display: grid;
+  grid-template-columns: 33% 67%;
+}
+
+.portal-grid-item {
+  padding: 20px;
+}
+
+.file-upload-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+}
+
+.file-upload-content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-style: dashed;
+
+  cursor: pointer;
+}
+
+.file-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  background-color: #fff;
+}
+
+.remove-button {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 20px;
+}

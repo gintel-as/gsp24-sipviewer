@@ -1,16 +1,81 @@
-.spacer {
-  flex: 1 1 auto;
+.main-container {
+  display: flex;
+  height: calc(100vh - 64px); /* Adjust height to account for toolbar */
+  margin-top: 64px; /* Space for toolbar */
 }
 
-#appContainer {
+.resizable-div-left-wrapper,
+.resizable-div-top-wrapper {
   position: relative;
-  top: 200px;
+}
+
+.resizable-div-left {
+  background-color: lightgrey;
+  overflow: scroll;
+  white-space: nowrap;
+  height: 100%;
+}
+
+.right-container {
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100;
-  height: 150px;
-  background-color: #fd4140;
-  border: solid 1px #121621;
-  margin: auto;
+  flex-direction: column;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.resizable-div-left,
+.resizable-div-top,
+.resizable-div-bottom {
+  border: 1px solid #000;
+  flex-shrink: 0;
+  user-select: auto;
+  position: relative;
+}
+
+.resizable-div-top {
+  background-color: lightgrey;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+.resizable-div-bottom {
+  background-color: lightgrey;
+  flex: 1;
+  /* Remember to remove overflow auto since the child div of this resizable-div-bottom should scrool */
+  overflow: auto;
+  white-space: nowrap;
+}
+
+.resize-handle-horizontal {
+  position: absolute;
+  right: 0px;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  cursor: ew-resize;
+  background-color: darkgrey;
+  user-select: none;
+  z-index: 2000;
+}
+
+.resize-handle-vertical {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  cursor: ns-resize;
+  background-color: darkgrey;
+  user-select: none;
+  z-index: 2000;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3000;
 }
