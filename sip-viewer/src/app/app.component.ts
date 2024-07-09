@@ -12,6 +12,8 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatIconModule } from '@angular/material/icon';
+// Import services
+import { ApiService } from './api.service';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +34,25 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
+  //                      Remove later when done with flask API
+  // -------------------------------------------------------------------------------
+  storedString: string = '';
+  constructor(private apiService: ApiService) {}
+
+  storeString(newString: string): void {
+    this.apiService.storeString({ string: newString }).subscribe((response) => {
+      console.log(response.message);
+    });
+  }
+
+  getString(): void {
+    this.apiService.getString().subscribe((response) => {
+      this.storedString = response.stored_string;
+    });
+  }
+  // -------------------------------------------------------------------------------
+
+  // Resizing
   resizing = false;
   horizontalResize = false;
   verticalResize = false;

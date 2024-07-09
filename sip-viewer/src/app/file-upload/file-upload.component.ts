@@ -5,7 +5,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { DataService } from '../data.service';
 import { NgIf } from '@angular/common';
-
+import { ApiService } from '../api.service';
 @Component({
   selector: 'app-file-upload',
   standalone: true,
@@ -15,7 +15,25 @@ import { NgIf } from '@angular/common';
 })
 export class FileUploadComponent {
   fileName = '';
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private http: HttpClient,
+    private apiService: ApiService
+  ) {}
+
+  storedString: string = '';
+
+  storeString(newString: string): void {
+    this.apiService.storeString({ string: newString }).subscribe((response) => {
+      console.log(response.message);
+    });
+  }
+
+  getString(): void {
+    this.apiService.getString().subscribe((response) => {
+      this.storedString = response.stored_string;
+    });
+  }
 
   onJsonFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
