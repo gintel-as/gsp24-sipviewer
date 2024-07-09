@@ -4,40 +4,56 @@
 } */
 
 mat-toolbar {
-    position: sticky;
-    top: 0;
+  position: sticky;
+  top: 0;
 }
 
 #packetDetailSpan {
-    position: absolute;
-    padding-left: auto;
+  position: absolute;
+  padding-left: auto;
 }
 
 .spacer {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 
 button {
-    margin-left: 10px;
+  margin-left: 10px;
+}
+
+.list-startLine-item {
+  font-size: 18px;
+  color: #ca2f2c;
+  font-weight: bolder;
+  font-family: monospace;
+  list-style-type: none;
 }
 
 .list-item {
-    font-size: 18px;
-    color: #CA2F2C;
-    font-family:monospace;
-    list-style-type: none;
+  font-size: 18px;
+  color: #ca2f2c;
+  font-family: monospace;
+  list-style-type: none;
+}
+
+.dotted-line {
+  border: none;
+  border-top: 3px dotted #ca2f2c;
+  margin: 20px 0;
+  width: 350%;
 }
 
 .message-detail-wrapper {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .content {
-    /* height: 100%; */
-    overflow: auto;
+  /* height: 100%; */
+  overflow: auto;
+  width: 100%;
 }
 
 :root {
-    height: 100%;
+  height: 100%;
 }
