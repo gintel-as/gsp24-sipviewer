@@ -139,13 +139,6 @@ export class SessionTableComponent implements AfterViewInit {
     );
   }
 
-  addZeroInFront(n: number) {
-    if (n < 10) {
-      return `0${n}`;
-    }
-    return `${n}`;
-  }
-
   getDateString(date: Date) {
     return `${date.getFullYear()}-${this.addZeroInFront(
       date.getMonth()
@@ -160,6 +153,14 @@ export class SessionTableComponent implements AfterViewInit {
     )}.${this.addZeroBehindForThreeDigits(date.getMilliseconds())}`;
   }
 
+  addZeroInFront(n: number) {
+    if (n < 10) {
+      return `0${n}`;
+    }
+    return `${n}`;
+  }
+
+  //Potentially remove later, as this will "fake" a three digit millisecond timestamp
   addZeroBehindForThreeDigits(n: number) {
     if (n < 10) {
       return n * 100;

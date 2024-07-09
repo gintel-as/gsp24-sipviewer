@@ -8,6 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { Observable, find, first, tap } from 'rxjs';
 import { Message } from '../message';
+import Utils from '../sequence-diagram/utils';
 
 @Component({
   selector: 'app-message-detail',
@@ -23,7 +24,9 @@ import { Message } from '../message';
   styleUrl: './message-detail.component.css',
 })
 export class MessageDetailComponent {
-  packetDetail: any[] = [];
+  packetStartLines: any[] = [];
+  packetDetailHeader: any[] = [];
+  packetDetailBody: any[] = [];
   textToCopy: any[] = [];
   messageIDList: string[] = [];
   packetIndex: number = 0;
@@ -70,17 +73,43 @@ export class MessageDetailComponent {
 
   printPacketDetail(id: string): void {
     this.textToCopy = [];
-    this.packetDetail = [];
+    this.packetStartLines = [];
+    this.packetDetailHeader = [];
+    this.packetDetailBody = [];
     this.packetIndex = this.messageIDList.indexOf(id); // Update packet detail meta information
 
-    // flytte ut stringify logic til annen function. Kun hente ut melding her
     this.dataService.getMessageByID(id).subscribe(
       (message: Message | undefined) => {
-        let output: string[] = [];
         let sipHeaderArr = message?.sipHeader;
         let bodyArr = message?.body;
 
-        // stringifies sipHeader for printing
+        // Add startLine information
+        const packetTime =
+          message?.startLine.time instanceof Date
+            ? Utils.getDateString(message.startLine.time)
+            : 'Invalid Date';
+        const packetSessionID =
+          message?.startLine.sessionID.toString() ?? 'Not defined';
+        const packetMessageID =
+          message?.startLine.messageID.toString() ?? 'Not defined';
+        const packetDirection =
+          message?.startLine.direction.toString() ?? 'Not defined';
+        const packetParty =
+          message?.startLine.party.toString() ?? 'Not defined';
+        const startLineInfo =
+          'TIME: ' +
+          packetTime +
+          ', SESSION ID: ' +
+          packetSessionID +
+          ', MESSAGE ID: ' +
+          packetMessageID +
+          ', DIRECTION: ' +
+          packetDirection +
+          ', PARTY: ' +
+          packetParty;
+        this.packetStartLines.push(startLineInfo);
+
+        // Stringifies sipHeader for printing
         for (const key in sipHeaderArr) {
           if (sipHeaderArr.hasOwnProperty(key)) {
             sipHeaderArr[key].forEach((value: string) => {
@@ -91,23 +120,22 @@ export class MessageDetailComponent {
                 str = key + ': ' + value;
               }
               this.textToCopy.push(str + '\n');
-              output.push(str);
+              this.packetDetailHeader.push(str);
             });
           }
         }
-        // stringifies body for printing
+        // Stringifies body for printing
         if (bodyArr && bodyArr.content) {
           bodyArr.content.forEach((value) => {
             const str = value;
             this.textToCopy.push(str + '\n');
-            output.push(str);
+            this.packetDetailBody.push(str);
           });
         }
-        // catches undefined so output is not undefined
+        // Catches undefined so output is not undefined
         if (message == undefined) {
           return;
         }
-        this.packetDetail = output;
       },
       (error) => {
         console.error('Error printing message with id = ' + id + ': ', error);
