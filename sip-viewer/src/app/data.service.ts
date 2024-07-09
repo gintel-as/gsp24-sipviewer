@@ -5,6 +5,7 @@ import { map, tap } from 'rxjs/operators';
 import { Message } from './message';
 import { Session } from './session';
 import { json } from 'd3';
+import Utils from './sequence-diagram/utils';
 
 @Injectable({
   providedIn: 'root',
@@ -126,9 +127,13 @@ export class DataService {
       const parsedJson = JSON.parse(fileContent);
       const formattedSessions: Session[] = parsedJson.map(
         (session: Session) => {
-          session.sessionInfo.time = new Date(session.sessionInfo.time);
+          session.sessionInfo.time = Utils.getDateString(
+            new Date(session.sessionInfo.time)
+          );
           session.messages = session.messages.map((message: Message) => {
-            message.startLine.time = new Date(message.startLine.time);
+            message.startLine.time = Utils.getDateString(
+              new Date(message.startLine.time)
+            );
             return message;
           });
           return session;
@@ -152,9 +157,12 @@ export class DataService {
         },
         []
       );
-      allMessages.sort(
-        (a, b) => a.startLine.time.getTime() - b.startLine.time.getTime()
-      );
+      allMessages.sort((a, b) => {
+        return (
+          new Date(a.startLine.time).getTime() -
+          new Date(b.startLine.time).getTime()
+        );
+      });
       this.messages.next(allMessages);
       console.log('File content received and stored: ', formattedSessions);
     } catch (error) {

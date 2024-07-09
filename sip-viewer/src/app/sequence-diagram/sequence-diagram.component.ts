@@ -329,9 +329,7 @@ export class SequenceDiagramComponent {
         .attr('y', y + 5.5)
         .attr('class', 'side-details')
         .attr('message-timestamp-id', msg.message.startLine.messageID)
-        .text(
-          `${msg.index + 1}: ${Utils.getDateString(msg.message.startLine.time)}`
-        )
+        .text(`${msg.index + 1}: ${msg.message.startLine.time}`)
         .on('click', () => this.selectMessage(msg));
     });
 
