@@ -9,10 +9,14 @@
     <app-file-upload></app-file-upload>
   </mat-toolbar-row>
 </mat-toolbar>
-
+<!-- <router-outlet></router-outlet> -->
 <div class="main-container">
+  <app-home></app-home>
+</div>
+<!-- <app-home></app-home> -->
+
+<!-- <div class="main-container">
   <div class="resizable-div-left-wrapper">
-    <!-- ID neccessary for potential fix of key-navigation, depending on how it works after resize is fixed -->
     <div
       class="resizable-div-left"
       id="leftDiv"
@@ -46,4 +50,4 @@
   *ngIf="resizing"
   (mousemove)="onResize($event)"
   (mouseup)="onResizeEnd()"
-></div>
+></div> -->

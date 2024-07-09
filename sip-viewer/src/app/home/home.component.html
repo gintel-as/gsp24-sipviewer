@@ -1,0 +1,37 @@
+<div class="main-container" style="width: 100%">
+  <div class="resizable-div-left-wrapper">
+    <!-- ID neccessary for potential fix of key-navigation, depending on how it works after resize is fixed -->
+    <div
+      class="resizable-div-left"
+      id="leftDiv"
+      [ngStyle]="{ 'width.px': leftWidth }"
+    >
+      <app-flow-chart></app-flow-chart>
+    </div>
+    <div
+      class="resize-handle-horizontal"
+      (mousedown)="onHorizontalResizeStart($event)"
+    ></div>
+  </div>
+  <div class="right-container">
+    <div class="resizable-div-top-wrapper">
+      <div class="resizable-div-top" [ngStyle]="{ 'height.px': topHeight }">
+        <app-session-table></app-session-table>
+      </div>
+      <div
+        class="resize-handle-vertical"
+        (mousedown)="onVerticalResizeStart($event)"
+      ></div>
+    </div>
+    <div class="resizable-div-bottom">
+      <app-message-detail></app-message-detail>
+    </div>
+  </div>
+</div>
+
+<div
+  class="overlay"
+  *ngIf="resizing"
+  (mousemove)="onResize($event)"
+  (mouseup)="onResizeEnd()"
+></div>
