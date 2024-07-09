@@ -6,9 +6,20 @@
 
 # Byte-compiled / optimized / DLL files
 __pycache__
+__pycache__/
 __pycache__/*
 ./__pycache__/*.pyc
 *.py[cod]
 *$py.class
 *.pyc
 
+# Flask
+.idea/
+.vscode/
+.venv*/
+venv*/
+dist/
+.coverage*
+htmlcov/
+.tox/
+docs/_build/
