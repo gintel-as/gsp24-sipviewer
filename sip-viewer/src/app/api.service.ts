@@ -10,14 +10,23 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  storeString(data: { string: string }): Observable<any> {
+  uploadFile(file: File): Observable<any> {
+    const formData: FormData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http.post<any>(`${this.apiUrl}/upload`, formData);
+  }
+
+  processFile(filename: string, additionalString: string): Observable<any> {
+    const data = { filename, additional_string: additionalString };
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<any>(`${this.apiUrl}/store_string`, data, {
+    return this.http.post<any>(`${this.apiUrl}/process_file`, data, {
       headers,
     });
   }
 
-  getString(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/get_string`);
+  downloadFile(filename: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/download/${filename}`, {
+      responseType: 'blob',
+    });
   }
 }
