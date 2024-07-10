@@ -6,6 +6,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
+import { DataService } from '../data.service';
+import { json } from 'd3';
+import { Data, Router } from '@angular/router';
+import { RerouteService } from '../reroute.service';
 
 @Component({
   selector: 'app-upload-portal',
@@ -25,8 +29,13 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 export class UploadPortalComponent {
   simpleForm: FormGroup;
   files: File[] = [];
+  jsonFiles: File[] = [];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private dataService: DataService,
+    private rerouteService: RerouteService
+  ) {
     this.simpleForm = this.fb.group({
       sessionID: [''],
       to: [''],
@@ -81,12 +90,43 @@ export class UploadPortalComponent {
 
   handleFiles(fileList: FileList): void {
     for (let i = 0; i < fileList.length; i++) {
-      this.files.push(fileList[i]);
-      console.log(fileList[i]);
+      if (fileList[i].type == 'application/json') {
+        this.jsonFiles.push(fileList[i]);
+      } else {
+        this.files.push(fileList[i]);
+      }
+      console.log(fileList[i].type);
     }
   }
 
   removeFile(index: number): void {
     this.files.splice(index, 1);
+  }
+
+  readFirstFile() {
+    const file: File = this.jsonFiles[0];
+    if (file.size > 0) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const fileContent = e.target.result;
+        this.dataService.uploadFileContent(fileContent);
+      };
+      reader.readAsText(file);
+    }
+  }
+
+  readJsonFiles() {
+    this.jsonFiles.forEach((file: File) => {
+      if (file.size > 0) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const fileContent = e.target.result;
+          this.dataService.uploadFileContent(fileContent);
+        };
+        reader.readAsText(file);
+      }
+    });
+    window.scrollTo({ top: 0 });
+    this.rerouteService.rerouteEvent.emit();
   }
 }

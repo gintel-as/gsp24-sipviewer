@@ -2,6 +2,7 @@
   display: flex;
   height: calc(100vh - 64px); /* Adjust height to account for toolbar */
   margin-top: 64px; /* Space for toolbar */
+  overflow: hidden;
 }
 
 .resizable-div-left-wrapper,

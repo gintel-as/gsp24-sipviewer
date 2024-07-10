@@ -1,22 +1,29 @@
 .portal-container {
-  height: 100%;
-  padding: 3em;
+  /* height: 100%; */
+  padding: 1.5em;
 
   display: flex;
   justify-content: center;
   background-color: #a52a2a;
+  overflow: auto;
 }
 
 .portal-grid-container {
   background-color: #f0f8ff;
-  height: 60%;
+  height: 80%;
   width: 80%;
   display: grid;
-  grid-template-columns: 33% 67%;
+  /* padding: 1.5em; */
+  grid-template-columns: 2fr 5fr;
+  grid-template-rows: 4fr 1fr;
 }
 
 .portal-grid-item {
   padding: 20px;
+}
+
+.portal-grid-item.full-width {
+  grid-column: span 2; /* Span across both columns */
 }
 
 .file-upload-container {
@@ -69,4 +76,8 @@
   cursor: pointer;
   text-align: center;
   line-height: 20px;
+}
+
+.seagreenBG {
+  background-color: seagreen;
 }

@@ -20,3 +20,11 @@ mat-toolbar {
   height: 100%;
   width: 100%;
 }
+
+button {
+  margin-left: 5px;
+}
+
+.portal-extractor-btn {
+  min-width: 147.3px;
+}

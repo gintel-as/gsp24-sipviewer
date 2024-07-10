@@ -1,6 +1,11 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, OnInit, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterOutlet,
+} from '@angular/router';
 // Import components
 import { SIPViewerComponent } from './sip-viewer/sip-viewer.component';
 import { FlowChartComponent } from './flow-chart/flow-chart.component';
@@ -13,6 +18,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatIconModule } from '@angular/material/icon';
+import { RerouteService } from './reroute.service';
 
 @Component({
   selector: 'app-root',
@@ -35,12 +41,47 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   //Meant as placeholder, would ideally dynamicall update text based on route
   //Using router on init does not work, as this always shows '/' route
-  buttonText = 'Swap between upload and viewer';
+  isExtractor = false;
+  buttonText = ['Extract Logfiles', 'Sip Viewer'];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private renderer: Renderer2,
+    private rerouteService: RerouteService
+  ) {
+    this.rerouteService.rerouteEvent.subscribe(() => {
+      window.scrollTo(0, 0);
+      this.renderer.setStyle(document.body, 'overflow', 'hidden');
+      this.navigate();
+    });
+  }
+
+  ngOnInit(): void {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        // Check if the current route is the specific route
+        console.log('now updating route');
+        this.updateRoute();
+      }
+    });
+  }
+
+  updateRoute() {
+    const currentRoute = this.router.url;
+    console.log(currentRoute);
+    if (currentRoute == '/upload') {
+      this.isExtractor = true;
+      this.renderer.setStyle(document.body, 'overflow', 'auto');
+    }
+    if (currentRoute == '/') {
+      this.isExtractor = false;
+      this.renderer.setStyle(document.body, 'overflow', 'hidden');
+    }
+    console.log('isextractor: ', this.isExtractor);
+  }
 
   navigate() {
     const currentRoute = this.router.url;
