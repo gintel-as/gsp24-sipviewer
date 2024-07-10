@@ -1,0 +1,75 @@
+<div class="portal-container">
+  <div class="portal-grid-container">
+    <div class="portal-grid-item" style="background-color: aqua">
+      <!-- For testing file upload bug in issue #156, uncomment line below -->
+      <!-- <app-file-upload></app-file-upload> -->
+      <form
+        [formGroup]="simpleForm"
+        (ngSubmit)="onSubmit()"
+        class="form-field-container"
+      >
+        <div class="form-field">
+          <mat-form-field>
+            <mat-label>SessionID</mat-label>
+            <input matInput formControlName="sessionID" />
+          </mat-form-field>
+        </div>
+        <div class="form-field">
+          <mat-form-field>
+            <mat-label>To</mat-label>
+            <input matInput formControlName="to" />
+          </mat-form-field>
+        </div>
+        <div class="form-field">
+          <mat-form-field>
+            <mat-label>from</mat-label>
+            <input matInput formControlName="from" />
+          </mat-form-field>
+        </div>
+        <div class="form-field">
+          <mat-form-field>
+            <mat-label>StartTime</mat-label>
+            <input matInput formControlName="startTime" />
+          </mat-form-field>
+        </div>
+        <div class="form-field">
+          <mat-form-field>
+            <mat-label>EndTime </mat-label>
+            <input matInput formControlName="endTime" />
+          </mat-form-field>
+        </div>
+
+        <button mat-raised-button color="primary" type="submit">Submit</button>
+      </form>
+    </div>
+    <div class="portal-grid-item" style="background-color: magenta">
+      <div class="file-upload-container">
+        <div
+          class="file-upload-content"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop($event)"
+          (dragleave)="onDragLeave($event)"
+          (click)="fileInput.click()"
+        >
+          <input
+            type="file"
+            (change)="onFileSelected($event)"
+            hidden
+            #fileInput
+            multiple
+          />
+          <p>Drag and drop files here, or click to select files</p>
+          <button mat-raised-button color="primary" (click)="fileInput.click()">
+            Upload LogFile
+          </button>
+        </div>
+        <div class="file-list">
+          <div class="file-item" *ngFor="let file of files; let i = index">
+            <span>{{ file.name }}</span>
+            <button class="remove-button" (click)="removeFile(i)">X</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
