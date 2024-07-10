@@ -3,7 +3,7 @@
 <div class="message-detail-wrapper">
   <mat-toolbar>
     <mat-toolbar-row>
-      <span id="packetDetailSpan"> Packet Detail </span>
+      <span id="packetDetailSpan"> Packet Details </span>
       <span class="spacer"></span>
       <div *ngIf="messageIDList.length > 0">
         <span id="packetNumber">
@@ -47,11 +47,8 @@
 
   <div class="content">
     <ul id="list">
-      <li
-        *ngFor="let startLine of packetStartLines"
-        class="list-startLine-item"
-      >
-        {{ startLine }}
+      <li *ngFor="let packet of packetStartLines" class="list-startLine-item">
+        {{ packet }}
       </li>
     </ul>
     <ul>
@@ -67,3 +64,17 @@
     </ul>
   </div>
 </div>
+
+<!-- <div class="content">
+    <ul id="list">
+      <li *ngFor="let packet of packetStartLines" class="list-startLine-item">
+        {{ packet }}
+      </li>
+    </ul>
+    <ul id="list">
+      <li *ngFor="let packet of packetDetail" class="list-item">
+        {{ packet }}
+      </li>
+    </ul>
+  </div>
+</div> -->
