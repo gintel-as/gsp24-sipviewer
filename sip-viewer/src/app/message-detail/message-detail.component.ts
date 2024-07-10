@@ -37,6 +37,12 @@ export class MessageDetailComponent {
       dataService.getMessagesFromSelectedSessions().subscribe(
         (messages: any[]) => {
           this.messageIDList = messages.map((item) => item.startLine.messageID); // updates messageIDList from selected sessions
+          if (this.messageIDList.length === 0) {
+            this.textToCopy = [];
+            this.packetStartLines = [];
+            this.packetDetailHeader = [];
+            this.packetDetailBody = [];
+          }
         },
         (error) => {
           console.error(
@@ -48,7 +54,7 @@ export class MessageDetailComponent {
     });
     // Observes selected message in diagram and prints out the details
     dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
-      this.printPacketDetail(selectedMessageID);
+      this.printPacketDetails(selectedMessageID);
     });
   }
 
@@ -67,11 +73,11 @@ export class MessageDetailComponent {
       }
     }
     const id = this.messageIDList[this.packetIndex];
-    this.printPacketDetail(id);
+    this.printPacketDetails(id);
     this.dataService.selectNewMessageByID(id); // Puts id as new selected message
   }
 
-  printPacketDetail(id: string): void {
+  printPacketDetails(id: string): void {
     this.textToCopy = [];
     this.packetStartLines = [];
     this.packetDetailHeader = [];
@@ -80,34 +86,41 @@ export class MessageDetailComponent {
 
     this.dataService.getMessageByID(id).subscribe(
       (message: Message | undefined) => {
+        let startLineOutput: string[] = [];
+        let headerOutput: string[] = [];
+        let bodyOutput: string[] = [];
+        let startLineArr = message?.startLine;
         let sipHeaderArr = message?.sipHeader;
         let bodyArr = message?.body;
 
         // Add startLine information
-        const packetTime =
-          message?.startLine.time instanceof Date
-            ? Utils.getDateString(message.startLine.time)
-            : 'Invalid Date';
-        const packetSessionID =
-          message?.startLine.sessionID.toString() ?? 'Not defined';
-        const packetMessageID =
-          message?.startLine.messageID.toString() ?? 'Not defined';
-        const packetDirection =
-          message?.startLine.direction.toString() ?? 'Not defined';
-        const packetParty =
-          message?.startLine.party.toString() ?? 'Not defined';
-        const startLineInfo =
-          'TIME: ' +
-          packetTime +
-          ', SESSION ID: ' +
-          packetSessionID +
-          ', MESSAGE ID: ' +
-          packetMessageID +
-          ', DIRECTION: ' +
-          packetDirection +
-          ', PARTY: ' +
-          packetParty;
-        this.packetStartLines.push(startLineInfo);
+        if (startLineArr) {
+          const packetTime =
+            message?.startLine.time instanceof Date
+              ? Utils.getDateString(message.startLine.time)
+              : 'Invalid Date';
+          const packetSessionID =
+            message?.startLine.sessionID.toString() ?? 'Not defined';
+          const packetMessageID =
+            message?.startLine.messageID.toString() ?? 'Not defined';
+          const packetDirection =
+            message?.startLine.direction.toString() ?? 'Not defined';
+          const packetParty =
+            message?.startLine.party.toString() ?? 'Not defined';
+          const startLineInfo =
+            'TIME: ' +
+            packetTime +
+            ', SESSION ID: ' +
+            packetSessionID +
+            ', MESSAGE ID: ' +
+            packetMessageID +
+            ', DIRECTION: ' +
+            packetDirection +
+            ', PARTY: ' +
+            packetParty;
+          startLineOutput.push(startLineInfo);
+        }
+        this.packetStartLines = startLineOutput;
 
         // Stringifies sipHeader for printing
         for (const key in sipHeaderArr) {
@@ -120,22 +133,24 @@ export class MessageDetailComponent {
                 str = key + ': ' + value;
               }
               this.textToCopy.push(str + '\n');
-              this.packetDetailHeader.push(str);
+              headerOutput.push(str);
             });
           }
         }
+        this.packetDetailHeader = headerOutput;
         // Stringifies body for printing
         if (bodyArr && bodyArr.content) {
           bodyArr.content.forEach((value) => {
             const str = value;
             this.textToCopy.push(str + '\n');
-            this.packetDetailBody.push(str);
+            bodyOutput.push(str);
           });
         }
         // Catches undefined so output is not undefined
         if (message == undefined) {
           return;
         }
+        this.packetDetailBody = bodyOutput;
       },
       (error) => {
         console.error('Error printing message with id = ' + id + ': ', error);
