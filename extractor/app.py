@@ -1,5 +1,6 @@
 from flask import Flask, request, send_from_directory, jsonify
 from flask_cors import CORS
+from main import Main
 import os
 
 app = Flask(__name__)
@@ -31,25 +32,36 @@ def process_file():
     data = request.json
     filename = data.get('filename')
     additional_string = data.get('additional_string', '')
-    
+
     if not filename or not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
         return jsonify({'message': 'File not found'}), 404
 
-    with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'r') as file:
-        content = file.read()
+    inputFile = filename
+    logPath = app.config['UPLOAD_FOLDER']
+    destinationPath = app.config['PROCESSED_FOLDER']
 
-    processed_content = content + '\n' + additional_string
+    print(inputFile)
+    print(logPath)
+    print(destinationPath)
 
-    processed_filename = f"processed_{filename}"
-    processed_filepath = os.path.join(app.config['PROCESSED_FOLDER'], processed_filename)
-    with open(processed_filepath, 'w') as file:
-        file.write(processed_content)
+    # Initialize and run the Main class from main.py
+    main_instance = Main(inputFile, logPath, destinationPath)
+    main_instance.extractor()
+    main_instance.logInterperter(additional_string)  # Use additional_string as sessionID
+
+    processed_filename = f"{filename}.json"
+    processed_filepath = os.path.join(destinationPath, processed_filename)
 
     return jsonify({'message': 'File processed successfully', 'processed_filename': processed_filename}), 200
 
 @app.route('/api/download/<filename>', methods=['GET'])
 def download_file(filename):
+    print(f"Download request for: {filename}")  # Debug download filename
     return send_from_directory(app.config['PROCESSED_FOLDER'], filename, as_attachment=True)
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

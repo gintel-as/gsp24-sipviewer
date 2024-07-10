@@ -78,6 +78,7 @@ export class AppComponent {
       console.log(this.simpleForm.value.sessionID);
       this.sessionID = this.simpleForm.value.sessionID;
       this.processFile();
+      console.log('onSubmit(): ' + this.sessionID);
     } else {
       console.log('Form is not valid');
     }
@@ -97,16 +98,17 @@ export class AppComponent {
   }
 
   processFile(): void {
-    if (this.downloadFilename && this.sessionID) {
-      console.log('processFile()');
-      console.log(this.sessionID);
-      this.apiService
-        .processFile(this.downloadFilename, this.sessionID)
-        .subscribe((response) => {
-          console.log(response.message);
-          this.downloadFilename = response.processed_filename;
-        });
-    }
+    console.log('Hei');
+    console.log(this.sessionID);
+    // if (this.downloadFilename && this.sessionID) {
+    console.log('processFile()');
+    this.apiService
+      .processFile(this.downloadFilename, this.sessionID)
+      .subscribe((response) => {
+        console.log(response.message);
+        this.downloadFilename = response.processed_filename;
+      });
+    // }
   }
 
   downloadFile(): void {

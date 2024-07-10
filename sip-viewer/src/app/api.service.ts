@@ -16,8 +16,8 @@ export class ApiService {
     return this.http.post<any>(`${this.apiUrl}/upload`, formData);
   }
 
-  processFile(filename: string, additionalString: string): Observable<any> {
-    const data = { filename, additional_string: additionalString };
+  processFile(filename: string, sessionID: string): Observable<any> {
+    const data = { filename, additional_string: sessionID };
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post<any>(`${this.apiUrl}/process_file`, data, {
       headers,
