@@ -27,7 +27,6 @@ export class MessageDetailComponent {
   packetStartLines: any[] = [];
   packetDetailHeader: any[] = [];
   packetDetailBody: any[] = [];
-  // packetDetail: any[] = [];
   textToCopy: any[] = [];
   messageIDList: string[] = [];
   packetIndex: number = 0;
@@ -83,10 +82,8 @@ export class MessageDetailComponent {
     this.packetStartLines = [];
     this.packetDetailHeader = [];
     this.packetDetailBody = [];
-    // this.packetDetail = [];
     this.packetIndex = this.messageIDList.indexOf(id); // Update packet detail meta information
 
-    // flytte ut stringify logic til annen function. Kun hente ut melding her
     this.dataService.getMessageByID(id).subscribe(
       (message: Message | undefined) => {
         let startLineOutput: string[] = [];
@@ -125,7 +122,7 @@ export class MessageDetailComponent {
         }
         this.packetStartLines = startLineOutput;
 
-        // stringifies sipHeader for printing
+        // Stringifies sipHeader for printing
         for (const key in sipHeaderArr) {
           if (sipHeaderArr.hasOwnProperty(key)) {
             sipHeaderArr[key].forEach((value: string) => {
@@ -141,7 +138,7 @@ export class MessageDetailComponent {
           }
         }
         this.packetDetailHeader = headerOutput;
-        // stringifies body for printing
+        // Stringifies body for printing
         if (bodyArr && bodyArr.content) {
           bodyArr.content.forEach((value) => {
             const str = value;
@@ -149,7 +146,7 @@ export class MessageDetailComponent {
             bodyOutput.push(str);
           });
         }
-        // catches undefined so output is not undefined
+        // Catches undefined so output is not undefined
         if (message == undefined) {
           return;
         }
