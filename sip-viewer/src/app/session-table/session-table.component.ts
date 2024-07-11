@@ -49,6 +49,7 @@ export class SessionTableComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.fetchSessions();
+    this.changeDetectorRef.detectChanges();
   }
   fetchSessions(): void {
     this.dataService.getSessions().subscribe(
