@@ -2,7 +2,7 @@
 ./logs
 ./json
 *.txt
-*.log
+*.log*
 ./uploads
 ./uploads/*
 ./processed
