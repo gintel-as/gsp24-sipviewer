@@ -1,3 +1,4 @@
+from datetime import datetime
 import json, re
 from collections import defaultdict
 
@@ -157,7 +158,7 @@ class LogInterpreter:
 
         if sessionID == '':
             print('No sessionID')
-            return json.dumps(list(dict.values()), indent=2)
+            return dict
         else:
             print('SessionID: ', sessionID)
             # Finds relatedSessions for selected sessionID
@@ -171,8 +172,47 @@ class LogInterpreter:
             else:
                 print(f"SessionID {sessionID} not found.")
                 result = {}
-            return json.dumps(list(result.values()), indent=2)
+            return result
 
+    #Help function for filterSessionsOnTimestamp
+    def parse_datetime(self, date_str):
+        # Defines possible formats of using ms or no ms
+        date_formats = ["%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"]
+        
+        for date_format in date_formats:
+            try:
+                return datetime.strptime(date_str, date_format)
+            except ValueError:
+                continue
+        raise ValueError(f"Date string '{date_str}' is not in a recognized format.")
+
+    #Help function for filterSessionsOnTimestamp
+    def is_between(self, date_str, start, end):
+        # Depending on if start and end is defined, return if date fits criteria. 
+        date = self.parse_datetime(date_str)
+        if start and end:
+             return start <= date <= end 
+        if start:
+            return start <= date
+        if end:
+            return date <= end
+        return True
+        
+        # Check if the date is between the start and end
+       
+
+    #For each session, if sessionInfo timestamp is between start/end add to filteredSessions
+    def filterSessionsOnTimestamp(self, sessionDict, startTimeStamp, endTimeStamp):
+        filteredSessions = {}
+        start = self.parse_datetime(startTimeStamp) if startTimeStamp else None
+        end = self.parse_datetime(endTimeStamp) if endTimeStamp else None
+
+        for key in sessionDict.keys():
+            sessionTS = sessionDict[key]["sessionInfo"]["time"]
+            if self.is_between(sessionTS, start, end):
+                filteredSessions[key] = sessionDict[key]
+
+        return filteredSessions
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
         #SessionPackets is dict for session data, sessionIDtoAssociatedDict is a defaultDict for bidirecitonal linking of associated sessions
@@ -232,8 +272,10 @@ class LogInterpreter:
     
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionID):
         f = open(filePath, "w")
-        jsonText = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
-        jsonText = self.filterAssociatedSessions(jsonText, sessionID)        
+        sessionDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
+        sessionDict = self.filterAssociatedSessions(sessionDict, sessionID)
+        sessionDict = self.filterSessionsOnTimestamp(sessionDict, "2024-07-03 09:04:00.903", "2024-07-03 09:07:00.903") #"2024-07-03 09:54:00.903"
+        jsonText = json.dumps(list(sessionDict.values()), indent=2)     
         f.write(jsonText)
         f.close()
 
