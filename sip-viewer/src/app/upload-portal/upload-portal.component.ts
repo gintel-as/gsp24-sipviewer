@@ -46,8 +46,8 @@ export class UploadPortalComponent {
     this.dataService.getSessions().subscribe((sessions: Session[]) => {
       console.log('Sessions update incomme');
       sessions.forEach((session: Session) => {
-        if (session.sessionInfo.associatedSessions.length > 2) {
-          this.testPrint = `${session.sessionInfo.sessionID} is longer than 2! ${this.testPrint}`;
+        if (session.sessionInfo.initialInvite) {
+          this.testPrint = `${session.sessionInfo.sessionID} contains initial invite, ${this.testPrint}`;
         }
       });
     });
