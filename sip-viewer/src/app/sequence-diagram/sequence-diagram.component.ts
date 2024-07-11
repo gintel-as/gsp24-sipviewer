@@ -91,12 +91,14 @@ export class SequenceDiagramComponent {
       'selected-message-rect'
     );
 
-    const nativeElement = d3.select('#selected-message').node() as Element;
-    nativeElement.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-      inline: 'nearest',
-    });
+    try {
+      const nativeElement = d3.select('#selected-message').node() as Element;
+      nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    } catch (error) {}
 
     //Potential fix on redone resize windows
     // if (0 == 0) {

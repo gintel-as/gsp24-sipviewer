@@ -5,9 +5,15 @@
       <strong> SIP Viewer </strong>
     </span>
     <span class="spacer"></span>
-    <!-- <app-file-upload></app-file-upload> -->
-    <button mat-flat-button color="primary" (click)="navigate()">
-      {{ buttonText }}
+    <app-file-upload></app-file-upload>
+    <span class="btn-spacer"></span>
+    <button
+      mat-flat-button
+      color="primary"
+      class="portal-extractor-btn"
+      (click)="navigateToRoute()"
+    >
+      {{ isExtractor ? " To Sip Viewer " : "Extract Logfiles" }}
     </button>
   </mat-toolbar-row>
 </mat-toolbar>
