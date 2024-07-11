@@ -1,6 +1,7 @@
 .portal-container {
   /* height: 100%; */
   padding: 1.5em;
+  margin-top: 64px;
 
   display: flex;
   justify-content: center;
