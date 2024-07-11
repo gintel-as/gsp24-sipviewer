@@ -265,7 +265,6 @@ export class SessionTableComponent implements AfterViewInit {
   }
 
   applyFilter(event: Event) {
-    console.log('filter');
     const filterValue = (event.target as HTMLInputElement).value
       .trim()
       .toLowerCase();
