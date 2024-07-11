@@ -151,26 +151,29 @@ class LogInterpreter:
         return matchingHeaders
 
 
-    def filterAssociatedSessions(self, dict, sessionID):
-        result = {}
-        relatedSessions = []
+    def filterAssociatedSessions(self, dict, sessionIDs):
+        result = {} 
+        relatedSessions = [] 
 
-        if sessionID == '':
-            print('No sessionID')
+        if not sessionIDs:
+            print('No sessionIDs')
             return json.dumps(list(dict.values()), indent=2)
         else:
-            print('SessionID: ', sessionID)
-            # Finds relatedSessions for selected sessionID
-            if sessionID in dict:
-                relatedSessions = dict[sessionID]['sessionInfo']['associatedSessions']
-                print(f"Related sessions: {relatedSessions}")
-                # Filters out all sessions not in relatedSessions[]
-                for session in relatedSessions:
-                    if session in dict:
-                        result[session] = dict[session]
-            else:
-                print(f"SessionID {sessionID} not found.")
-                result = {}
+            for sessionID in sessionIDs: 
+                # Finds relatedSessions for selected sessionID
+                if sessionID in dict:
+                    relatedSessions = dict[sessionID]['sessionInfo']['associatedSessions']
+                    print(f"Related sessions for {sessionID}: {relatedSessions}")
+                    # Filters out all sessions not in relatedSessions[]
+                    for session in relatedSessions:
+                        if session in dict:
+                            result[session] = dict[session]
+                        else: 
+                            print(f"Related session {session} was not found in this file.")
+
+                else:
+                    print(f"Session ID {sessionID} not found.")
+                    result = {}
             return json.dumps(list(result.values()), indent=2)
 
 
@@ -230,10 +233,10 @@ class LogInterpreter:
         return sessionPackets
     
     
-    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionID):
+    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs):
         f = open(filePath, "w")
         jsonText = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
-        jsonText = self.filterAssociatedSessions(jsonText, sessionID)        
+        jsonText = self.filterAssociatedSessions(jsonText, sessionIDs)
         f.write(jsonText)
         f.close()
 
@@ -247,6 +250,7 @@ if __name__ == "__main__":
     headers = []
     body = []
 
-    session = '103969265'
+    # sessionIDs = ['104820521', '104820522']
+    sessionIDs = []
 
-    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath, session)
+    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath, sessionIDs)
