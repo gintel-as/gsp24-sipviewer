@@ -7,8 +7,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { DataService } from '../data.service';
-import { json } from 'd3';
-import { Data, Router } from '@angular/router';
 import { RerouteService } from '../reroute.service';
 
 @Component({
@@ -52,9 +50,6 @@ export class UploadPortalComponent {
       console.log('Form is not valid');
     }
   }
-  sendForm() {
-    console.log('Form has been sent');
-  }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -77,18 +72,18 @@ export class UploadPortalComponent {
     dropzone.classList.remove('dragover');
 
     if (event.dataTransfer?.files) {
-      this.handleFiles(event.dataTransfer.files);
+      this.handleUploadedFiles(event.dataTransfer.files);
     }
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) {
-      this.handleFiles(input.files);
+      this.handleUploadedFiles(input.files);
     }
   }
 
-  handleFiles(fileList: FileList): void {
+  handleUploadedFiles(fileList: FileList): void {
     for (let i = 0; i < fileList.length; i++) {
       if (fileList[i].type == 'application/json') {
         this.jsonFiles.push(fileList[i]);
@@ -103,16 +98,8 @@ export class UploadPortalComponent {
     this.files.splice(index, 1);
   }
 
-  readFirstFile() {
-    const file: File = this.jsonFiles[0];
-    if (file.size > 0) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const fileContent = e.target.result;
-        this.dataService.uploadFileContent(fileContent);
-      };
-      reader.readAsText(file);
-    }
+  removeJsonFile(index: number): void {
+    this.jsonFiles.splice(index, 1);
   }
 
   readJsonFiles() {

@@ -75,7 +75,7 @@
       <div class="file-list">
         <div class="file-item" *ngFor="let file of jsonFiles; let i = index">
           <span>{{ file.name }}</span>
-          <button class="remove-button" (click)="removeFile(i)">X</button>
+          <button class="remove-button" (click)="removeJsonFile(i)">X</button>
         </div>
       </div>
       <button mat-raised-button (click)="readJsonFiles()">

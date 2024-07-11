@@ -1,5 +1,11 @@
-import { AfterViewInit, Component, OnInit, Renderer2 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  Inject,
+  OnInit,
+  Renderer2,
+} from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   NavigationEnd,
   Router,
@@ -42,20 +48,17 @@ import { RerouteService } from './reroute.service';
   ],
 })
 export class AppComponent implements OnInit {
-  //Meant as placeholder, would ideally dynamicall update text based on route
-  //Using router on init does not work, as this always shows '/' route
   isExtractor = false;
   buttonText = ['Extract Logfiles', 'Sip Viewer'];
 
   constructor(
     private router: Router,
     private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document,
     private rerouteService: RerouteService
   ) {
     this.rerouteService.rerouteEvent.subscribe(() => {
-      window.scrollTo(0, 0);
-      this.renderer.setStyle(document.body, 'overflow', 'hidden');
-      this.navigate();
+      this.navigateToRoute();
     });
   }
 
@@ -63,7 +66,6 @@ export class AppComponent implements OnInit {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         // Check if the current route is the specific route
-        console.log('now updating route');
         this.updateRoute();
       }
     });
@@ -71,7 +73,6 @@ export class AppComponent implements OnInit {
 
   updateRoute() {
     const currentRoute = this.router.url;
-    console.log(currentRoute);
     if (currentRoute == '/upload') {
       this.isExtractor = true;
       this.renderer.setStyle(document.body, 'overflow', 'auto');
@@ -80,10 +81,9 @@ export class AppComponent implements OnInit {
       this.isExtractor = false;
       this.renderer.setStyle(document.body, 'overflow', 'hidden');
     }
-    console.log('isextractor: ', this.isExtractor);
   }
 
-  navigate() {
+  navigateToRoute() {
     const currentRoute = this.router.url;
     if (currentRoute == '/upload') {
       this.router.navigate(['']);
@@ -91,5 +91,11 @@ export class AppComponent implements OnInit {
     if (currentRoute == '/') {
       this.router.navigate(['/upload']);
     }
+    this.scrollToTop();
+  }
+
+  scrollToTop() {
+    this.renderer.setProperty(this.document.documentElement, 'scrollTop', 0);
+    this.renderer.setProperty(this.document.body, 'scrollTop', 0);
   }
 }
