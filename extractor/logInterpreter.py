@@ -152,8 +152,8 @@ class LogInterpreter:
 
 
     def filterAssociatedSessions(self, dict, sessionIDs):
-        result = {} # Dictionary with session ID as key and related session objects list as value
-        relatedSessions = [] # dictionary: {id1:[related1, related2, ...], id2:[related1, ...]}
+        result = {} 
+        relatedSessions = [] 
 
         if not sessionIDs:
             print('No sessionIDs')
@@ -236,7 +236,6 @@ class LogInterpreter:
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs):
         f = open(filePath, "w")
         jsonText = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
-        # print(jsonText)
         jsonText = self.filterAssociatedSessions(jsonText, sessionIDs)
         f.write(jsonText)
         f.close()
