@@ -6,6 +6,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
+import { DataService } from '../data.service';
+import { RerouteService } from '../reroute.service';
 
 @Component({
   selector: 'app-upload-portal',
@@ -25,8 +27,13 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 export class UploadPortalComponent {
   simpleForm: FormGroup;
   files: File[] = [];
+  jsonFiles: File[] = [];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private dataService: DataService,
+    private rerouteService: RerouteService
+  ) {
     this.simpleForm = this.fb.group({
       sessionID: [''],
       to: [''],
@@ -42,9 +49,6 @@ export class UploadPortalComponent {
     } else {
       console.log('Form is not valid');
     }
-  }
-  sendForm() {
-    console.log('Form has been sent');
   }
 
   onDragOver(event: DragEvent): void {
@@ -68,25 +72,48 @@ export class UploadPortalComponent {
     dropzone.classList.remove('dragover');
 
     if (event.dataTransfer?.files) {
-      this.handleFiles(event.dataTransfer.files);
+      this.handleUploadedFiles(event.dataTransfer.files);
     }
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) {
-      this.handleFiles(input.files);
+      this.handleUploadedFiles(input.files);
     }
   }
 
-  handleFiles(fileList: FileList): void {
+  handleUploadedFiles(fileList: FileList): void {
     for (let i = 0; i < fileList.length; i++) {
-      this.files.push(fileList[i]);
-      console.log(fileList[i]);
+      if (fileList[i].type == 'application/json') {
+        this.jsonFiles.push(fileList[i]);
+      } else {
+        this.files.push(fileList[i]);
+      }
+      console.log(fileList[i].type);
     }
   }
 
   removeFile(index: number): void {
     this.files.splice(index, 1);
+  }
+
+  removeJsonFile(index: number): void {
+    this.jsonFiles.splice(index, 1);
+  }
+
+  readJsonFiles() {
+    this.jsonFiles.forEach((file: File) => {
+      if (file.size > 0) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const fileContent = e.target.result;
+          this.dataService.uploadFileContent(fileContent);
+        };
+        reader.readAsText(file);
+      }
+    });
+    window.scrollTo({ top: 0 });
+    this.rerouteService.rerouteEvent.emit();
   }
 }

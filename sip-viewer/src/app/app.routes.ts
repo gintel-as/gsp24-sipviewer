@@ -7,4 +7,5 @@ const routes: Routes = [
 
   { path: 'upload', component: UploadPortalComponent },
 ];
+
 export default routes;
