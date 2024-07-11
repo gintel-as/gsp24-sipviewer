@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { DataService } from '../data.service';
 import { RerouteService } from '../reroute.service';
+import { Session } from '../session';
 
 @Component({
   selector: 'app-upload-portal',
@@ -28,6 +29,7 @@ export class UploadPortalComponent {
   simpleForm: FormGroup;
   files: File[] = [];
   jsonFiles: File[] = [];
+  testPrint = '';
 
   constructor(
     private fb: FormBuilder,
@@ -40,6 +42,14 @@ export class UploadPortalComponent {
       from: [''],
       startTime: [''],
       endTime: [''],
+    });
+    this.dataService.getSessions().subscribe((sessions: Session[]) => {
+      console.log('Sessions update incomme');
+      sessions.forEach((session: Session) => {
+        if (session.sessionInfo.associatedSessions.length > 2) {
+          this.testPrint = `${session.sessionInfo.sessionID} is longer than 2! ${this.testPrint}`;
+        }
+      });
     });
   }
   onSubmit(): void {
@@ -100,6 +110,20 @@ export class UploadPortalComponent {
 
   removeJsonFile(index: number): void {
     this.jsonFiles.splice(index, 1);
+  }
+
+  // Remove later testing function
+  readJsonFilesButNoMove() {
+    this.jsonFiles.forEach((file: File) => {
+      if (file.size > 0) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const fileContent = e.target.result;
+          this.dataService.uploadFileContent(fileContent);
+        };
+        reader.readAsText(file);
+      }
+    });
   }
 
   readJsonFiles() {
