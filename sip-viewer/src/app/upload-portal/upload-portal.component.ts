@@ -44,7 +44,6 @@ export class UploadPortalComponent {
       endTime: [''],
     });
     this.dataService.getSessions().subscribe((sessions: Session[]) => {
-      console.log('Sessions update incomme');
       sessions.forEach((session: Session) => {
         if (session.sessionInfo.initialInvite) {
           this.testPrint = `${session.sessionInfo.sessionID} contains initial invite, ${this.testPrint}`;
