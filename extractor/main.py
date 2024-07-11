@@ -46,23 +46,24 @@ class Main:
 if __name__ == "__main__":
 
     # input = input()
-    # inputFile = "adapter-as01.log.2024-07-03-09"
-    inputFile = "adapter.2024-06-17-12.log"
+    inputFile = "adapter-as01.log.2024-07-03-09"
+    # inputFile = "adapter.2024-06-17-12.log"
     # inputFile = "1.adapter.windows.log"
     # inputFile = "2.Two-Calls.adapter.log"
     # inputFile = "adapter_BCT.log"
 
-    logPath = "./extractor/logs"
-    destinationPath = "./extractor/json"
-    # logPath = "./logs"
-    # destinationPath = "./json"
+    # logPath = "./extractor/logs"
+    # destinationPath = "./extractor/json"
+    logPath = "./logs"
+    destinationPath = "./json"
     main = Main(inputFile, logPath, destinationPath)
 
-    sessionID = ''
-    # sessionID = '103969265'
+    # sessionID = ''
+    # sessionID = '104820521'
+    sessionIDs = ['104630926', '104630929']
 
     main.extractor()
-    main.logInterperter(sessionID)
+    main.logInterperter(sessionIDs)
     # main.jsonFilter()
     
 
