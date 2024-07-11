@@ -1,7 +1,7 @@
 from flask import Flask, request, send_from_directory, jsonify
 from flask_cors import CORS
 from main import Main
-import os
+import os, threading
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -15,50 +15,54 @@ if not os.path.exists(PROCESSED_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 
-@app.route('/api/upload', methods=['POST'])
-def upload_file():
+
+def processFile(inputFile, logPath, destinationPath, sessionID):
+    try:
+        main_instance = Main(inputFile, logPath, destinationPath)
+        main_instance.extractor()
+        main_instance.logInterperter(sessionID)
+    except Exception as e:
+        print(f"Error processing file {inputFile}: {e}")
+
+
+@app.route('/api/uploadAndExtract', methods=['POST'])
+def uploadAndExtract():
     if 'file' not in request.files:
         return jsonify({'message': 'No file part in the request'}), 400
     file = request.files['file']
     if file.filename == '':
         return jsonify({'message': 'No selected file'}), 400
     if file:
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(filepath)
-        return jsonify({'message': 'File uploaded successfully', 'filename': file.filename}), 200
+        try:
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(filepath)
+            sessionID = request.form.get('sessionID', '')
 
-@app.route('/api/process_file', methods=['POST'])
-def process_file():
-    data = request.json
-    filename = data.get('filename')
-    additional_string = data.get('additional_string', '')
+            # Start file processing in a separate thread
+            threading.Thread(target=processFile, args=(file.filename, app.config['UPLOAD_FOLDER'], app.config['PROCESSED_FOLDER'], sessionID)).start()
+            
+            processed_filename = f"{file.filename}.json"
+            return jsonify({'message': 'File uploaded and processing started', 'processed_filename': processed_filename}), 200
 
-    if not filename or not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-        return jsonify({'message': 'File not found'}), 404
+        except Exception as e:
+                return jsonify({'message': f'Error uploading or processing file: {e}'}), 500
 
-    inputFile = filename
-    logPath = app.config['UPLOAD_FOLDER']
-    destinationPath = app.config['PROCESSED_FOLDER']
 
-    print(inputFile)
-    print(logPath)
-    print(destinationPath)
+@app.route('/api/check_status/<filename>', methods=['GET'])
+def check_status(filename):
+    processed_filepath = os.path.join(app.config['PROCESSED_FOLDER'], filename)
+    if os.path.exists(processed_filepath):
+        return jsonify({'status': 'ready'}), 200
+    else:
+        return jsonify({'status': 'processing'}), 202
 
-    # Initialize and run the Main class from main.py
-    main_instance = Main(inputFile, logPath, destinationPath)
-    main_instance.extractor()
-    main_instance.logInterperter(additional_string)  # Use additional_string as sessionID
-
-    processed_filename = f"{filename}.json"
-    processed_filepath = os.path.join(destinationPath, processed_filename)
-
-    return jsonify({'message': 'File processed successfully', 'processed_filename': processed_filename}), 200
 
 @app.route('/api/download/<filename>', methods=['GET'])
 def download_file(filename):
-    print(f"Download request for: {filename}")  # Debug download filename
-    return send_from_directory(app.config['PROCESSED_FOLDER'], filename, as_attachment=True)
-
+    try:
+        return send_from_directory(app.config['PROCESSED_FOLDER'], filename, as_attachment=True)
+    except FileNotFoundError:
+        return jsonify({'message': 'File not found'}), 404
 
 
 

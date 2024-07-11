@@ -19,6 +19,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgFor } from '@angular/common';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -66,49 +67,53 @@ export class AppComponent {
     });
   }
 
-  //                      Remove later when done with flask API
-  // -------------------------------------------------------------------------------
-  uploadedFile: File | null = null;
-  downloadFilename: string = 'unikt.txt';
-  sessionID: string = 'SKill issue';
-
   onSubmit(): void {
     if (this.simpleForm.valid) {
       console.log(this.simpleForm.value);
       console.log(this.simpleForm.value.sessionID);
       this.sessionID = this.simpleForm.value.sessionID;
-      this.processFile();
-      console.log('onSubmit(): ' + this.sessionID);
+      this.uploadAndProcessFile();
     } else {
       console.log('Form is not valid');
     }
   }
 
+  //                      Remove later when done with flask API
+  // -------------------------------------------------------------------------------
+  uploadedFile: File | null = null;
+  downloadFilename: string = '';
+  sessionID: string = '';
+  statusCheckInterval: Subscription | null = null;
+
   onFileSelected(event: any): void {
     this.uploadedFile = event.target.files[0];
   }
 
-  uploadFile(): void {
+  uploadAndProcessFile(): void {
     if (this.uploadedFile) {
-      this.apiService.uploadFile(this.uploadedFile).subscribe((response) => {
-        console.log(response.message);
-        this.downloadFilename = response.filename;
-      });
+      this.apiService
+        .uploadAndExtract(this.uploadedFile, this.sessionID)
+        .subscribe((response) => {
+          console.log(response.message);
+          this.downloadFilename = response.processed_filename;
+          this.checkFileStatus();
+        });
     }
   }
 
-  processFile(): void {
-    console.log('Hei');
-    console.log(this.sessionID);
-    // if (this.downloadFilename && this.sessionID) {
-    console.log('processFile()');
-    this.apiService
-      .processFile(this.downloadFilename, this.sessionID)
-      .subscribe((response) => {
-        console.log(response.message);
-        this.downloadFilename = response.processed_filename;
-      });
-    // }
+  checkFileStatus(): void {
+    this.statusCheckInterval = interval(1000).subscribe(() => {
+      if (this.downloadFilename) {
+        this.apiService
+          .checkFileStatus(this.downloadFilename)
+          .subscribe((statusResponse) => {
+            if (statusResponse.status === 'ready') {
+              this.statusCheckInterval?.unsubscribe();
+              this.downloadFile();
+            }
+          });
+      }
+    });
   }
 
   downloadFile(): void {
@@ -124,7 +129,6 @@ export class AppComponent {
       });
     }
   }
-
   // -------------------------------------------------------------------------------
 
   //Meant as placeholder, would ideally dynamicall update text based on route

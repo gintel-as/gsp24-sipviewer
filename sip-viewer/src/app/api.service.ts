@@ -10,18 +10,15 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  uploadFile(file: File): Observable<any> {
+  uploadAndExtract(file: File, sessionID: string): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('file', file, file.name);
-    return this.http.post<any>(`${this.apiUrl}/upload`, formData);
+    formData.append('sessionID', sessionID);
+    return this.http.post<any>(`${this.apiUrl}/uploadAndExtract`, formData);
   }
 
-  processFile(filename: string, sessionID: string): Observable<any> {
-    const data = { filename, additional_string: sessionID };
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<any>(`${this.apiUrl}/process_file`, data, {
-      headers,
-    });
+  checkFileStatus(filename: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/check_status/${filename}`);
   }
 
   downloadFile(filename: string): Observable<Blob> {
