@@ -10,6 +10,7 @@ import { DataService } from '../data.service';
 import { RerouteService } from '../reroute.service';
 import { ApiService } from '../api.service';
 import { interval, Subscription } from 'rxjs';
+import { catchError, takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-upload-portal',
@@ -31,8 +32,6 @@ export class UploadPortalComponent {
   files: File[] = [];
   jsonFiles: File[] = [];
 
-  uploadedFile: File | null = null;
-  downloadFilename: string = '';
   sessionIDList: string = '';
   statusCheckInterval: Subscription | null = null;
 
@@ -50,67 +49,60 @@ export class UploadPortalComponent {
       endTime: [''],
     });
   }
+
   onSubmit(): void {
     if (this.simpleForm.valid) {
-      console.log(this.simpleForm.value);
-      console.log(this.simpleForm.value.sessionID);
-
       this.sessionIDList = this.simpleForm.value.sessionID;
-      // this.downloadFilename = this.files[0].name;
-      // this.uploadedFile = this.files[0];
-
       if (this.files.length != 0) {
-        this.handleMultipleFiles();
+        this.files.forEach((file) => {
+          this.uploadAndProcessFile(file);
+        });
       } else {
-        console.log('No file chosen');
+        console.error('No file uploaded');
       }
     } else {
-      console.log('Form is not valid');
+      console.error('Form is not valid');
     }
-  }
-
-  handleMultipleFiles(): void {
-    this.files.forEach((file) => {
-      console.log('handleMultipleFiles(): ' + file.name);
-      this.uploadAndProcessFile(file);
-    });
   }
 
   uploadAndProcessFile(file: any): void {
     if (file != null) {
-      console.log('uploadAndProcess()');
       this.apiService
         .uploadAndExtract(file, this.sessionIDList)
         .subscribe((response) => {
           console.log(response.message);
-          this.downloadFilename = response.processed_filename;
-          this.checkFileStatus();
+          const downloadFilename = response.processed_filename;
+          this.checkFileStatus(downloadFilename);
         });
     }
   }
 
-  checkFileStatus(): void {
-    this.statusCheckInterval = interval(1000).subscribe(() => {
-      if (this.downloadFilename) {
-        this.apiService
-          .checkFileStatus(this.downloadFilename)
-          .subscribe((statusResponse) => {
-            if (statusResponse.status === 'ready') {
-              this.statusCheckInterval?.unsubscribe();
-              this.downloadFile();
-            }
-          });
-      }
-    });
+  checkFileStatus(filename: string): void {
+    let isChecking = true;
+    this.statusCheckInterval = interval(1000)
+      .pipe(takeWhile(() => isChecking))
+      .subscribe(() => {
+        if (filename) {
+          this.apiService
+            .checkFileStatus(filename)
+            .subscribe((statusResponse) => {
+              if (statusResponse.status === 'ready') {
+                isChecking = false;
+                this.statusCheckInterval?.unsubscribe();
+                this.downloadFile(filename);
+              }
+            });
+        }
+      });
   }
 
-  downloadFile(): void {
-    if (this.downloadFilename) {
-      this.apiService.downloadFile(this.downloadFilename).subscribe((blob) => {
+  downloadFile(filename: string): void {
+    if (filename) {
+      this.apiService.downloadFile(filename).subscribe((blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = this.downloadFilename;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);

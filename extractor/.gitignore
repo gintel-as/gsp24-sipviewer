@@ -3,6 +3,10 @@
 ./json
 *.txt
 *.log
+./uploads
+./uploads/*
+./processed
+./processed/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__
