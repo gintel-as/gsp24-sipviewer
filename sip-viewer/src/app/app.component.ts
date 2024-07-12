@@ -51,11 +51,6 @@ import { RerouteService } from './reroute.service';
     HomeComponent,
     MatButtonModule,
     MatIconModule,
-    MatInputModule,
-    MatButtonModule,
-    ReactiveFormsModule,
-    NgFor,
-    FileUploadComponent,
   ],
 })
 export class AppComponent implements OnInit {
