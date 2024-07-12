@@ -120,9 +120,12 @@ export class UploadPortalComponent {
   downloadFile(filename: string): void {
     if (filename) {
       this.apiService.downloadFile(filename).subscribe((blob) => {
+        const file = new File([blob], filename, { type: blob.type });
+        this.jsonFiles.push(file);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
+        console.log(a);
         a.download = filename;
         document.body.appendChild(a);
         a.click();
