@@ -61,8 +61,7 @@ if __name__ == "__main__":
     # sessionID = ''
     # sessionID = '104630928'
     # sessionID = '104820521'
-    # sessionIDs = ['104630926', '104630929']
-    sessionIDs = []
+    sessionIDs = ['104630929', '104630932']
 
     main.extractor()
     main.logInterperter(sessionIDs)
