@@ -125,7 +125,6 @@ export class UploadPortalComponent {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        console.log(a);
         a.download = filename;
         document.body.appendChild(a);
         a.click();
