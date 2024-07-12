@@ -15,7 +15,7 @@ import { ApiService } from '../api.service';
 })
 export class FileUploadComponent {
   fileName = '';
-  constructor(private dataService: DataService, private http: HttpClient) {}
+  constructor(private dataService: DataService) {}
 
   onJsonFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;

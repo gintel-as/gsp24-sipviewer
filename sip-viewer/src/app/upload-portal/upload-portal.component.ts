@@ -32,8 +32,10 @@ export class UploadPortalComponent {
   files: File[] = [];
   jsonFiles: File[] = [];
 
-  sessionIDList: string = '';
+  sessionID: string = '';
   statusCheckInterval: Subscription | null = null;
+
+  associatedSessions = [104630926, 204637168];
 
   constructor(
     private fb: FormBuilder,
@@ -50,9 +52,32 @@ export class UploadPortalComponent {
     });
   }
 
+  // Method to check if the sessionID is valid
+  isSessionIDValid(): boolean {
+    const sessionIDControl = this.simpleForm.get('sessionID');
+    if (sessionIDControl) {
+      const value = sessionIDControl.value;
+      if (value) {
+        const numbersArray = this.parseSessionID(value);
+        return (
+          numbersArray.length > 0 && numbersArray.every((num) => !isNaN(num))
+        );
+      }
+    }
+    return false;
+  }
+
+  // Method to parse the sessionID input
+  parseSessionID(value: string): number[] {
+    return value
+      .split(/[\s,]+/)
+      .map(Number)
+      .filter((num) => !isNaN(num));
+  }
+
   onSubmit(): void {
     if (this.simpleForm.valid) {
-      this.sessionIDList = this.simpleForm.value.sessionID;
+      this.sessionID = this.simpleForm.value.sessionID;
       if (this.files.length != 0) {
         this.files.forEach((file) => {
           this.uploadAndProcessFile(file);
@@ -68,7 +93,7 @@ export class UploadPortalComponent {
   uploadAndProcessFile(file: any): void {
     if (file != null) {
       this.apiService
-        .uploadAndExtract(file, this.sessionIDList)
+        .uploadAndExtract(file, this.sessionID)
         .subscribe((response) => {
           console.log(response.message);
           const downloadFilename = response.processed_filename;
@@ -110,7 +135,6 @@ export class UploadPortalComponent {
     }
   }
 
-  // ---------------------------------------------------------------------
   onDragOver(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
