@@ -152,29 +152,34 @@ class LogInterpreter:
         return matchingHeaders
 
 
-    def filterAssociatedSessions(self, dict, sessionID):
-        result = {}
+    def filterAssociatedSessions(self, dict, sessionIDs):
+        result = {} 
         relatedSessions = []
+        relatedSessionsLists = [] # List with lists of associated sessions
 
-        if sessionID == '':
-            print('No sessionID')
-            return dict
+        if not sessionIDs:
+            print('No sessionIDs')
+            return json.dumps(list(dict.values()), indent=2)
         else:
-            print('SessionID: ', sessionID)
-            # Finds relatedSessions for selected sessionID
-            if sessionID in dict:
-                relatedSessions = dict[sessionID]['sessionInfo']['associatedSessions']
-                print(f"Related sessions: {relatedSessions}")
-                # Filters out all sessions not in relatedSessions[]
-                for session in relatedSessions:
-                    if session in dict:
-                        result[session] = dict[session]
-            else:
-                print(f"SessionID {sessionID} not found.")
-                result = {}
-            return result
+            for sessionID in sessionIDs: 
+                # Finds relatedSessions for selected sessionID
+                if sessionID in dict:
+                    relatedSessions = dict[sessionID]['sessionInfo']['associatedSessions']
+                    relatedSessionsLists.append(dict[sessionID]['sessionInfo']['associatedSessions'])
+                    print(f"Related sessions for {sessionID}: {relatedSessions}")
+                    # Filters out all sessions not in relatedSessions[]
+                    for session in relatedSessions:
+                        if session in dict:
+                            result[session] = dict[session]
+                        else: 
+                            print(f"Related session {session} was not found in this file.")
 
-    #Help function for filterSessionsOnTimestamp
+                else:
+                    print(f"Session ID {sessionID} not found.")
+                    result = {}
+            # return json.dumps(list(result.values()), indent=2), relatedSessionsLists
+            return result, relatedSessionsLists
+        
     def parse_datetime(self, date_str):
         # Defines possible formats of using ms or no ms
         date_formats = ["%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"]
@@ -199,20 +204,21 @@ class LogInterpreter:
         return True
         
         # Check if the date is between the start and end
-       
 
     #For each session, if sessionInfo timestamp is between start/end add to filteredSessions
     def filterSessionsOnTimestamp(self, sessionDict, startTimeStamp, endTimeStamp):
         filteredSessions = {}
         start = self.parse_datetime(startTimeStamp) if startTimeStamp else None
         end = self.parse_datetime(endTimeStamp) if endTimeStamp else None
-
+        
         for key in sessionDict.keys():
             sessionTS = sessionDict[key]["sessionInfo"]["time"]
             if self.is_between(sessionTS, start, end):
                 filteredSessions[key] = sessionDict[key]
 
+        print("Sessions within time period: ", filteredSessions.keys())
         return filteredSessions
+
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
         #SessionPackets is dict for session data, sessionIDtoAssociatedDict is a defaultDict for bidirecitonal linking of associated sessions
@@ -270,15 +276,26 @@ class LogInterpreter:
         return sessionPackets
     
     
-    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionID):
+    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs):
         f = open(filePath, "w")
-        sessionDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
-        sessionDict = self.filterAssociatedSessions(sessionDict, sessionID)
-        sessionDict = self.filterSessionsOnTimestamp(sessionDict, "2024-07-03 09:04:00.903", "2024-07-03 09:07:00.903") #"2024-07-03 09:54:00.903"
-        jsonText = json.dumps(list(sessionDict.values()), indent=2)     
+        unfilteredSessionDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
+        sessionDictFilteredBySessionID, listWithAssociatedSessionIDs = self.filterAssociatedSessions(unfilteredSessionDict, sessionIDs)
+        sessionDictFilteredBySessionIDAndTime = self.filterSessionsOnTimestamp(sessionDictFilteredBySessionID, "2024-07-03 09:03:04.341", "2024-07-03 09:03:04.343") #"2024-07-03 09:54:00.903"
+        
+        sessionIDAndTimeMatchesWithAssociatedSessions = {} # Contains all sessions that matches filters and their associated sessions
+        for sessionMatch in sessionDictFilteredBySessionIDAndTime.keys(): 
+            for listInstance in listWithAssociatedSessionIDs: # Checks each list of the double list
+                if sessionMatch in listInstance:  
+                    for relatedSession in listInstance:
+                        if relatedSession in sessionDictFilteredBySessionID.keys():
+                            sessionIDAndTimeMatchesWithAssociatedSessions[relatedSession] = sessionDictFilteredBySessionID[relatedSession]  
+                        else: 
+                            print(f'Related session {relatedSession} was not found in this file.') 
+                    
+        jsonText = json.dumps(list(sessionIDAndTimeMatchesWithAssociatedSessions.values()), indent=2)     
         f.write(jsonText)
         f.close()
-
+    
 
 if __name__ == "__main__":  
     logInterpreter = LogInterpreter()
@@ -289,6 +306,7 @@ if __name__ == "__main__":
     headers = []
     body = []
 
-    session = '103969265'
+    # sessionIDs = ['104820521', '104820522']
+    sessionIDs = []
 
-    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath, session)
+    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath, sessionIDs)

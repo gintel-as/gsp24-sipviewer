@@ -52,17 +52,18 @@ if __name__ == "__main__":
     # inputFile = "2.Two-Calls.adapter.log"
     # inputFile = "adapter_BCT.log"
 
-    logPath = "./extractor/logs"
-    destinationPath = "./extractor/json"
-    # logPath = "./logs"
-    # destinationPath = "./json"
+    # logPath = "./extractor/logs"
+    # destinationPath = "./extractor/json"
+    logPath = "./logs"
+    destinationPath = "./json"
     main = Main(inputFile, logPath, destinationPath)
 
-    sessionID = ''
-    # sessionID = '103969265'
+    # sessionID = ''
+    # sessionID = '104820521'
+    sessionIDs = ['104630926', '104630929']
 
     main.extractor()
-    main.logInterperter(sessionID)
+    main.logInterperter(sessionIDs)
     # main.jsonFilter()
     
 
