@@ -233,6 +233,7 @@ class LogInterpreter:
     
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs):
         f = open(filePath, "w")
+        print(filePath)
         jsonText = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
         jsonText = self.filterAssociatedSessions(jsonText, sessionIDs)
         f.write(jsonText)
