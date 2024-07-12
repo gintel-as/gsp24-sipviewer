@@ -2,47 +2,6 @@
   <div class="seagreenBG">
     <div class="portal-grid-container">
       <div class="portal-grid-item">
-        <form
-          [formGroup]="simpleForm"
-          (ngSubmit)="onSubmit()"
-          class="form-field-container"
-        >
-          <p>Filtering fields:</p>
-          <div class="form-field">
-            <mat-form-field>
-              <mat-label>SessionID</mat-label>
-              <input matInput formControlName="sessionID" />
-            </mat-form-field>
-          </div>
-          <div class="form-field">
-            <mat-form-field>
-              <mat-label>To</mat-label>
-              <input matInput formControlName="to" />
-            </mat-form-field>
-          </div>
-          <div class="form-field">
-            <mat-form-field>
-              <mat-label>from</mat-label>
-              <input matInput formControlName="from" />
-            </mat-form-field>
-          </div>
-          <div class="form-field">
-            <mat-form-field>
-              <mat-label>StartTime</mat-label>
-              <input matInput formControlName="startTime" />
-            </mat-form-field>
-          </div>
-          <div class="form-field">
-            <mat-form-field>
-              <mat-label>EndTime </mat-label>
-              <input matInput formControlName="endTime" />
-            </mat-form-field>
-          </div>
-
-          <button mat-flat-button color="primary" type="submit">Submit</button>
-        </form>
-      </div>
-      <div class="portal-grid-item">
         <div class="file-upload-container">
           <div
             class="file-upload-content"
@@ -75,21 +34,74 @@
           </div>
         </div>
       </div>
-      <div class="portal-grid-item full-width">
-        <h4>Extracted logs in JSON</h4>
+      <div class="portal-grid-item">
+        <form
+          [formGroup]="simpleForm"
+          (ngSubmit)="onSubmit()"
+          class="form-field-container"
+        >
+          <h5>Extraction Filters:</h5>
+          <div class="form-field">
+            <mat-form-field class="form-field-child">
+              <mat-label>SessionID</mat-label>
+              <input matInput formControlName="sessionID" />
+            </mat-form-field>
+          </div>
+          <div class="form-field">
+            <mat-form-field class="form-field-child">
+              <mat-label>To</mat-label>
+              <input matInput formControlName="to" />
+            </mat-form-field>
+          </div>
+          <div class="form-field">
+            <mat-form-field class="form-field-child">
+              <mat-label>from</mat-label>
+              <input matInput formControlName="from" />
+            </mat-form-field>
+          </div>
+          <div class="form-field">
+            <mat-form-field class="form-field-child">
+              <mat-label>StartTime</mat-label>
+              <input matInput formControlName="startTime" />
+            </mat-form-field>
+          </div>
+          <div class="form-field">
+            <mat-form-field class="form-field-child">
+              <mat-label>EndTime </mat-label>
+              <input matInput formControlName="endTime" />
+            </mat-form-field>
+          </div>
+
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            class="form-submit-btn form-field"
+          >
+            Extract from file(s)
+          </button>
+        </form>
+      </div>
+      <div class="portal-grid-item full-width extracted-container">
+        <h5>Extracted logs in JSON</h5>
         <div class="file-list">
           <div class="file-item" *ngFor="let file of jsonFiles; let i = index">
             <span>{{ file.name }}</span>
             <button class="remove-button" (click)="removeJsonFile(i)">X</button>
           </div>
         </div>
-        <button mat-flat-button (click)="readJsonFiles()">
+        <button
+          mat-flat-button
+          class="portal-import-btn"
+          (click)="readJsonFiles()"
+        >
           Import to SIP Viewer
         </button>
-        <button mat-raised-button (click)="readJsonFilesButNoMove()">
+        <!-- Can be used for testing if includesInvite check works 
+         <button mat-raised-button (click)="readJsonFilesButNoMove()">
           Load json
         </button>
-        <span>{{ testPrint }}</span>
+        <span>{{ testPrint }}</span> -->
       </div>
     </div>
   </div>
