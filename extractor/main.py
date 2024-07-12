@@ -59,6 +59,7 @@ if __name__ == "__main__":
     main = Main(inputFile, logPath, destinationPath)
 
     # sessionID = ''
+    # sessionID = '104630928'
     # sessionID = '104820521'
     sessionIDs = ['104630929', '104630932']
 

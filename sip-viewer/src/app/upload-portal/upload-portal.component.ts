@@ -8,6 +8,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { DataService } from '../data.service';
 import { RerouteService } from '../reroute.service';
+import { ApiService } from '../api.service';
+import { interval, Subscription } from 'rxjs';
+import { takeWhile } from 'rxjs/operators';
 import { Session } from '../session';
 
 @Component({
@@ -31,13 +34,17 @@ export class UploadPortalComponent {
   jsonFiles: File[] = [];
   testPrint = '';
 
+  sessionIDs: string = '';
+  statusCheckInterval: Subscription | null = null;
+
   constructor(
     private fb: FormBuilder,
     private dataService: DataService,
-    private rerouteService: RerouteService
+    private rerouteService: RerouteService,
+    private apiService: ApiService
   ) {
     this.simpleForm = this.fb.group({
-      sessionID: [''],
+      sessionIDs: [''],
       to: [''],
       from: [''],
       startTime: [''],
@@ -51,13 +58,86 @@ export class UploadPortalComponent {
       });
     });
   }
+
   onSubmit(): void {
+    let isValid: boolean = false;
+
     if (this.simpleForm.valid) {
-      console.log(this.simpleForm.value);
-      console.log(this.simpleForm.value.sessionID);
+      isValid = true;
+      this.sessionIDs = this.parseSessionID(this.simpleForm.value.sessionIDs);
     } else {
-      console.log('Form is not valid');
+      isValid = false;
+      console.error('Form is not valid');
+      return;
     }
+
+    if (this.files.length != 0) {
+      isValid = true;
+    } else {
+      isValid = false;
+      console.error('No file uploaded');
+      return;
+    }
+
+    if (isValid) {
+      this.files.forEach((file) => {
+        this.uploadAndProcessFile(file);
+      });
+    }
+  }
+
+  uploadAndProcessFile(file: any): void {
+    if (file != null) {
+      this.apiService
+        .uploadAndExtract(file, this.sessionIDs)
+        .subscribe((response) => {
+          console.log(response.message);
+          const downloadFilename = response.processed_filename;
+          this.checkFileStatus(downloadFilename);
+        });
+    }
+  }
+
+  checkFileStatus(filename: string): void {
+    let isChecking = true;
+    this.statusCheckInterval = interval(1000)
+      .pipe(takeWhile(() => isChecking))
+      .subscribe(() => {
+        if (filename) {
+          this.apiService
+            .checkFileStatus(filename)
+            .subscribe((statusResponse) => {
+              if (statusResponse.status === 'ready') {
+                isChecking = false;
+                this.statusCheckInterval?.unsubscribe();
+                this.downloadFile(filename);
+              }
+            });
+        }
+      });
+  }
+
+  downloadFile(filename: string): void {
+    if (filename) {
+      this.apiService.downloadFile(filename).subscribe((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+    }
+  }
+
+  // This is a very ugly function, but better than rewriting the API
+  parseSessionID(value: string): string {
+    let arr = value
+      .split(/[\s,]+/)
+      .map(Number)
+      .filter((num) => !isNaN(num));
+    return arr.toString();
   }
 
   onDragOver(event: DragEvent): void {
@@ -100,6 +180,7 @@ export class UploadPortalComponent {
         this.files.push(fileList[i]);
       }
       console.log(fileList[i].type);
+      console.log(this.files[0].name);
     }
   }
 
