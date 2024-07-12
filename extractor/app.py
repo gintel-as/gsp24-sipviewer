@@ -37,9 +37,10 @@ def uploadAndExtract():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(filepath)
             sessionID = request.form.get('sessionID', '')
+            sessionIDArray = [x.strip() for x in sessionID.split(',')]
 
             # Start file processing in a separate thread
-            threading.Thread(target=processFile, args=(file.filename, app.config['UPLOAD_FOLDER'], app.config['PROCESSED_FOLDER'], sessionID)).start()
+            threading.Thread(target=processFile, args=(file.filename, app.config['UPLOAD_FOLDER'], app.config['PROCESSED_FOLDER'], sessionIDArray)).start()
             
             processed_filename = f"{file.filename}.json"
             return jsonify({'message': 'File uploaded and processing started', 'processed_filename': processed_filename}), 200

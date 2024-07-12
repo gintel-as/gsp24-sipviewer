@@ -10,7 +10,7 @@ import { DataService } from '../data.service';
 import { RerouteService } from '../reroute.service';
 import { ApiService } from '../api.service';
 import { interval, Subscription } from 'rxjs';
-import { catchError, takeWhile } from 'rxjs/operators';
+import { takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-upload-portal',
@@ -32,10 +32,8 @@ export class UploadPortalComponent {
   files: File[] = [];
   jsonFiles: File[] = [];
 
-  sessionID: string = '';
+  sessionIDs: string = '';
   statusCheckInterval: Subscription | null = null;
-
-  associatedSessions = [104630926, 204637168];
 
   constructor(
     private fb: FormBuilder,
@@ -44,7 +42,7 @@ export class UploadPortalComponent {
     private apiService: ApiService
   ) {
     this.simpleForm = this.fb.group({
-      sessionID: [''],
+      sessionIDs: [''],
       to: [''],
       from: [''],
       startTime: [''],
@@ -52,48 +50,37 @@ export class UploadPortalComponent {
     });
   }
 
-  // Method to check if the sessionID is valid
-  isSessionIDValid(): boolean {
-    const sessionIDControl = this.simpleForm.get('sessionID');
-    if (sessionIDControl) {
-      const value = sessionIDControl.value;
-      if (value) {
-        const numbersArray = this.parseSessionID(value);
-        return (
-          numbersArray.length > 0 && numbersArray.every((num) => !isNaN(num))
-        );
-      }
-    }
-    return false;
-  }
-
-  // Method to parse the sessionID input
-  parseSessionID(value: string): number[] {
-    return value
-      .split(/[\s,]+/)
-      .map(Number)
-      .filter((num) => !isNaN(num));
-  }
-
   onSubmit(): void {
+    let isValid: boolean = false;
+
     if (this.simpleForm.valid) {
-      this.sessionID = this.simpleForm.value.sessionID;
-      if (this.files.length != 0) {
-        this.files.forEach((file) => {
-          this.uploadAndProcessFile(file);
-        });
-      } else {
-        console.error('No file uploaded');
-      }
+      isValid = true;
+      this.sessionIDs = this.parseSessionID(this.simpleForm.value.sessionIDs);
     } else {
+      isValid = false;
       console.error('Form is not valid');
+      return;
+    }
+
+    if (this.files.length != 0) {
+      isValid = true;
+    } else {
+      isValid = false;
+      console.error('No file uploaded');
+      return;
+    }
+
+    if (isValid) {
+      this.files.forEach((file) => {
+        this.uploadAndProcessFile(file);
+      });
     }
   }
 
   uploadAndProcessFile(file: any): void {
     if (file != null) {
       this.apiService
-        .uploadAndExtract(file, this.sessionID)
+        .uploadAndExtract(file, this.sessionIDs)
         .subscribe((response) => {
           console.log(response.message);
           const downloadFilename = response.processed_filename;
@@ -133,6 +120,15 @@ export class UploadPortalComponent {
         window.URL.revokeObjectURL(url);
       });
     }
+  }
+
+  // This is a very ugly function, but better than rewriting the API
+  parseSessionID(value: string): string {
+    let arr = value
+      .split(/[\s,]+/)
+      .map(Number)
+      .filter((num) => !isNaN(num));
+    return arr.toString();
   }
 
   onDragOver(event: DragEvent): void {
