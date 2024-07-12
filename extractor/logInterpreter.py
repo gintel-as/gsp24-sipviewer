@@ -217,6 +217,40 @@ class LogInterpreter:
                 filteredSessions[key] = sessionDict[key]
 
         return filteredSessions
+    
+
+    #If sipTo or sipFrom numbers match part of the to/from number of the session, return True 
+    def filterSessionOnToAndFrom(self, session, sipTo, sipFrom):
+        phoneNumberPattern = r'<sip:(\+?\d+)(?=@)'
+        match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
+
+        if sipTo:
+            match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
+            if not match:
+                return False
+            if not sipTo in match.group(1):
+                return False
+            
+        if sipFrom:
+            match = re.search(phoneNumberPattern,  session["sessionInfo"]["from"])
+            if not match:
+                return False
+            if not sipFrom in match.group(1):
+                return False
+
+        return True
+
+    
+    def filterSessionDictOnToAndFrom(self, sessionDict, sipTo, sipFrom):
+        filteredSessions = {}
+        
+        for sessionID in sessionDict.keys():
+            session = sessionDict[sessionID]
+            self.filterSessionOnToAndFrom(session, sipTo, sipFrom)
+            if self.filterSessionOnToAndFrom(session, sipTo, sipFrom):
+                filteredSessions[sessionID] = session
+
+        return filteredSessions
 
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
@@ -277,19 +311,21 @@ class LogInterpreter:
         f = open(filePath, "w")
         unfilteredSessionDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
         sessionDictFilteredBySessionID, listWithAssociatedSessionIDs = self.filterAssociatedSessions(unfilteredSessionDict, sessionIDs)
-        sessionDictFilteredBySessionIDAndTime = self.filterSessionsOnTimestamp(sessionDictFilteredBySessionID, "2024-07-03 09:06:16.664", "2024-07-03 09:06:16.666") #"2024-07-03 09:54:00.903"
-        
-        sessionIDAndTimeMatchesWithAssociatedSessions = {} # Contains all sessions that matches filters and their associated sessions
-        for sessionMatch in sessionDictFilteredBySessionIDAndTime.keys(): 
+        sessionDictFilteredBySessionIDAndTime = self.filterSessionsOnTimestamp(sessionDictFilteredBySessionID,"" , "") #"2024-07-03 09:54:00.903"
+        sessionDictFilteredBySessionIDTimeAndToFrom = self.filterSessionDictOnToAndFrom(sessionDictFilteredBySessionIDAndTime, "", "46180307")
+        filteredSessionsWithAssociatedSessions = {} # Contains all sessions that matches filters and their associated sessions
+
+        for sessionMatch in sessionDictFilteredBySessionIDTimeAndToFrom.keys(): 
             for listInstance in listWithAssociatedSessionIDs: # Checks each list of the double list
                 if sessionMatch in listInstance:  
                     for relatedSession in listInstance:
                         if relatedSession in sessionDictFilteredBySessionID.keys():
-                            sessionIDAndTimeMatchesWithAssociatedSessions[relatedSession] = sessionDictFilteredBySessionID[relatedSession]  
+                            filteredSessionsWithAssociatedSessions[relatedSession] = sessionDictFilteredBySessionID[relatedSession]  
                         else: 
                             print(f'Related session {relatedSession} was not found in this file.') 
-        print("Number of objects in the JSON file: ", len(sessionIDAndTimeMatchesWithAssociatedSessions))            
-        jsonText = json.dumps(list(sessionIDAndTimeMatchesWithAssociatedSessions.values()), indent=2)     
+        print("Number of objects in the JSON file: ", len(filteredSessionsWithAssociatedSessions))            
+        jsonText = json.dumps(list(filteredSessionsWithAssociatedSessions.values()), indent=2)   
+        # jsonText = json.dumps(list(unfilteredSessionDict.values()), indent=2)  
         f.write(jsonText)
         f.close()
     
