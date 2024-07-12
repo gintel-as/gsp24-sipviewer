@@ -85,8 +85,6 @@ export class AppComponent implements OnInit {
       this.isExtractor = false;
       this.renderer.setStyle(document.body, 'overflow', 'hidden');
       this.renderer.setStyle(element, 'position', 'fixed');
-      // this.renderer.setStyle(this.elementRef.nativeElement)
-      // this.renderer.setStyle(this.document.getElementsByClassName('app-content'), //position:Fixed)
     }
   }
 
