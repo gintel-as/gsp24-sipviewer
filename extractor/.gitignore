@@ -27,3 +27,4 @@ dist/
 htmlcov/
 .tox/
 docs/_build/
+!requirements.txt
