@@ -117,6 +117,7 @@ export class SessionTableComponent implements AfterViewInit {
                 time: session.sessionInfo.time,
                 from: msgFrom,
                 to: msgTo,
+                initialInvite: session.sessionInfo.initialInvite,
                 associatedSessions: session.sessionInfo.associatedSessions,
               },
               messages: session.messages,
