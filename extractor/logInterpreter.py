@@ -158,8 +158,7 @@ class LogInterpreter:
         relatedSessionsLists = [] # List with lists of associated sessions
 
         if not sessionIDs:
-            print('No sessionIDs')
-            return json.dumps(list(dict.values()), indent=2)
+            return dict, relatedSessionsLists
         else:
             for sessionID in sessionIDs: 
                 # Finds relatedSessions for selected sessionID
@@ -174,10 +173,10 @@ class LogInterpreter:
                         else: 
                             print(f"Related session {session} was not found in this file.")
 
-                else:
-                    print(f"Session ID {sessionID} not found.")
-                    result = {}
-            # return json.dumps(list(result.values()), indent=2), relatedSessionsLists
+                # else:
+                #     print(f"Session ID {sessionID} not found.")
+                #     result = {}
+
             return result, relatedSessionsLists
         
     def parse_datetime(self, date_str):
@@ -273,12 +272,14 @@ class LogInterpreter:
         return sessionPackets
     
     
-    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs):
+    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs, startTime, endTime):
+        print('start: ', sessionIDs)
         f = open(filePath, "w")
         unfilteredSessionDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
         sessionDictFilteredBySessionID, listWithAssociatedSessionIDs = self.filterAssociatedSessions(unfilteredSessionDict, sessionIDs)
-        sessionDictFilteredBySessionIDAndTime = self.filterSessionsOnTimestamp(sessionDictFilteredBySessionID, "2024-07-03 09:06:16.664", "2024-07-03 09:06:16.666") #"2024-07-03 09:54:00.903"
-        
+
+        sessionDictFilteredBySessionIDAndTime = self.filterSessionsOnTimestamp(sessionDictFilteredBySessionID, startTime, endTime)
+
         sessionIDAndTimeMatchesWithAssociatedSessions = {} # Contains all sessions that matches filters and their associated sessions
         for sessionMatch in sessionDictFilteredBySessionIDAndTime.keys(): 
             for listInstance in listWithAssociatedSessionIDs: # Checks each list of the double list
@@ -289,7 +290,8 @@ class LogInterpreter:
                         else: 
                             print(f'Related session {relatedSession} was not found in this file.') 
         print("Number of objects in the JSON file: ", len(sessionIDAndTimeMatchesWithAssociatedSessions))            
-        jsonText = json.dumps(list(sessionIDAndTimeMatchesWithAssociatedSessions.values()), indent=2)     
+        # jsonText = json.dumps(list(sessionIDAndTimeMatchesWithAssociatedSessions.values()), indent=2)     
+        jsonText = json.dumps(list(sessionDictFilteredBySessionID.values()), indent=2)     
         f.write(jsonText)
         f.close()
     
@@ -306,4 +308,9 @@ if __name__ == "__main__":
     # sessionIDs = ['104820521', '104820522']
     sessionIDs = []
 
-    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath, sessionIDs)
+    # "2024-07-03 09:54:00.903"
+    startTime = "2024-07-03 09:06:16.664"
+    endTime = "2024-07-03 09:06:16.666"
+    
+    
+    logInterpreter.writeJsonFileFromHeaders(startLines, headers, body, filePath, sessionIDs, startTime, endTime)

@@ -16,11 +16,11 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 
 
-def processFile(inputFile, logPath, destinationPath, sessionID):
+def processFile(inputFile, logPath, destinationPath, sessionID, startTime, endTime):
     try:
         main_instance = Main(inputFile, logPath, destinationPath)
         main_instance.extractor()
-        main_instance.logInterperter(sessionID)
+        main_instance.logInterperter(sessionID, startTime, endTime)
     except Exception as e:
         print(f"Error processing file {inputFile}: {e}")
 
@@ -36,11 +36,19 @@ def uploadAndExtract():
         try:
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(filepath)
+
+            # Turn string of sessionIDs into array
             sessionID = request.form.get('sessionID', '')
-            sessionIDArray = [x.strip() for x in sessionID.split(',')]
+            if sessionID == '':
+                sessionIDArray = []
+            else:
+                sessionIDArray = [x.strip() for x in sessionID.split(',')]
+
+            startTime = request.form.get('startTime', '')
+            endTime = request.form.get('endTime', '')
 
             # Start file processing in a separate thread
-            threading.Thread(target=processFile, args=(file.filename, app.config['UPLOAD_FOLDER'], app.config['PROCESSED_FOLDER'], sessionIDArray)).start()
+            threading.Thread(target=processFile, args=(file.filename, app.config['UPLOAD_FOLDER'], app.config['PROCESSED_FOLDER'], sessionIDArray, startTime, endTime)).start()
             
             processed_filename = f"{file.filename}.json"
             return jsonify({'message': 'File uploaded and processing started', 'processed_filename': processed_filename}), 200
