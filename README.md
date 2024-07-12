@@ -1,4 +1,6 @@
-# SIP-Viewer
+# GSP24-SIPVIEWER
+
+## Angular sip-viewer
 
 Make sure to have nodejs and the angular cli installed beforehand.
 
