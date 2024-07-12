@@ -50,7 +50,6 @@ import { RerouteService } from './reroute.service';
     MatIconModule,
     HomeComponent,
     MatButtonModule,
-    MatIconModule,
   ],
 })
 export class AppComponent implements OnInit {
