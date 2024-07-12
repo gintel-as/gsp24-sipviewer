@@ -126,7 +126,7 @@ class LogInterpreter:
 
     
     # Can modify the sessionInfoDict to add bool for initial INVITE
-    def createSessionInfoDict(self, sessionID, time, sipTo, sipFrom):
+    def createSessionInfoDict(self, sessionID, time, sipTo, sipFrom, initialInvite):
         return {
             "sessionID": sessionID,
             "time": time,
@@ -134,13 +134,13 @@ class LogInterpreter:
             "from": sipFrom,
             "participants": [],
             "associatedSessions": [],
-            # "initialInvite": bool
+            "initialInvite": initialInvite
         }
     
     
-    def createEmptySessionDict(self, sessionID, time, sipTo, sipFrom):
+    def createEmptySessionDict(self, sessionID, time, sipTo, sipFrom, initialInvite):
         return {
-            "sessionInfo": self.createSessionInfoDict( sessionID, time, sipTo, sipFrom),
+            "sessionInfo": self.createSessionInfoDict( sessionID, time, sipTo, sipFrom, initialInvite),
             "messages": []
         }
     
@@ -190,7 +190,8 @@ class LogInterpreter:
                 message = self.createJsonFormattedMessagePacket(time, sessionID, messageID, direction, party, method, sipContent, body[i])
 
                 if sessionID not in sessionPackets.keys():
-                    sessionPackets[sessionID] = self.createEmptySessionDict(sessionID, time, sipContent["To"][0], sipContent["From"][0])
+                    initialInviteBool = self.checkForInitialInvite(sipContent['To'][0], direction)
+                    sessionPackets[sessionID] = self.createEmptySessionDict(sessionID, time, sipContent["To"][0], sipContent["From"][0], initialInviteBool)
                 associatedSessionIDKeys = self.checkIfDictKeysContainsRelatedSessions(sipContent)
 
                 #Add to SessionInfo if attribtes exsist in message
@@ -200,9 +201,6 @@ class LogInterpreter:
 
                 if sipContent['To']:
                     for el in sipContent['To']:
-                        initialInviteBool = self.checkForInitialInvite(el, direction)
-                        # if initialInviteBool:
-                        #     print('packet: ', i, initialInviteBool)
                         if el not in currentSessionInfo['participants']:
                             currentSessionInfo['participants'].append(el)
                 

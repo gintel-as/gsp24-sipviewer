@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   Inject,
   OnInit,
   Renderer2,
@@ -65,7 +66,8 @@ export class AppComponent implements OnInit {
     private router: Router,
     private renderer: Renderer2,
     @Inject(DOCUMENT) private document: Document,
-    private rerouteService: RerouteService
+    private rerouteService: RerouteService,
+    private elementRef: ElementRef
   ) {
     this.rerouteService.rerouteEvent.subscribe(() => {
       this.navigateToRoute();
@@ -83,13 +85,16 @@ export class AppComponent implements OnInit {
 
   updateRoute() {
     const currentRoute = this.router.url;
+    const element = this.elementRef.nativeElement.querySelector('.app-content');
     if (currentRoute == '/upload') {
       this.isExtractor = true;
       this.renderer.setStyle(document.body, 'overflow', 'auto');
+      this.renderer.setStyle(element, 'position', 'relative');
     }
     if (currentRoute == '/') {
       this.isExtractor = false;
       this.renderer.setStyle(document.body, 'overflow', 'hidden');
+      this.renderer.setStyle(element, 'position', 'fixed');
     }
   }
 

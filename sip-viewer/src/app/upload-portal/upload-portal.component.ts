@@ -11,6 +11,7 @@ import { RerouteService } from '../reroute.service';
 import { ApiService } from '../api.service';
 import { interval, Subscription } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
+import { Session } from '../session';
 
 @Component({
   selector: 'app-upload-portal',
@@ -31,6 +32,7 @@ export class UploadPortalComponent {
   simpleForm: FormGroup;
   files: File[] = [];
   jsonFiles: File[] = [];
+  testPrint = '';
 
   sessionIDs: string = '';
   statusCheckInterval: Subscription | null = null;
@@ -47,6 +49,13 @@ export class UploadPortalComponent {
       from: [''],
       startTime: [''],
       endTime: [''],
+    });
+    this.dataService.getSessions().subscribe((sessions: Session[]) => {
+      sessions.forEach((session: Session) => {
+        if (session.sessionInfo.initialInvite) {
+          this.testPrint = `${session.sessionInfo.sessionID} contains initial invite, ${this.testPrint}`;
+        }
+      });
     });
   }
 
@@ -181,6 +190,20 @@ export class UploadPortalComponent {
 
   removeJsonFile(index: number): void {
     this.jsonFiles.splice(index, 1);
+  }
+
+  // Remove later testing function
+  readJsonFilesButNoMove() {
+    this.jsonFiles.forEach((file: File) => {
+      if (file.size > 0) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const fileContent = e.target.result;
+          this.dataService.uploadFileContent(fileContent);
+        };
+        reader.readAsText(file);
+      }
+    });
   }
 
   readJsonFiles() {
