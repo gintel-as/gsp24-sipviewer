@@ -25,6 +25,11 @@ class Main:
         self.body = extractor.getBody()
 
     def logInterperter(self, sessionID, startTime, endTime):
+
+        # the time is not being submitted
+        print('main start: ', startTime)
+        print('main end: ', endTime)
+
         if self.destinationPath == "":
             dest = self.destinationPath
         else: 

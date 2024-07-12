@@ -67,10 +67,10 @@ export class UploadPortalComponent {
     if (this.simpleForm.valid) {
       isValid = true;
       this.sessionIDs = this.parseSessionID(this.simpleForm.value.sessionIDs);
-      console.log(this.simpleForm.value.sessionIDs);
-      console.log(this.sessionIDs);
-      this.startTime = this.parseSessionID(this.simpleForm.value.startTime);
-      this.endTime = this.parseSessionID(this.simpleForm.value.endTime);
+      this.startTime = this.simpleForm.value.startTime;
+      this.endTime = this.simpleForm.value.endTime;
+      console.log(this.startTime);
+      console.log(this.endTime);
     } else {
       isValid = false;
       console.error('Form is not valid');
