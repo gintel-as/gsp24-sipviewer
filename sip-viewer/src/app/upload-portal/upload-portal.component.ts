@@ -35,6 +35,8 @@ export class UploadPortalComponent {
   testPrint = '';
 
   sessionIDs: string = '';
+  startTime: string = '';
+  endTime: string = '';
   statusCheckInterval: Subscription | null = null;
 
   constructor(
@@ -65,6 +67,8 @@ export class UploadPortalComponent {
     if (this.simpleForm.valid) {
       isValid = true;
       this.sessionIDs = this.parseSessionID(this.simpleForm.value.sessionIDs);
+      this.startTime = this.simpleForm.value.startTime;
+      this.endTime = this.simpleForm.value.endTime;
     } else {
       isValid = false;
       console.error('Form is not valid');
@@ -79,6 +83,8 @@ export class UploadPortalComponent {
       return;
     }
 
+    // consider adding check for startTime being before EndTime
+
     if (isValid) {
       this.files.forEach((file) => {
         this.uploadAndProcessFile(file);
@@ -89,7 +95,7 @@ export class UploadPortalComponent {
   uploadAndProcessFile(file: any): void {
     if (file != null) {
       this.apiService
-        .uploadAndExtract(file, this.sessionIDs)
+        .uploadAndExtract(file, this.sessionIDs, this.startTime, this.endTime)
         .subscribe((response) => {
           console.log(response.message);
           const downloadFilename = response.processed_filename;
@@ -135,6 +141,9 @@ export class UploadPortalComponent {
 
   // This is a very ugly function, but better than rewriting the API
   parseSessionID(value: string): string {
+    if (value.trim() === '') {
+      return '';
+    }
     let arr = value
       .split(/[\s,]+/)
       .map(Number)
