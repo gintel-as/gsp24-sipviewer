@@ -35,6 +35,10 @@ export class UploadPortalComponent {
   testPrint = '';
 
   sessionIDs: string = '';
+  sipTo: string = '';
+  sipFrom: string = '';
+  startTime: string = '';
+  endTime: string = '';
   statusCheckInterval: Subscription | null = null;
 
   constructor(
@@ -45,8 +49,8 @@ export class UploadPortalComponent {
   ) {
     this.simpleForm = this.fb.group({
       sessionIDs: [''],
-      to: [''],
-      from: [''],
+      sipTo: [''],
+      sipFrom: [''],
       startTime: [''],
       endTime: [''],
     });
@@ -65,6 +69,10 @@ export class UploadPortalComponent {
     if (this.simpleForm.valid) {
       isValid = true;
       this.sessionIDs = this.parseSessionID(this.simpleForm.value.sessionIDs);
+      this.sipTo = this.simpleForm.value.sipTo;
+      this.sipFrom = this.simpleForm.value.sipFrom;
+      this.startTime = this.simpleForm.value.startTime;
+      this.endTime = this.simpleForm.value.endTime;
     } else {
       isValid = false;
       console.error('Form is not valid');
@@ -79,6 +87,8 @@ export class UploadPortalComponent {
       return;
     }
 
+    // consider adding check for startTime being before EndTime
+
     if (isValid) {
       this.files.forEach((file) => {
         console.log('Now uploading: ', file.name);
@@ -90,7 +100,14 @@ export class UploadPortalComponent {
   uploadAndProcessFile(file: any): void {
     if (file != null) {
       this.apiService
-        .uploadAndExtract(file, this.sessionIDs)
+        .uploadAndExtract(
+          file,
+          this.sessionIDs,
+          this.startTime,
+          this.endTime,
+          this.sipTo,
+          this.sipFrom
+        )
         .subscribe((response) => {
           console.log(response.message);
           const downloadFilename = response.processed_filename;
@@ -136,6 +153,9 @@ export class UploadPortalComponent {
 
   // This is a very ugly function, but better than rewriting the API
   parseSessionID(value: string): string {
+    if (value.trim() === '') {
+      return '';
+    }
     let arr = value
       .split(/[\s,]+/)
       .map(Number)

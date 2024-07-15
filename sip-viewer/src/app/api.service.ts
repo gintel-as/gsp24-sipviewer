@@ -10,10 +10,21 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  uploadAndExtract(file: File, sessionID: string): Observable<any> {
+  uploadAndExtract(
+    file: File,
+    sessionID: string,
+    startTime: string,
+    endTime: string,
+    sipTo: string,
+    sipFrom: string
+  ): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('file', file, file.name);
     formData.append('sessionID', sessionID);
+    formData.append('sipTo', sipTo);
+    formData.append('sipFrom', sipFrom);
+    formData.append('startTime', startTime);
+    formData.append('endTime', endTime);
     return this.http.post<any>(`${this.apiUrl}/uploadAndExtract`, formData);
   }
 
