@@ -16,15 +16,10 @@ import { Session } from '../session';
 })
 export class FileUploadComponent implements OnInit {
   fileName = '';
-  jsonText = '';
-  jsonText2 = '';
   selectedSessions: Session[] = [];
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
-    this.dataService.getSessions().subscribe((sessions) => {
-      this.jsonText = JSON.stringify(sessions, null, 2);
-    });
     this.dataService.selectedSessionIDs$.subscribe(() => {
       this.dataService
         .getSelectedSessions()
@@ -58,9 +53,9 @@ export class FileUploadComponent implements OnInit {
     this.fileName = '';
   }
 
-  printJson() {
-    this.jsonText2 = JSON.stringify(this.selectedSessions, null, 2);
-    console.log(this.jsonText2);
-    this.dataService.downloadJsonFile(this.jsonText2, 'output.json');
+  //Exports selected sessions as a pretty JSON-file with indent=2
+  exportSelectedToJson() {
+    const jsonText = JSON.stringify(this.selectedSessions, null, 2);
+    this.dataService.downloadJsonFile(jsonText, 'output.json');
   }
 }
