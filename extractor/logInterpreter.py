@@ -216,6 +216,74 @@ class LogInterpreter:
                 filteredSessions[key] = sessionDict[key]
 
         return filteredSessions
+    
+
+    #If sipTo or sipFrom numbers match part of the to/from number of the session, return True 
+    def filterSessionOnToAndFrom(self, session, sipTo, sipFrom):
+        phoneNumberPattern = r'<sip:(\+?\d+)(?=@)'
+        match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
+
+        if sipTo:
+            match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
+            if not match:
+                return False
+            if not sipTo in match.group(1):
+                return False
+            
+        if sipFrom:
+            match = re.search(phoneNumberPattern,  session["sessionInfo"]["from"])
+            if not match:
+                return False
+            if not sipFrom in match.group(1):
+                return False
+
+        return True
+
+    
+    def filterSessionDictOnToAndFrom(self, sessionDict, sipTo, sipFrom):
+        filteredSessions = {}
+        
+        for sessionID in sessionDict.keys():
+            session = sessionDict[sessionID]
+            self.filterSessionOnToAndFrom(session, sipTo, sipFrom)
+            if self.filterSessionOnToAndFrom(session, sipTo, sipFrom):
+                filteredSessions[sessionID] = session
+
+        return filteredSessions
+    
+
+    #If sipTo or sipFrom numbers match part of the to/from number of the session, return True 
+    def filterSessionOnToAndFrom(self, session, sipTo, sipFrom):
+        phoneNumberPattern = r'<sip:(\+?\d+)(?=@)'
+        match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
+
+        if sipTo:
+            match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
+            if not match:
+                return False
+            if not sipTo in match.group(1):
+                return False
+            
+        if sipFrom:
+            match = re.search(phoneNumberPattern,  session["sessionInfo"]["from"])
+            if not match:
+                return False
+            if not sipFrom in match.group(1):
+                return False
+
+        return True
+
+    
+    def filterSessionDictOnToAndFrom(self, sessionDict, sipTo, sipFrom):
+        filteredSessions = {}
+        
+        for sessionID in sessionDict.keys():
+            session = sessionDict[sessionID]
+            self.filterSessionOnToAndFrom(session, sipTo, sipFrom)
+            if self.filterSessionOnToAndFrom(session, sipTo, sipFrom):
+                filteredSessions[sessionID] = session
+
+        return filteredSessions
 
 
     def createJsonFormattedSessionPacketsFromExtractedHeaders(self, startLines, headers, body):
@@ -272,26 +340,25 @@ class LogInterpreter:
         return sessionPackets
     
     
-    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs, startTime, endTime):
+    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs, startTime, endTime, sipTo, sipFrom):
         print('start: ', sessionIDs)
         f = open(filePath, "w")
         unfilteredSessionDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
         sessionDictFilteredBySessionID, listWithAssociatedSessionIDs = self.filterAssociatedSessions(unfilteredSessionDict, sessionIDs)
+        sessionDictFilteredBySessionIDAndTime = self.filterSessionsOnTimestamp(sessionDictFilteredBySessionID,startTime , endTime)
+        sessionDictFilteredBySessionIDTimeAndToFrom = self.filterSessionDictOnToAndFrom(sessionDictFilteredBySessionIDAndTime, sipTo, sipFrom)
+        filteredSessionsWithAssociatedSessions = {} # Contains all sessions that matches filters and their associated sessions
 
-        sessionDictFilteredBySessionIDAndTime = self.filterSessionsOnTimestamp(sessionDictFilteredBySessionID, startTime, endTime)
-
-        sessionIDAndTimeMatchesWithAssociatedSessions = {} # Contains all sessions that matches filters and their associated sessions
-        for sessionMatch in sessionDictFilteredBySessionIDAndTime.keys(): 
+        for sessionMatch in sessionDictFilteredBySessionIDTimeAndToFrom.keys(): 
             for listInstance in listWithAssociatedSessionIDs: # Checks each list of the double list
                 if sessionMatch in listInstance:  
                     for relatedSession in listInstance:
                         if relatedSession in sessionDictFilteredBySessionID.keys():
-                            sessionIDAndTimeMatchesWithAssociatedSessions[relatedSession] = sessionDictFilteredBySessionID[relatedSession]  
+                            filteredSessionsWithAssociatedSessions[relatedSession] = sessionDictFilteredBySessionID[relatedSession]  
                         else: 
                             print(f'Related session {relatedSession} was not found in this file.') 
-        print("Number of objects in the JSON file: ", len(sessionIDAndTimeMatchesWithAssociatedSessions))            
-        # jsonText = json.dumps(list(sessionIDAndTimeMatchesWithAssociatedSessions.values()), indent=2)     
-        jsonText = json.dumps(list(sessionDictFilteredBySessionID.values()), indent=2)     
+        print("Number of objects in the JSON file: ", len(filteredSessionsWithAssociatedSessions))            
+        jsonText = json.dumps(list(filteredSessionsWithAssociatedSessions.values()), indent=2) 
         f.write(jsonText)
         f.close()
     
