@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { DataService } from '../data.service';
 import { NgIf } from '@angular/common';
 import { ApiService } from '../api.service';
+import { Session } from '../session';
 @Component({
   selector: 'app-file-upload',
   standalone: true,
@@ -13,9 +14,25 @@ import { ApiService } from '../api.service';
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.css',
 })
-export class FileUploadComponent {
+export class FileUploadComponent implements OnInit {
   fileName = '';
+  jsonText = '';
+  jsonText2 = '';
+  selectedSessions: Session[] = [];
   constructor(private dataService: DataService) {}
+
+  ngOnInit(): void {
+    this.dataService.getSessions().subscribe((sessions) => {
+      this.jsonText = JSON.stringify(sessions, null, 2);
+    });
+    this.dataService.selectedSessionIDs$.subscribe(() => {
+      this.dataService
+        .getSelectedSessions()
+        .subscribe((sessions: Session[]) => {
+          this.selectedSessions = sessions;
+        });
+    });
+  }
 
   onJsonFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -39,5 +56,11 @@ export class FileUploadComponent {
   clearSelectedFiles() {
     this.dataService.clearUploadedFileContent();
     this.fileName = '';
+  }
+
+  printJson() {
+    this.jsonText2 = JSON.stringify(this.selectedSessions, null, 2);
+    console.log(this.jsonText2);
+    this.dataService.downloadJsonFile(this.jsonText2, 'output.json');
   }
 }

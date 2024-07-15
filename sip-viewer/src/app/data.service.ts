@@ -76,6 +76,16 @@ export class DataService {
     return this.sessions.asObservable();
   }
 
+  getSelectedSessions(): Observable<Session[]> {
+    return this.getSessions().pipe(
+      map((sessions: Session[]) =>
+        sessions.filter(
+          (session) =>
+            this.sessionIDs.indexOf(session.sessionInfo.sessionID) !== -1
+        )
+      )
+    );
+  }
   //Fetches from http, should only be called by constructor
   // fetchMessages(): void {
   //   this.http
@@ -211,5 +221,17 @@ export class DataService {
     this.messages.next([]);
     this.selectNewMessageByID('');
     this.updateSelectedSessionsByList([]);
+  }
+
+  downloadJsonFile(jsonString: string, fileName: string): void {
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 }
