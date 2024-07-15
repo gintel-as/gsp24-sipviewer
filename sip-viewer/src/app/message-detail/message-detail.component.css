@@ -8,6 +8,10 @@ mat-toolbar {
   top: 0;
 }
 
+ul {
+  margin-top: 2em;
+}
+
 #packetDetailSpan {
   position: absolute;
   padding-left: auto;
@@ -56,4 +60,8 @@ button {
 
 :root {
   height: 100%;
+}
+
+#list {
+  margin-top: 1em;
 }

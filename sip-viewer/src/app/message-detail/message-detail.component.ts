@@ -24,7 +24,7 @@ import Utils from '../sequence-diagram/utils';
   styleUrl: './message-detail.component.css',
 })
 export class MessageDetailComponent {
-  packetStartLines: any[] = [];
+  packetStartLines: string[] = [];
   packetDetailHeader: any[] = [];
   packetDetailBody: any[] = [];
   textToCopy: any[] = [];
@@ -107,18 +107,38 @@ export class MessageDetailComponent {
             message?.startLine.direction.toString() ?? 'Not defined';
           const packetParty =
             message?.startLine.party.toString() ?? 'Not defined';
-          const startLineInfo =
-            'TIME: ' +
-            packetTime +
-            ', SESSION ID: ' +
-            packetSessionID +
-            ', MESSAGE ID: ' +
-            packetMessageID +
-            ', DIRECTION: ' +
-            packetDirection +
-            ', PARTY: ' +
-            packetParty;
-          startLineOutput.push(startLineInfo);
+          // const startLineInfo =
+          //   'TIME: ' +
+          //   packetTime +
+          //   ', SESSION ID: ' +
+          //   packetSessionID +
+          //   ', MESSAGE ID: ' +
+          //   packetMessageID +
+          //   ', DIRECTION: ' +
+          //   packetDirection +
+          //   ', PARTY: ' +
+          //   packetParty;
+          //304286493 Received message with id=972EEFE9 from LegA
+          let startLineInfo = [
+            `${packetTime}: SessionID=${packetSessionID}`,
+            ` 
+            ${
+              packetDirection === 'from' ? 'Recieved' : 'Sent'
+            } message with id=${packetMessageID} ${packetDirection} ${packetParty}`,
+          ];
+          // console.log('sturras', startLineInfo);
+          // 'Timestamp: ' +
+          //   packetTime +
+          //   ', Session ID: ' +
+          //   packetSessionID +
+          //   ', Message ID: ' +
+          //   packetMessageID +
+          //   ', ' +
+          //   packetDirection +
+          //   ' ' +
+          //   packetParty;
+          startLineOutput.push(startLineInfo[0]);
+          startLineOutput.push(startLineInfo[1]);
         }
         this.packetStartLines = startLineOutput;
 
