@@ -73,10 +73,6 @@ export class UploadPortalComponent {
       this.sipFrom = this.simpleForm.value.sipFrom;
       this.startTime = this.simpleForm.value.startTime;
       this.endTime = this.simpleForm.value.endTime;
-      // console.log(this.sipTo);
-      // console.log(this.sipFrom);
-      // console.log(this.startTime);
-      // console.log(this.endTime);
     } else {
       isValid = false;
       console.error('Form is not valid');
@@ -141,6 +137,8 @@ export class UploadPortalComponent {
   downloadFile(filename: string): void {
     if (filename) {
       this.apiService.downloadFile(filename).subscribe((blob) => {
+        const file = new File([blob], filename, { type: blob.type });
+        this.jsonFiles.push(file);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
