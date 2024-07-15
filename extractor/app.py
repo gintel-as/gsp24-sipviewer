@@ -16,11 +16,11 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 
 
-def processFile(inputFile, logPath, destinationPath, sessionID, startTime, endTime):
+def processFile(inputFile, logPath, destinationPath, sessionID, sipTo, sipFrom, startTime, endTime):
     try:
         main_instance = Main(inputFile, logPath, destinationPath)
         main_instance.extractor()
-        main_instance.logInterperter(sessionID, startTime, endTime)
+        main_instance.logInterperter(sessionID, sipTo, sipFrom, startTime, endTime)
     except Exception as e:
         print(f"Error processing file {inputFile}: {e}")
 
@@ -44,11 +44,18 @@ def uploadAndExtract():
             else:
                 sessionIDArray = [x.strip() for x in sessionID.split(',')]
 
+            sipTo = request.form.get('sipTo', '')
+            sipFrom = request.form.get('sipFrom', '')
             startTime = request.form.get('startTime', '')
             endTime = request.form.get('endTime', '')
 
+            print("sipTo: ", sipTo)
+            print("sipFrom: ", sipFrom)
+            print("startTime: ", startTime)
+            print("endTime: ", endTime)
+
             # Start file processing in a separate thread
-            threading.Thread(target=processFile, args=(file.filename, app.config['UPLOAD_FOLDER'], app.config['PROCESSED_FOLDER'], sessionIDArray, startTime, endTime)).start()
+            threading.Thread(target=processFile, args=(file.filename, app.config['UPLOAD_FOLDER'], app.config['PROCESSED_FOLDER'], sessionIDArray, sipTo, sipFrom, startTime, endTime)).start()
             
             processed_filename = f"{file.filename}.json"
             return jsonify({'message': 'File uploaded and processing started', 'processed_filename': processed_filename}), 200
