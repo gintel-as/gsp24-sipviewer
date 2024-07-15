@@ -152,32 +152,19 @@ class LogInterpreter:
         return matchingHeaders
 
 
-    def filterAssociatedSessions(self, dict, sessionIDs):
-        result = {} 
-        relatedSessions = []
-        relatedSessionsLists = [] # List with lists of associated sessions
+    def filterDictOnSessionIDs(self, dict, sessionIDs):
+        result = {}
 
         if not sessionIDs:
-            return dict, relatedSessionsLists
-        else:
-            for sessionID in sessionIDs: 
-                # Finds relatedSessions for selected sessionID
-                if sessionID in dict:
-                    relatedSessions = dict[sessionID]['sessionInfo']['associatedSessions']
-                    relatedSessionsLists.append(dict[sessionID]['sessionInfo']['associatedSessions'])
-                    print(f"Related sessions for {sessionID}: {relatedSessions}")
-                    # Filters out all sessions not in relatedSessions[]
-                    for session in relatedSessions:
-                        if session in dict:
-                            result[session] = dict[session]
-                        else: 
-                            print(f"Related session {session} was not found in this file.")
-
-                # else:
-                #     print(f"Session ID {sessionID} not found.")
-                #     result = {}
-
-            return result, relatedSessionsLists
+            return dict
+        
+        for sessionID in sessionIDs:
+            
+            if sessionID in dict:
+                print("sessionID", sessionID)
+                result[sessionID] = dict[sessionID]
+        return result
+    
         
     def parse_datetime(self, date_str):
         # Defines possible formats of using ms or no ms
@@ -189,8 +176,9 @@ class LogInterpreter:
             except ValueError:
                 continue
         raise ValueError(f"Date string '{date_str}' is not in a recognized format.")
+    
 
-    #Help function for filterSessionsOnTimestamp
+    #Help function for filterSessionsOnTimestamp, checks if the date is between the start and end
     def is_between(self, date_str, start, end):
         # Depending on if start and end is defined, return if date fits criteria. 
         date = self.parse_datetime(date_str)
@@ -202,7 +190,6 @@ class LogInterpreter:
             return date <= end
         return True
         
-        # Check if the date is between the start and end
 
     #For each session, if sessionInfo timestamp is between start/end add to filteredSessions
     def filterSessionsOnTimestamp(self, sessionDict, startTimeStamp, endTimeStamp):
@@ -238,18 +225,6 @@ class LogInterpreter:
                 return False
 
         return True
-
-    
-    def filterSessionDictOnToAndFrom(self, sessionDict, sipTo, sipFrom):
-        filteredSessions = {}
-        
-        for sessionID in sessionDict.keys():
-            session = sessionDict[sessionID]
-            self.filterSessionOnToAndFrom(session, sipTo, sipFrom)
-            if self.filterSessionOnToAndFrom(session, sipTo, sipFrom):
-                filteredSessions[sessionID] = session
-
-        return filteredSessions
     
 
     #If sipTo or sipFrom numbers match part of the to/from number of the session, return True 
@@ -273,7 +248,8 @@ class LogInterpreter:
 
         return True
 
-    
+
+    #Takes in sessionDict, returns it filtered on if sipTo and sipFrom matches to/from on each session
     def filterSessionDictOnToAndFrom(self, sessionDict, sipTo, sipFrom):
         filteredSessions = {}
         
@@ -336,29 +312,35 @@ class LogInterpreter:
         for sessionID in sessionPackets.keys():
             if sessionID in sessionIDtoAssociatedDict.keys():
                 sessionPackets[sessionID]["sessionInfo"]["associatedSessions"] = list(sessionIDtoAssociatedDict[sessionID])
-                
-        return sessionPackets
+
+        return sessionPackets, sessionIDtoAssociatedDict
     
-    
+    # Main method of loginterpreter
+    # Takes in read data from extractor as arrays, as well as all filtering parameters
+    # Outputs a written JSONfile with json.dumps
     def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs, startTime, endTime, sipTo, sipFrom):
-        print('start: ', sessionIDs)
-        f = open(filePath, "w")
-        unfilteredSessionDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
-        sessionDictFilteredBySessionID, listWithAssociatedSessionIDs = self.filterAssociatedSessions(unfilteredSessionDict, sessionIDs)
-        sessionDictFilteredBySessionIDAndTime = self.filterSessionsOnTimestamp(sessionDictFilteredBySessionID,startTime , endTime)
-        sessionDictFilteredBySessionIDTimeAndToFrom = self.filterSessionDictOnToAndFrom(sessionDictFilteredBySessionIDAndTime, sipTo, sipFrom)
+        #Create unfiltered dict, and then apply filters
+        unfilteredSessionDict, associatedSessionsDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
+        filteredSessionDict = self.filterDictOnSessionIDs(unfilteredSessionDict, sessionIDs)
+        filteredSessionDict = self.filterSessionsOnTimestamp(filteredSessionDict,startTime , endTime)
+        filteredSessionDict = self.filterSessionDictOnToAndFrom(filteredSessionDict, sipTo, sipFrom)
         filteredSessionsWithAssociatedSessions = {} # Contains all sessions that matches filters and their associated sessions
 
-        for sessionMatch in sessionDictFilteredBySessionIDTimeAndToFrom.keys(): 
-            for listInstance in listWithAssociatedSessionIDs: # Checks each list of the double list
-                if sessionMatch in listInstance:  
-                    for relatedSession in listInstance:
-                        if relatedSession in sessionDictFilteredBySessionID.keys():
-                            filteredSessionsWithAssociatedSessions[relatedSession] = sessionDictFilteredBySessionID[relatedSession]  
-                        else: 
-                            print(f'Related session {relatedSession} was not found in this file.') 
+        #Get set of sessionIDs involved, and then fetch associated for all
+        filteredSessionIDs = set(filteredSessionDict.keys())
+        for sessionID in filteredSessionDict.keys():
+            filteredSessionIDs.update(associatedSessionsDict[sessionID])
+
+        #For each sessionID and their associated IDs, add to result
+        for sessionID in filteredSessionIDs:
+            if sessionID in unfilteredSessionDict.keys():
+                filteredSessionsWithAssociatedSessions[sessionID] = unfilteredSessionDict[sessionID]
+            else: 
+                print(f'Related session {sessionID} was not found in this file.') 
+        
         print("Number of objects in the JSON file: ", len(filteredSessionsWithAssociatedSessions))            
         jsonText = json.dumps(list(filteredSessionsWithAssociatedSessions.values()), indent=2) 
+        f = open(filePath, "w")
         f.write(jsonText)
         f.close()
     
