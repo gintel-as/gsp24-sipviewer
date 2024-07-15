@@ -24,7 +24,7 @@ class Main:
         self.header = extractor.getHeader()
         self.body = extractor.getBody()
 
-    def logInterperter(self, sessionID, startTime, endTime):
+    def logInterperter(self, sessionID, startTime, endTime, sipTo, sipFrom):
 
         # the time is not being submitted
         print('main start: ', startTime)
@@ -37,7 +37,7 @@ class Main:
 
         self.logInterperterOutput = dest + self.inputFile + ".json"
         logInterpreter = LogInterpreter()
-        logInterpreter.writeJsonFileFromHeaders(self.startLine, self.header,self.body, self.logInterperterOutput, sessionID, startTime, endTime)
+        logInterpreter.writeJsonFileFromHeaders(self.startLine, self.header,self.body, self.logInterperterOutput, sessionID, startTime, endTime, sipTo, sipFrom)
 
     def jsonFilter(self):
         if self.destinationPath == "":
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # sessionIDs = ['104630929', '104630932']
 
     main.extractor()
-    main.logInterperter(sessionIDs)
+    main.logInterperter(sessionIDs, "", "", "", "+4746180307")
     # main.jsonFilter()
     
 
