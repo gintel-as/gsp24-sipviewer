@@ -272,8 +272,8 @@ class LogInterpreter:
         return sessionPackets
     
     
-    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs, startTime, endTime):
-        print('start: ', sessionIDs)
+    def writeJsonFileFromHeaders(self, startLines, headers, body, filePath, sessionIDs, sipTo, sipFrom, startTime, endTime):
+        print('start: ', sessionIDs, sipTo, sipFrom, startTime, endTime)
         f = open(filePath, "w")
         unfilteredSessionDict = self.createJsonFormattedSessionPacketsFromExtractedHeaders(startLines, headers, body)
         sessionDictFilteredBySessionID, listWithAssociatedSessionIDs = self.filterAssociatedSessions(unfilteredSessionDict, sessionIDs)

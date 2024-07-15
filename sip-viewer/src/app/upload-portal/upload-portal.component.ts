@@ -106,10 +106,10 @@ export class UploadPortalComponent {
         .uploadAndExtract(
           file,
           this.sessionIDs,
-          this.sipTo,
-          this.sipFrom,
           this.startTime,
-          this.endTime
+          this.endTime,
+          this.sipTo,
+          this.sipFrom
         )
         .subscribe((response) => {
           console.log(response.message);
