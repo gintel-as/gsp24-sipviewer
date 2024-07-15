@@ -81,6 +81,7 @@ export class UploadPortalComponent {
 
     if (isValid) {
       this.files.forEach((file) => {
+        console.log('Now uploading: ', file.name);
         this.uploadAndProcessFile(file);
       });
     }
