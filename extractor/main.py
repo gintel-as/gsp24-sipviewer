@@ -26,10 +26,6 @@ class Main:
 
     def logInterperter(self, sessionID, startTime, endTime, sipTo, sipFrom):
 
-        # the time is not being submitted
-        print('main start: ', startTime)
-        print('main end: ', endTime)
-
         if self.destinationPath == "":
             dest = self.destinationPath
         else: 
