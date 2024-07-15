@@ -14,11 +14,17 @@ export class ApiService {
     file: File,
     sessionID: string,
     startTime: string,
-    endTime: string
+    endTime: string,
+    toID: string,
+    fromID: string
   ): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('file', file, file.name);
     formData.append('sessionID', sessionID);
+    formData.append('toID', toID);
+    formData.append('fromID', fromID);
+    formData.append('startTime', startTime);
+    formData.append('endTime', endTime);
     return this.http.post<any>(`${this.apiUrl}/uploadAndExtract`, formData);
   }
 

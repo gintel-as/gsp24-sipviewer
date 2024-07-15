@@ -35,6 +35,8 @@ export class UploadPortalComponent {
   testPrint = '';
 
   sessionIDs: string = '';
+  sipTo: string = '';
+  sipFrom: string = '';
   startTime: string = '';
   endTime: string = '';
   statusCheckInterval: Subscription | null = null;
@@ -47,8 +49,8 @@ export class UploadPortalComponent {
   ) {
     this.simpleForm = this.fb.group({
       sessionIDs: [''],
-      to: [''],
-      from: [''],
+      sipTo: [''],
+      sipFrom: [''],
       startTime: [''],
       endTime: [''],
     });
@@ -67,10 +69,14 @@ export class UploadPortalComponent {
     if (this.simpleForm.valid) {
       isValid = true;
       this.sessionIDs = this.parseSessionID(this.simpleForm.value.sessionIDs);
+      this.sipTo = this.simpleForm.value.sipTo;
+      this.sipFrom = this.simpleForm.value.sipFrom;
       this.startTime = this.simpleForm.value.startTime;
       this.endTime = this.simpleForm.value.endTime;
-      console.log(this.startTime);
-      console.log(this.endTime);
+      // console.log(this.sipTo);
+      // console.log(this.sipFrom);
+      // console.log(this.startTime);
+      // console.log(this.endTime);
     } else {
       isValid = false;
       console.error('Form is not valid');
@@ -97,7 +103,14 @@ export class UploadPortalComponent {
   uploadAndProcessFile(file: any): void {
     if (file != null) {
       this.apiService
-        .uploadAndExtract(file, this.sessionIDs, this.startTime, this.endTime)
+        .uploadAndExtract(
+          file,
+          this.sessionIDs,
+          this.sipTo,
+          this.sipFrom,
+          this.startTime,
+          this.endTime
+        )
         .subscribe((response) => {
           console.log(response.message);
           const downloadFilename = response.processed_filename;
