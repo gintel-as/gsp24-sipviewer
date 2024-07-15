@@ -205,29 +205,7 @@ class LogInterpreter:
         return filteredSessions
     
 
-    #If sipTo or sipFrom numbers match part of the to/from number of the session, return True 
-    def filterSessionOnToAndFrom(self, session, sipTo, sipFrom):
-        phoneNumberPattern = r'<sip:(\+?\d+)(?=@)'
-        match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
-
-        if sipTo:
-            match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
-            if not match:
-                return False
-            if not sipTo in match.group(1):
-                return False
-            
-        if sipFrom:
-            match = re.search(phoneNumberPattern,  session["sessionInfo"]["from"])
-            if not match:
-                return False
-            if not sipFrom in match.group(1):
-                return False
-
-        return True
-    
-
-    #If sipTo or sipFrom numbers match part of the to/from number of the session, return True 
+    #If sipTo or sipFrom numbers match part of the to/from number of the session, return True. Only supports phonenumbers
     def filterSessionOnToAndFrom(self, session, sipTo, sipFrom):
         phoneNumberPattern = r'<sip:(\+?\d+)(?=@)'
         match = re.search(phoneNumberPattern,  session["sessionInfo"]["to"])
