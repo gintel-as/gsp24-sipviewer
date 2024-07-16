@@ -24,11 +24,7 @@ class Main:
         self.header = extractor.getHeader()
         self.body = extractor.getBody()
 
-    def logInterperter(self, sessionID, startTime, endTime):
-
-        # the time is not being submitted
-        print('main start: ', startTime)
-        print('main end: ', endTime)
+    def logInterperter(self, sessionID, startTime, endTime, sipTo, sipFrom):
 
         if self.destinationPath == "":
             dest = self.destinationPath
@@ -37,7 +33,7 @@ class Main:
 
         self.logInterperterOutput = dest + self.inputFile + ".json"
         logInterpreter = LogInterpreter()
-        logInterpreter.writeJsonFileFromHeaders(self.startLine, self.header,self.body, self.logInterperterOutput, sessionID, startTime, endTime)
+        logInterpreter.writeJsonFileFromHeaders(self.startLine, self.header,self.body, self.logInterperterOutput, sessionID, startTime, endTime, sipTo, sipFrom)
 
     def jsonFilter(self):
         if self.destinationPath == "":
@@ -63,13 +59,32 @@ if __name__ == "__main__":
     # destinationPath = "./json"
     main = Main(inputFile, logPath, destinationPath)
 
-    # sessionID = ''
+    sessionIDs = [
+    "104630926",
+    "104630927",
+    "104630928",
+    "104630929",
+    "104630928",
+    "104630936",
+    "104630934",
+    "104630932",
+    "104630931",
+    "104630935",
+    "104630930",
+    "104630933",
+    "104630937",
+    "104630938",
+    "104630939",
+    "104630940",
+    "104630941",
+    "104630942"
+]
     # sessionID = '104630928'
     # sessionID = '104820521'
-    sessionIDs = ['104630929', '104630932']
+    # sessionIDs = ['104630929', '104630932']
 
     main.extractor()
-    main.logInterperter(sessionIDs)
+    main.logInterperter(sessionIDs, "", "", "", "+4746180307")
     # main.jsonFilter()
     
 

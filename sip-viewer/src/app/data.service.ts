@@ -22,8 +22,6 @@ export class DataService {
   private keyEventSource = new Subject<string>();
 
   constructor(private http: HttpClient) {
-    // this.fetchMessages();
-
     //Add listener to ineract with keyEvent subject
     const detectArrowUpDown = (event: KeyboardEvent) => {
       if (event.key == 'ArrowUp') {
@@ -76,21 +74,16 @@ export class DataService {
     return this.sessions.asObservable();
   }
 
-  //Fetches from http, should only be called by constructor
-  // fetchMessages(): void {
-  //   this.http
-  //     .get<Message[]>('assets/adapter_bct.log.json')
-  //     .pipe(
-  //       map((data) => {
-  //         return data.map((message) => {
-  //           message.startLine.time = new Date(message.startLine.time);
-  //           return message;
-  //         });
-  //       }),
-  //       tap((data) => this.messages.next(data))
-  //     )
-  //     .subscribe();
-  // }
+  getSelectedSessions(): Observable<Session[]> {
+    return this.getSessions().pipe(
+      map((sessions: Session[]) =>
+        sessions.filter(
+          (session) =>
+            this.sessionIDs.indexOf(session.sessionInfo.sessionID) !== -1
+        )
+      )
+    );
+  }
 
   getMessageByID(messageID: string): Observable<Message | undefined> {
     return this.getMessages().pipe(
@@ -211,5 +204,17 @@ export class DataService {
     this.messages.next([]);
     this.selectNewMessageByID('');
     this.updateSelectedSessionsByList([]);
+  }
+
+  downloadJsonFile(jsonString: string, fileName: string): void {
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 }

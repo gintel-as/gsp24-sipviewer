@@ -9,3 +9,15 @@ __pycache__/*
 *.py[cod]
 *$py.class
 *.pyc
+
+# Flask
+.idea/
+.vscode/
+.venv*/
+venv*/
+dist/
+.coverage*
+htmlcov/
+.tox/
+docs/_build/
+!requirements.txt

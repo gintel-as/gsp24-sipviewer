@@ -35,9 +35,10 @@ export class UploadPortalComponent {
   testPrint = '';
 
   sessionIDs: string = '';
+  sipTo: string = '';
+  sipFrom: string = '';
   startTime: string = '';
   endTime: string = '';
-  statusCheckInterval: Subscription | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -47,8 +48,8 @@ export class UploadPortalComponent {
   ) {
     this.simpleForm = this.fb.group({
       sessionIDs: [''],
-      to: [''],
-      from: [''],
+      sipTo: [''],
+      sipFrom: [''],
       startTime: [''],
       endTime: [''],
     });
@@ -67,10 +68,10 @@ export class UploadPortalComponent {
     if (this.simpleForm.valid) {
       isValid = true;
       this.sessionIDs = this.parseSessionID(this.simpleForm.value.sessionIDs);
+      this.sipTo = this.simpleForm.value.sipTo;
+      this.sipFrom = this.simpleForm.value.sipFrom;
       this.startTime = this.simpleForm.value.startTime;
       this.endTime = this.simpleForm.value.endTime;
-      console.log(this.startTime);
-      console.log(this.endTime);
     } else {
       isValid = false;
       console.error('Form is not valid');
@@ -89,6 +90,7 @@ export class UploadPortalComponent {
 
     if (isValid) {
       this.files.forEach((file) => {
+        console.log('Now uploading: ', file.name);
         this.uploadAndProcessFile(file);
       });
     }
@@ -97,9 +99,16 @@ export class UploadPortalComponent {
   uploadAndProcessFile(file: any): void {
     if (file != null) {
       this.apiService
-        .uploadAndExtract(file, this.sessionIDs, this.startTime, this.endTime)
+        .uploadAndExtract(
+          file,
+          this.sessionIDs,
+          this.startTime,
+          this.endTime,
+          this.sipTo,
+          this.sipFrom
+        )
         .subscribe((response) => {
-          console.log(response.message);
+          console.log('Response message: ', response.message);
           const downloadFilename = response.processed_filename;
           this.checkFileStatus(downloadFilename);
         });
@@ -108,7 +117,7 @@ export class UploadPortalComponent {
 
   checkFileStatus(filename: string): void {
     let isChecking = true;
-    this.statusCheckInterval = interval(1000)
+    const statusCheckInterval = interval(1000)
       .pipe(takeWhile(() => isChecking))
       .subscribe(() => {
         if (filename) {
@@ -117,7 +126,7 @@ export class UploadPortalComponent {
             .subscribe((statusResponse) => {
               if (statusResponse.status === 'ready') {
                 isChecking = false;
-                this.statusCheckInterval?.unsubscribe();
+                statusCheckInterval?.unsubscribe();
                 this.downloadFile(filename);
               }
             });
@@ -128,6 +137,8 @@ export class UploadPortalComponent {
   downloadFile(filename: string): void {
     if (filename) {
       this.apiService.downloadFile(filename).subscribe((blob) => {
+        const file = new File([blob], filename, { type: blob.type });
+        this.jsonFiles.push(file);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
