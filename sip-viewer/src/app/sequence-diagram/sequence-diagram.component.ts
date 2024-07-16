@@ -50,6 +50,7 @@ export class SequenceDiagramComponent {
       .subscribe();
   }
 
+  //Update which sessions get what styling, aims to keep currently selected sessions style and randomly assign new ones based on what is the next free style in the list of styles
   updateSessionStyles(selectedSessionIDs: string[]) {
     let oldSessionIDs = Object.keys(this.sessionDict);
     let newSessionDict: sessionDict = {};
@@ -99,23 +100,6 @@ export class SequenceDiagramComponent {
         inline: 'nearest',
       });
     } catch (error) {}
-
-    //Potential fix on redone resize windows
-    // if (0 == 0) {
-    //   console.log(1);
-    //   const nativeElement = d3.select('#selected-message').node() as Element;
-    //   nativeElement.scrollIntoView({
-    //     behavior: 'smooth',
-    //     block: 'center',
-    //     inline: 'nearest',
-    //   });
-    // } else {
-    //   console.log(2);
-    //   const nativeParent = document.getElementById('#leftDiv') as Element;
-    //   nativeParent.scrollTop = 0;
-    //   // document.scroll;
-    //   console.log(nativeParent.scrollTop);
-    // }
   }
 
   selectMessage(msg: DiagramMessage): void {
@@ -124,7 +108,7 @@ export class SequenceDiagramComponent {
   }
 
   indexOfPreviouslySelectedMessageOrFirst(): number {
-    //Potentially remove this to always stay on first packet
+    //If first packet selected, do not stay on this packet if an earlier packet is loaded in a newly selected session
     if (this.selectedPacketIndex == 0) {
       return 0;
     }
@@ -137,6 +121,7 @@ export class SequenceDiagramComponent {
     return index;
   }
 
+  //Handles keyboard navigation on ArrowUp or ArrowDown, by incrementing local packetindex
   onKeyUpDown(keyEvent: string) {
     let maxIndex = Object.keys(this.messageIndexDict).length;
     if (keyEvent === 'ArrowUp') {
@@ -156,6 +141,7 @@ export class SequenceDiagramComponent {
     );
   }
 
+  //Needed for keyboard navigation, provides a simple index that can be incremented and then find the messageID of that packet.
   setMessageIndexToIDDictionary(messages: DiagramMessage[]) {
     this.messageIndexDict = {};
     this.messageIndexDict = messages.reduce((acc, message) => {
@@ -173,19 +159,23 @@ export class SequenceDiagramComponent {
     if (participants.length !== 0) {
       participants.splice(1, 0, ch);
     }
-    const spaceForTime = 180;
 
+    //Constants to add spaceing for topbar and timestamps
+    const spaceForTime = 180;
     const messageSpaceFromTop = 40;
-    const svgHeight = 40 * messages.length + messageSpaceFromTop;
     let xSpaceForIndex = 0;
     if (messages.length !== 0) {
       xSpaceForIndex =
         20 + messages[messages.length - 1].index.toString().length * 10;
     }
+
+    //Set height, drawidth, and "viewwidth"(how wide the background should be)
+    const svgHeight = 40 * messages.length + messageSpaceFromTop;
     const svgDrawWidth =
       200 * participants.length + spaceForTime + xSpaceForIndex;
     const svgViewWidth = svgDrawWidth + 4000;
 
+    //Create dictionary that maps index to message objects
     this.setMessageIndexToIDDictionary(messages);
 
     //Clear elements for blank canvas
