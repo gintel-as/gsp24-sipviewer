@@ -151,8 +151,8 @@ export class SessionTableComponent implements AfterViewInit {
 
   getDateString(date: Date) {
     return `${date.getFullYear()}-${this.addZeroInFront(
-      date.getMonth()
-    )}-${this.addZeroInFront(date.getDay())} ${this.getTimeString(date)}`;
+      date.getMonth() + 1
+    )}-${this.addZeroInFront(date.getDate())} ${this.getTimeString(date)}`;
   }
 
   getTimeString(date: Date) {
