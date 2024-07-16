@@ -39,7 +39,6 @@ export class UploadPortalComponent {
   sipFrom: string = '';
   startTime: string = '';
   endTime: string = '';
-  statusCheckInterval: Subscription | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -91,6 +90,7 @@ export class UploadPortalComponent {
 
     if (isValid) {
       this.files.forEach((file) => {
+        console.log('Now uploading: ', file.name);
         this.uploadAndProcessFile(file);
       });
     }
@@ -108,7 +108,7 @@ export class UploadPortalComponent {
           this.sipFrom
         )
         .subscribe((response) => {
-          console.log(response.message);
+          console.log('Response message: ', response.message);
           const downloadFilename = response.processed_filename;
           this.checkFileStatus(downloadFilename);
         });
@@ -117,7 +117,7 @@ export class UploadPortalComponent {
 
   checkFileStatus(filename: string): void {
     let isChecking = true;
-    this.statusCheckInterval = interval(1000)
+    const statusCheckInterval = interval(1000)
       .pipe(takeWhile(() => isChecking))
       .subscribe(() => {
         if (filename) {
@@ -126,7 +126,7 @@ export class UploadPortalComponent {
             .subscribe((statusResponse) => {
               if (statusResponse.status === 'ready') {
                 isChecking = false;
-                this.statusCheckInterval?.unsubscribe();
+                statusCheckInterval?.unsubscribe();
                 this.downloadFile(filename);
               }
             });
