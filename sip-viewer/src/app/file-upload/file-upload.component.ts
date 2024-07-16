@@ -1,11 +1,9 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { DataService } from '../data.service';
 import { NgIf } from '@angular/common';
-import { ApiService } from '../api.service';
 import { Session } from '../session';
 @Component({
   selector: 'app-file-upload',
@@ -33,18 +31,20 @@ export class FileUploadComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length) {
       const file = input.files[0];
-      if (!this.fileName) {
-        this.fileName = file.name;
-      } else {
-        this.fileName = `${this.fileName}, ${file.name}`;
+      //If file is of type json, proccess file
+      if (file.type == 'application/json') {
+        if (!this.fileName) {
+          this.fileName = file.name;
+        } else {
+          this.fileName = `${this.fileName}, ${file.name}`;
+        }
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const fileContent = e.target.result;
+          this.dataService.uploadFileContent(fileContent);
+        };
+        reader.readAsText(file);
       }
-
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const fileContent = e.target.result;
-        this.dataService.uploadFileContent(fileContent);
-      };
-      reader.readAsText(file);
     }
   }
 
