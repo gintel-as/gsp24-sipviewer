@@ -25,8 +25,7 @@ import Utils from '../sequence-diagram/utils';
 })
 export class MessageDetailComponent {
   packetStartLines: string[] = [];
-  packetDetailHeader: any[] = [];
-  packetDetailBody: any[] = [];
+  packetDetail: string[] = [];
   textToCopy: any[] = [];
   messageIDList: string[] = [];
   packetIndex: number = 0;
@@ -40,8 +39,7 @@ export class MessageDetailComponent {
           if (this.messageIDList.length === 0) {
             this.textToCopy = [];
             this.packetStartLines = [];
-            this.packetDetailHeader = [];
-            this.packetDetailBody = [];
+            this.packetDetail = [];
           }
         },
         (error) => {
@@ -80,15 +78,13 @@ export class MessageDetailComponent {
   printPacketDetails(id: string): void {
     this.textToCopy = [];
     this.packetStartLines = [];
-    this.packetDetailHeader = [];
-    this.packetDetailBody = [];
+    this.packetDetail = [];
     this.packetIndex = this.messageIDList.indexOf(id); // Update packet detail meta information
 
     this.dataService.getMessageByID(id).subscribe(
       (message: Message | undefined) => {
         let startLineOutput: string[] = [];
-        let headerOutput: string[] = [];
-        let bodyOutput: string[] = [];
+        let detailsOutput: string[] = [];
         let startLineArr = message?.startLine;
         let sipHeaderArr = message?.sipHeader;
         let bodyArr = message?.body;
@@ -107,36 +103,13 @@ export class MessageDetailComponent {
             message?.startLine.direction.toString() ?? 'Not defined';
           const packetParty =
             message?.startLine.party.toString() ?? 'Not defined';
-          // const startLineInfo =
-          //   'TIME: ' +
-          //   packetTime +
-          //   ', SESSION ID: ' +
-          //   packetSessionID +
-          //   ', MESSAGE ID: ' +
-          //   packetMessageID +
-          //   ', DIRECTION: ' +
-          //   packetDirection +
-          //   ', PARTY: ' +
-          //   packetParty;
-          //304286493 Received message with id=972EEFE9 from LegA
           let startLineInfo = [
-            `${packetTime}: SessionID=${packetSessionID}`,
+            `${packetTime}: SessionID = ${packetSessionID}`,
             ` 
             ${
               packetDirection === 'from' ? 'Recieved' : 'Sent'
             } message with id=${packetMessageID} ${packetDirection} ${packetParty}`,
           ];
-          // console.log('sturras', startLineInfo);
-          // 'Timestamp: ' +
-          //   packetTime +
-          //   ', Session ID: ' +
-          //   packetSessionID +
-          //   ', Message ID: ' +
-          //   packetMessageID +
-          //   ', ' +
-          //   packetDirection +
-          //   ' ' +
-          //   packetParty;
           startLineOutput.push(startLineInfo[0]);
           startLineOutput.push(startLineInfo[1]);
         }
@@ -153,24 +126,32 @@ export class MessageDetailComponent {
                 str = key + ': ' + value;
               }
               this.textToCopy.push(str + '\n');
-              headerOutput.push(str);
+              detailsOutput.push(str);
             });
           }
         }
-        this.packetDetailHeader = headerOutput;
         // Stringifies body for printing
         if (bodyArr && bodyArr.content) {
+          //Add gap between header and body
+          detailsOutput.push('');
+          detailsOutput.push('');
+          detailsOutput.push('');
+          //Add body
           bodyArr.content.forEach((value) => {
             const str = value;
             this.textToCopy.push(str + '\n');
-            bodyOutput.push(str);
+            detailsOutput.push(str);
           });
         }
+
+        //Add gap at bottom for scrollability
+        detailsOutput.push('');
+
         // Catches undefined so output is not undefined
         if (message == undefined) {
           return;
         }
-        this.packetDetailBody = bodyOutput;
+        this.packetDetail = detailsOutput;
       },
       (error) => {
         console.error('Error printing message with id = ' + id + ': ', error);

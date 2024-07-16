@@ -10,11 +10,12 @@ mat-toolbar {
 
 ul {
   margin-top: 2em;
+  padding: 0;
+  text-indent: 2.5em;
 }
 
 #packetDetailSpan {
   position: absolute;
-  padding-left: auto;
 }
 
 .spacer {
@@ -38,6 +39,7 @@ button {
   color: #ca2f2c;
   font-family: monospace;
   list-style-type: none;
+  min-height: 1em;
 }
 
 .dotted-line {
@@ -64,4 +66,8 @@ button {
 
 #list {
   margin-top: 1em;
+}
+
+.highlighted-row {
+  background-color: #dadada;
 }
