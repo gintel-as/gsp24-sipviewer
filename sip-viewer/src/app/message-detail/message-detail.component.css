@@ -1,15 +1,19 @@
-/* #copyPacketButton {
-    position: absolute;
-    right: 5%;
-} */
-
 mat-toolbar {
   position: sticky;
   top: 0;
 }
 
+.main-packet-toolbar-row {
+  height: 2.5em;
+}
+
+.second-packet-toolbar-row {
+  font-size: medium;
+  font-weight: bold;
+  height: 2em;
+}
+
 ul {
-  margin-top: 2em;
   padding: 0;
   text-indent: 2.5em;
 }
@@ -26,27 +30,11 @@ button {
   margin-left: 10px;
 }
 
-.list-startLine-item {
-  font-size: 18px;
-  color: #ca2f2c;
-  font-weight: bolder;
-  font-family: monospace;
-  list-style-type: none;
-}
-
 .list-item {
   font-size: 18px;
-  color: #ca2f2c;
   font-family: monospace;
   list-style-type: none;
   min-height: 1em;
-}
-
-.dotted-line {
-  border: none;
-  border-top: 3px dotted #ca2f2c;
-  margin: 20px 0;
-  width: 350%;
 }
 
 .message-detail-wrapper {
@@ -55,7 +43,6 @@ button {
 }
 
 .content {
-  /* height: 100%; */
   overflow: auto;
   width: 100%;
 }
@@ -69,5 +56,5 @@ button {
 }
 
 .highlighted-row {
-  background-color: #dadada;
+  background-color: #d9c8c8;
 }

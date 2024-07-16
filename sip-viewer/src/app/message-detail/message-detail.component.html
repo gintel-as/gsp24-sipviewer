@@ -2,7 +2,7 @@
 
 <div class="message-detail-wrapper">
   <mat-toolbar>
-    <mat-toolbar-row>
+    <mat-toolbar-row class="main-packet-toolbar-row">
       <span id="packetDetailSpan"> Packet Details </span>
       <span class="spacer"></span>
       <div *ngIf="messageIDList.length > 0">
@@ -43,17 +43,12 @@
         <mat-icon>content_copy</mat-icon>
       </button>
     </mat-toolbar-row>
+    <mat-toolbar-row class="second-packet-toolbar-row">
+      {{ packetStartLine }}
+    </mat-toolbar-row>
   </mat-toolbar>
 
   <div class="content">
-    <ul id="list">
-      <li
-        *ngFor="let packet of packetStartLines"
-        class="list-startLine-item highlighted-row"
-      >
-        {{ packet }}
-      </li>
-    </ul>
     <ul>
       <li
         *ngFor="let packet of packetDetail; let i = index"

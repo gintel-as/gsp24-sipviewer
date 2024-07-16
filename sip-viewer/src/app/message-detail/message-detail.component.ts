@@ -25,6 +25,7 @@ import Utils from '../sequence-diagram/utils';
 })
 export class MessageDetailComponent {
   packetStartLines: string[] = [];
+  packetStartLine: string = '';
   packetDetail: string[] = [];
   textToCopy: any[] = [];
   messageIDList: string[] = [];
@@ -112,6 +113,9 @@ export class MessageDetailComponent {
           ];
           startLineOutput.push(startLineInfo[0]);
           startLineOutput.push(startLineInfo[1]);
+          this.packetStartLine = `${packetTime}: ${packetSessionID}  ${
+            packetDirection === 'from' ? 'Recieved' : 'Sent'
+          } message with id=${packetMessageID} ${packetDirection} ${packetParty}`;
         }
         this.packetStartLines = startLineOutput;
 
@@ -133,24 +137,26 @@ export class MessageDetailComponent {
         // Stringifies body for printing
         if (bodyArr && bodyArr.content) {
           //Add gap between header and body
-          detailsOutput.push('');
-          detailsOutput.push('');
-          detailsOutput.push('');
+          for (let i = 0; i < 3; i++) {
+            detailsOutput.push('');
+            this.textToCopy.push('' + '\n');
+          }
           //Add body
           bodyArr.content.forEach((value) => {
             const str = value;
             this.textToCopy.push(str + '\n');
             detailsOutput.push(str);
           });
+          //Add gap at bottom for scrollability
+          detailsOutput.push('');
         }
-
-        //Add gap at bottom for scrollability
-        detailsOutput.push('');
 
         // Catches undefined so output is not undefined
         if (message == undefined) {
           return;
         }
+
+        //Set packetDetails to change displayed packet
         this.packetDetail = detailsOutput;
       },
       (error) => {
