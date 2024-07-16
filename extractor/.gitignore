@@ -1,7 +1,9 @@
 # Log files
 ./logs
 ./json
+*.json
 *.txt
+*.log
 *.log*
 ./uploads
 ./uploads/*
