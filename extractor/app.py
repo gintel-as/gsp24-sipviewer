@@ -16,7 +16,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 
 
-def processFile(inputFile, logPath, destinationPath, sessionID, sipTo, sipFrom, startTime, endTime):
+def processFile(inputFile, logPath, destinationPath, sessionID, startTime, endTime, sipTo, sipFrom):
     try:
         main_instance = Main(inputFile, logPath, destinationPath)
         main_instance.extractor()
