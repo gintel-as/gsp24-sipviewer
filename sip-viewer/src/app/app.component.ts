@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   Inject,
@@ -15,7 +14,6 @@ import {
 } from '@angular/router';
 // Import components
 import { SIPViewerComponent } from './sip-viewer/sip-viewer.component';
-import { FlowChartComponent } from './flow-chart/flow-chart.component';
 import { MessageDetailComponent } from './message-detail/message-detail.component';
 import { SessionTableComponent } from './session-table/session-table.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
@@ -26,9 +24,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatIconModule } from '@angular/material/icon';
 // Import services
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { NgFor } from '@angular/common';
 import { RerouteService } from './reroute.service';
 
 @Component({
@@ -41,7 +36,6 @@ import { RerouteService } from './reroute.service';
     RouterLink,
     RouterOutlet,
     SIPViewerComponent,
-    FlowChartComponent,
     MessageDetailComponent,
     SessionTableComponent,
     FileUploadComponent,
