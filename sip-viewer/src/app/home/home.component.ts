@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule, NgIf, NgStyle } from '@angular/common';
 import { SessionTableComponent } from '../session-table/session-table.component';
-import { FlowChartComponent } from '../flow-chart/flow-chart.component';
 import { MessageDetailComponent } from '../message-detail/message-detail.component';
+import { SequenceDiagramComponent } from '../sequence-diagram/sequence-diagram.component';
 
 @Component({
   selector: 'app-home',
@@ -11,12 +11,13 @@ import { MessageDetailComponent } from '../message-detail/message-detail.compone
   styleUrl: './home.component.css',
   imports: [
     SessionTableComponent,
-    FlowChartComponent,
     MessageDetailComponent,
     NgStyle,
     NgIf,
+    SequenceDiagramComponent,
   ],
 })
+//Code below provides resizability of the view split between the three components contained in the home-component
 export class HomeComponent {
   resizing = false;
   horizontalResize = false;
