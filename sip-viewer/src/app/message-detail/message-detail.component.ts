@@ -24,7 +24,6 @@ import Utils from '../sequence-diagram/utils';
   styleUrl: './message-detail.component.css',
 })
 export class MessageDetailComponent {
-  packetStartLines: string[] = [];
   packetStartLine: string = '';
   packetDetail: string[] = [];
   textToCopy: any[] = [];
@@ -39,7 +38,7 @@ export class MessageDetailComponent {
           this.messageIDList = messages.map((item) => item.startLine.messageID); // updates messageIDList from selected sessions
           if (this.messageIDList.length === 0) {
             this.textToCopy = [];
-            this.packetStartLines = [];
+            this.packetStartLine = '';
             this.packetDetail = [];
           }
         },
@@ -78,13 +77,13 @@ export class MessageDetailComponent {
 
   printPacketDetails(id: string): void {
     this.textToCopy = [];
-    this.packetStartLines = [];
+    this.packetStartLine = '';
     this.packetDetail = [];
     this.packetIndex = this.messageIDList.indexOf(id); // Update packet detail meta information
 
     this.dataService.getMessageByID(id).subscribe(
       (message: Message | undefined) => {
-        let startLineOutput: string[] = [];
+        let startLineOutput: string = '';
         let detailsOutput: string[] = [];
         let startLineArr = message?.startLine;
         let sipHeaderArr = message?.sipHeader;
@@ -104,20 +103,12 @@ export class MessageDetailComponent {
             message?.startLine.direction.toString() ?? 'Not defined';
           const packetParty =
             message?.startLine.party.toString() ?? 'Not defined';
-          let startLineInfo = [
-            `${packetTime}: SessionID = ${packetSessionID}`,
-            ` 
-            ${
-              packetDirection === 'from' ? 'Recieved' : 'Sent'
-            } message with id=${packetMessageID} ${packetDirection} ${packetParty}`,
-          ];
-          startLineOutput.push(startLineInfo[0]);
-          startLineOutput.push(startLineInfo[1]);
-          this.packetStartLine = `${packetTime}: ${packetSessionID}  ${
+
+          startLineOutput = `${packetTime}: ${packetSessionID}  ${
             packetDirection === 'from' ? 'Recieved' : 'Sent'
           } message with id=${packetMessageID} ${packetDirection} ${packetParty}`;
         }
-        this.packetStartLines = startLineOutput;
+        this.packetStartLine = startLineOutput;
 
         // Stringifies sipHeader for printing
         for (const key in sipHeaderArr) {

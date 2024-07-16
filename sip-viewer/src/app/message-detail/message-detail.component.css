@@ -51,10 +51,6 @@ button {
   height: 100%;
 }
 
-#list {
-  margin-top: 1em;
-}
-
 .highlighted-row {
   background-color: #d9c8c8;
 }
