@@ -40,7 +40,6 @@ import { RerouteService } from './reroute.service';
     SessionTableComponent,
     FileUploadComponent,
     MatToolbarModule,
-    DragDropModule,
     MatIconModule,
     HomeComponent,
     MatButtonModule,
