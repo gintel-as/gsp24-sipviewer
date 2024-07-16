@@ -14,7 +14,6 @@ import {
   RouterOutlet,
 } from '@angular/router';
 // Import components
-import { SIPViewerComponent } from './sip-viewer/sip-viewer.component';
 import { FlowChartComponent } from './flow-chart/flow-chart.component';
 import { MessageDetailComponent } from './message-detail/message-detail.component';
 import { SessionTableComponent } from './session-table/session-table.component';
@@ -40,7 +39,6 @@ import { RerouteService } from './reroute.service';
     CommonModule,
     RouterLink,
     RouterOutlet,
-    SIPViewerComponent,
     FlowChartComponent,
     MessageDetailComponent,
     SessionTableComponent,
