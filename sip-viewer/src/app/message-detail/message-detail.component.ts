@@ -6,7 +6,6 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable, find, first, tap } from 'rxjs';
 import { Message } from '../message';
 import Utils from '../sequence-diagram/utils';
 
