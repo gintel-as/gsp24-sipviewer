@@ -83,6 +83,11 @@
     <ng-container matColumnDef="Related Sessions">
       <th mat-header-cell *matHeaderCellDef>Related Sessions</th>
       <td mat-cell *matCellDef="let element" class="column-max-width">
+        <mat-icon
+          *ngIf="!containsAllRelatedSessions(element)"
+          matTooltip="Missing session(s) in selected file(s)"
+          >warning</mat-icon
+        >
         <span
           matTooltip="{{ element.sessionInfo.associatedSessions.join(', ') }}"
         >
