@@ -13,7 +13,6 @@ import {
   RouterOutlet,
 } from '@angular/router';
 // Import components
-import { SIPViewerComponent } from './sip-viewer/sip-viewer.component';
 import { MessageDetailComponent } from './message-detail/message-detail.component';
 import { SessionTableComponent } from './session-table/session-table.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
@@ -35,7 +34,6 @@ import { RerouteService } from './reroute.service';
     CommonModule,
     RouterLink,
     RouterOutlet,
-    SIPViewerComponent,
     MessageDetailComponent,
     SessionTableComponent,
     FileUploadComponent,

@@ -78,15 +78,32 @@ export class UploadPortalComponent {
       return;
     }
 
+    // can add more input validation here
+    // if (
+    //   this.sipTo.trim() ||
+    //   this.sipFrom.trim() ||
+    //   this.startTime.trim() ||
+    //   this.endTime.trim()
+    // ) {
+    //   console.log('At least one field not empty');
+    //   // consider adding check for startTime being before EndTime
+    // } else {
+    //   console.log('All fields empty');
+    // }
+
     if (this.files.length != 0) {
       isValid = true;
     } else {
       isValid = false;
-      console.error('No file uploaded');
+      alert('No file uploaded');
       return;
     }
 
-    // consider adding check for startTime being before EndTime
+    // Removes all starting or trailing whitespaces
+    this.sipTo = this.sipTo.trim();
+    this.sipFrom = this.sipFrom.trim();
+    this.startTime = this.startTime.trim();
+    this.endTime = this.endTime.trim();
 
     if (isValid) {
       this.files.forEach((file) => {
