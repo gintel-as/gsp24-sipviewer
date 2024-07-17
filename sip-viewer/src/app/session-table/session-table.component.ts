@@ -110,9 +110,6 @@ export class SessionTableComponent implements AfterViewInit {
               }
             }
 
-            // TODO: Format date - not possible to format and still keep Date type. Possible solution: change from Date to string in SessionInfo interface, but this also requires changes other places (e.g., uploadFileContent in data service)
-            const formattedDate = this.getDateString(session.sessionInfo.time);
-
             let newSession: Session = {
               sessionInfo: {
                 sessionID: session.sessionInfo.sessionID,
