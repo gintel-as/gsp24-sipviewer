@@ -314,8 +314,7 @@ class LogInterpreter:
             if sessionID in unfilteredSessionDict.keys():
                 filteredSessionsWithAssociatedSessions[sessionID] = unfilteredSessionDict[sessionID]
             else: 
-                print(f'Related session {sessionID} was not found in this file.') 
-        
+                print(f'Related session {sessionID} was not found in this file.')
         print("Number of objects in the JSON file: ", len(filteredSessionsWithAssociatedSessions))            
         jsonText = json.dumps(list(filteredSessionsWithAssociatedSessions.values()), indent=2) 
         f = open(filePath, "w")
