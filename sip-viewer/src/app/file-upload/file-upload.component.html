@@ -1,5 +1,11 @@
 <div>
-  <input type="file" (change)="onJsonFileSelected($event)" hidden #fileInput />
+  <input
+    type="file"
+    (change)="onJsonFileSelected($event)"
+    hidden
+    #fileInput
+    multiple
+  />
   <div class="file-upload-container">
     <!-- <div *ngIf="!fileName">
       <p class="file-name-style">No file selected</p>
