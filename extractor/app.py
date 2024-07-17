@@ -16,13 +16,22 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 
 
-def processFile(inputFile, logPath, destinationPath, sessionID, sipTo, sipFrom, startTime, endTime):
+def processFile(inputFile, logPath, destinationPath, sessionID, startTime, endTime, sipTo, sipFrom):
     try:
         main_instance = Main(inputFile, logPath, destinationPath)
         main_instance.extractor()
         main_instance.logInterperter(sessionID, sipTo, sipFrom, startTime, endTime)
     except Exception as e:
         print(f"Error processing file {inputFile}: {e}")
+    
+    finally:
+        inputFile_path = os.path.join(logPath, inputFile)
+        try:
+            if os.path.exists(inputFile_path):
+                os.remove(inputFile_path)
+                print(f"Deleted uploaded file: {inputFile_path}")
+        except Exception as e:
+            print(f"Error deleting uploaded file {inputFile_path}: {e}")
 
 
 @app.route('/api/uploadAndExtract', methods=['POST'])
@@ -75,10 +84,20 @@ def check_status(filename):
 
 @app.route('/api/download/<filename>', methods=['GET'])
 def download_file(filename):
+    processed_filepath = os.path.join(app.config['PROCESSED_FOLDER'], filename)
     try:
-        return send_from_directory(app.config['PROCESSED_FOLDER'], filename, as_attachment=True)
+        if not os.path.exists(processed_filepath):
+            return jsonify({'message': 'File not found'}), 404
+        
+        response = send_from_directory(app.config['PROCESSED_FOLDER'], filename, as_attachment=True)
+        os.remove(processed_filepath)
+        return response
+    
     except FileNotFoundError:
         return jsonify({'message': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'message': f'Error: {str(e)}'}), 500
+
 
 
 if __name__ == '__main__':

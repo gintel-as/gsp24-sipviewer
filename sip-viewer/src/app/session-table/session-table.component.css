@@ -47,3 +47,7 @@ mat-checkbox {
 .selected {
   background-color: #f3dde1;
 }
+
+.mat-icon {
+  color: rgb(255, 162, 0);
+}

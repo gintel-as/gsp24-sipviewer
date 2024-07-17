@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   Inject,
@@ -14,7 +13,6 @@ import {
   RouterOutlet,
 } from '@angular/router';
 // Import components
-import { FlowChartComponent } from './flow-chart/flow-chart.component';
 import { MessageDetailComponent } from './message-detail/message-detail.component';
 import { SessionTableComponent } from './session-table/session-table.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
@@ -36,12 +34,10 @@ import { RerouteService } from './reroute.service';
     CommonModule,
     RouterLink,
     RouterOutlet,
-    FlowChartComponent,
     MessageDetailComponent,
     SessionTableComponent,
     FileUploadComponent,
     MatToolbarModule,
-    DragDropModule,
     MatIconModule,
     HomeComponent,
     MatButtonModule,
