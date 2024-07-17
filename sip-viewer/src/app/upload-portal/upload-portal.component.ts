@@ -91,12 +91,6 @@ export class UploadPortalComponent {
     //   console.log('All fields empty');
     // }
 
-    // Removes all starting or trailing whitespaces
-    this.sipTo = this.sipTo.trim();
-    this.sipFrom = this.sipFrom.trim();
-    this.startTime = this.startTime.trim();
-    this.endTime = this.endTime.trim();
-
     if (this.files.length != 0) {
       isValid = true;
     } else {
