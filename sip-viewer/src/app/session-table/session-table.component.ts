@@ -49,6 +49,7 @@ export class SessionTableComponent implements AfterViewInit {
   selection = new SelectionModel<Session>(true, []); // Selected sessions
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
+  sessionsList: string[] = [];
 
   constructor(
     private dataService: DataService,
@@ -74,6 +75,7 @@ export class SessionTableComponent implements AfterViewInit {
         const phoneNumberPattern = /<sip:(\+?\d+)(?=@)/;
         const otherPattern = /<sip:([^>]+)>/;
         sessions.forEach((session) => {
+          this.sessionsList.push(session.sessionInfo.sessionID);
           if (!sessionIDs.has(session.sessionInfo.sessionID)) {
             sessionIDs.add(session.sessionInfo.sessionID);
             let msgFrom = 'Not Found';
@@ -338,5 +340,17 @@ export class SessionTableComponent implements AfterViewInit {
       console.log('Checkbox was toggled!');
       this.relationsActivated = true;
     }
+  }
+
+  containsAllRelatedSessions(session: Session) {
+    // Checks whether all the related sessions of the selected session is in the file
+    const relatedSessions = session.sessionInfo.associatedSessions;
+
+    for (const relatedSession of relatedSessions) {
+      if (!this.sessionsList.includes(relatedSession)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
