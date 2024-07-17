@@ -13,6 +13,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Session } from '../session';
 
@@ -29,6 +30,7 @@ import { Session } from '../session';
     MatTooltipModule,
     MatIconModule,
     MatCheckboxModule,
+    MatButtonModule,
   ],
   templateUrl: './session-table.component.html',
   styleUrl: './session-table.component.css',
@@ -349,5 +351,14 @@ export class SessionTableComponent implements AfterViewInit {
       }
     }
     return true;
+  }
+
+  //Exports selected sessions as a pretty JSON-file with indent=2
+  exportSelectedToJson() {
+    let selectedSessionIDs: string[] = this.selection.selected.map(
+      (session) => session.sessionInfo.sessionID
+    );
+    const jsonText = JSON.stringify(selectedSessionIDs, null, 2);
+    this.dataService.downloadJsonFile(jsonText, 'output.json');
   }
 }
