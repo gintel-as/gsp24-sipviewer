@@ -106,7 +106,7 @@ class LogInterpreter:
 
 
     def interpretStartLineString(self, startLineString):
-        pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d+|NoRefNo) .* id=([A-Fa-f0-9]+) (to|from) (\w+)'
+        pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) .* (\d+|NoRefNo) .* id=([A-Fa-f0-9]+) (to|from) (.*)'
         match = re.match(pattern, startLineString)
         timestamp = match.group(1)
         sessionId = match.group(2)
