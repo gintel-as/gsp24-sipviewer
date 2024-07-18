@@ -83,44 +83,37 @@ export default class Utils {
   static getArrowStyles(num: number): string[] {
     const uniqueStyles: string[] = [
       'colored-line-red', // Solid red
-      'colored-line-purple dotted-line-short', // Short dotted purple
-      'colored-line-yellow dotted-line-long', // Long dotted yellow
-
       'colored-line-blue', // Solid blue
-      'colored-line-magenta dotted-line-short', // Short dotted magenta
-      'colored-line-cyan dotted-line-long', // Long dotted cyan
-
-      'colored-line-black', // Solid black
-      'colored-line-brown dotted-line-short', // Short dotted brown
-      'colored-line-orange dotted-line-long', // Long dotted orange
-
-      'colored-line-orange', // Solid orange
-      'colored-line-purple dotted-line-short', // Short dotted purple
-      'colored-line-green dotted-line-long', // Long dotted green
-
-      'colored-line-blue', // Solid blue
-      'colored-line-red dotted-line-short', // Short dotted red
-      'colored-line-yellow dotted-line-long', // Long dotted yellow
-
-      'colored-line-black', // Solid black
-      'colored-line-cyan dotted-line-short', // Short dotted cyan
-      'colored-line-brown dotted-line-long', // Long dotted brown
-
+      'colored-line-green', // Solid green
       'colored-line-magenta', // Solid magenta
-      'colored-line-purple dotted-line-short', // Short dotted purple
-      'colored-line-green dotted-line-long', // Long dotted green
-
-      'colored-line-red', // Solid red
-      'colored-line-blue dotted-line-short', // Short dotted blue
-      'colored-line-yellow dotted-line-long', // Long dotted yellow
-
       'colored-line-orange', // Solid orange
-      'colored-line-cyan dotted-line-short', // Short dotted cyan
-      'colored-line-brown dotted-line-long', // Long dotted brown
 
-      'colored-line-brown', // Solid brown
-      'colored-line-magenta dotted-line-short', // Short dotted magenta
+      'colored-line-red dotted-line-long', // Long dotted red
+      'colored-line-purple', // Solid purple
+      'colored-line-blue dotted-line-long', // Long dotted blue
       'colored-line-green dotted-line-long', // Long dotted green
+      'colored-line-cyan', // Solid cyan
+      'colored-line-magenta dotted-line-long', // Long dotted magenta
+      'colored-line-orange dotted-line-long', // Long dotted orange
+      'colored-line-black', // Solid black
+      'colored-line-purple dotted-line-long', // Long dotted purple
+      'colored-line-cyan dotted-line-long', // Long dotted cyan
+      // 'colored-line-brown', // Solid brown
+      'colored-line-yellow dotted-line-long', // Long dotted yellow
+      // 'colored-line-brown dotted-line-long', // Long dotted brown
+      'colored-line-yellow', // Solid yellow
+      'colored-line-black dotted-line-long', // Long dotted black
+
+      'colored-line-red dotted-line-short', // Short dotted red
+      'colored-line-blue dotted-line-short', // Short dotted blue
+      'colored-line-green dotted-line-short', // Short dotted green
+      'colored-line-magenta dotted-line-short', // Short dotted magenta
+      'colored-line-orange dotted-line-short', // Short dotted orange
+      'colored-line-purple dotted-line-short', // Short dotted purple
+      'colored-line-cyan dotted-line-short', // Short dotted cyan
+      'colored-line-yellow dotted-line-short', // Short dotted yellow
+      // 'colored-line-brown dotted-line-short', // Short dotted brown
+      'colored-line-black dotted-line-short', // Short dotted black
     ];
     const returnStyles: string[] = [];
 

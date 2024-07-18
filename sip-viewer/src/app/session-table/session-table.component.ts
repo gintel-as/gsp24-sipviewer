@@ -355,10 +355,15 @@ export class SessionTableComponent implements AfterViewInit {
 
   //Exports selected sessions as a pretty JSON-file with indent=2
   exportSelectedToJson() {
-    let selectedSessionIDs: string[] = this.selection.selected.map(
-      (session) => session.sessionInfo.sessionID
-    );
-    const jsonText = JSON.stringify(selectedSessionIDs, null, 2);
-    this.dataService.downloadJsonFile(jsonText, 'output.json');
+    const selectedSessions: Session[] = this.selection.selected;
+    const jsonText = JSON.stringify(selectedSessions, null, 2);
+    //Set filename format SIP-Viewer-YYYY-MM-DD_HH-MM-SS.json
+    const time = new Date();
+    const fileName = `SIP-Viewer-${this.getDateString(time)
+      .replace(/\.\d{1,3}/, '')
+      .replace(/\:/g, '-')
+      .replace(/\ /, '_')}.json`;
+    console.log(fileName);
+    this.dataService.downloadJsonFile(jsonText, fileName);
   }
 }

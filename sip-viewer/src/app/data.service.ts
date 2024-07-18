@@ -135,7 +135,7 @@ export class DataService {
         currentSessions,
         formattedSessions
       );
-      this.sessions.next(currentSessions);
+      this.sessions.next(this.sortByTime(currentSessions));
 
       const allMessages: Message[] = currentSessions.reduce(
         (messagesInSession: Message[], session: Session) => {
@@ -196,6 +196,12 @@ export class DataService {
     messages1.forEach((message) => addIfNew(message));
     messages2.forEach((message) => addIfNew(message));
     return Object.values(mergedMessageMap);
+  }
+
+  sortByTime(sessions: Session[]): Session[] {
+    return sessions.sort(
+      (a, b) => a.sessionInfo.time.getTime() - b.sessionInfo.time.getTime()
+    );
   }
 
   clearUploadedFileContent() {
