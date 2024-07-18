@@ -80,6 +80,11 @@
             </mat-form-field>
           </div>
 
+          <div *ngIf="isLoading; then loading"></div>
+          <ng-template #loading>
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          </ng-template>
+
           <button
             mat-flat-button
             color="primary"

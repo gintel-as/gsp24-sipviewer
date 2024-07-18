@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { BootstrapOptions, Component } from '@angular/core';
+import { NgFor, NgIf } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -9,9 +9,10 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { DataService } from '../data.service';
 import { RerouteService } from '../reroute.service';
 import { ApiService } from '../api.service';
-import { interval, Subscription } from 'rxjs';
-import { takeWhile } from 'rxjs/operators';
+import { interval, Subscription, tap } from 'rxjs';
+import { take, takeWhile } from 'rxjs/operators';
 import { Session } from '../session';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-upload-portal',
@@ -25,7 +26,9 @@ import { Session } from '../session';
     MatButtonModule,
     ReactiveFormsModule,
     NgFor,
+    NgIf,
     FileUploadComponent,
+    MatProgressBarModule,
   ],
 })
 export class UploadPortalComponent {
@@ -39,6 +42,8 @@ export class UploadPortalComponent {
   sipFrom: string = '';
   startTime: string = '';
   endTime: string = '';
+
+  isLoading: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -79,17 +84,19 @@ export class UploadPortalComponent {
     }
 
     // can add more input validation here
-    // if (
-    //   this.sipTo.trim() ||
-    //   this.sipFrom.trim() ||
-    //   this.startTime.trim() ||
-    //   this.endTime.trim()
-    // ) {
-    //   console.log('At least one field not empty');
-    //   // consider adding check for startTime being before EndTime
-    // } else {
-    //   console.log('All fields empty');
-    // }
+    if (
+      this.sipTo.trim() ||
+      this.sipFrom.trim() ||
+      this.startTime.trim() ||
+      this.endTime.trim()
+    ) {
+      console.log('At least one field not empty');
+
+      if (!this.validateTimestamps()) return;
+      // consider adding check for startTime being before EndTime
+    } else {
+      console.log('All fields empty');
+    }
 
     if (this.files.length != 0) {
       isValid = true;
@@ -108,9 +115,46 @@ export class UploadPortalComponent {
     if (isValid) {
       this.files.forEach((file) => {
         console.log('Now uploading: ', file.name);
+        this.isLoading = true;
         this.uploadAndProcessFile(file);
       });
     }
+  }
+
+  validateTimestamps(): boolean {
+    const timestampPattern =
+      '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d+$';
+    const regex = new RegExp(timestampPattern);
+    let isValid: boolean = true;
+
+    // if startTime not empty and does not match timestampPattern
+    if (this.startTime && !regex.test(this.startTime)) {
+      isValid = false;
+      alert(
+        'The format of StartTime is wrong. Please use "YYYY-MM-DD hh:mm:ss.ms"'
+      );
+    }
+
+    // if endTime not empty and does not match timestampPattern
+    if (this.endTime && !regex.test(this.endTime)) {
+      isValid = false;
+      alert(
+        'The format of EndTime is wrong. Please use "YYYY-MM-DD hh:mm:ss.ms"'
+      );
+    }
+
+    // check if startTime is smaller than endTime
+    if (isValid && this.startTime && this.endTime) {
+      const startDate = new Date(this.startTime.replace(' ', 'T'));
+      const endDate = new Date(this.endTime.replace(' ', 'T'));
+
+      if (startDate > endDate) {
+        isValid = false;
+        alert('StartTime must be before EndTime');
+      }
+    }
+
+    return isValid;
   }
 
   uploadAndProcessFile(file: any): void {
@@ -134,8 +178,20 @@ export class UploadPortalComponent {
 
   checkFileStatus(filename: string): void {
     let isChecking = true;
+    let timeoutCounter: number = 0;
+    let maxCount: number = 120;
     const statusCheckInterval = interval(1000)
-      .pipe(takeWhile(() => isChecking))
+      .pipe(
+        take(maxCount),
+        tap(() => {
+          timeoutCounter++;
+          console.log(timeoutCounter);
+          if (timeoutCounter >= maxCount) {
+            alert('File download timeouted ');
+          }
+        }),
+        takeWhile(() => isChecking)
+      )
       .subscribe(() => {
         if (filename) {
           this.apiService
@@ -144,6 +200,7 @@ export class UploadPortalComponent {
               if (statusResponse.status === 'ready') {
                 isChecking = false;
                 statusCheckInterval?.unsubscribe();
+                console.log('File is ready. Downloading...');
                 this.downloadFile(filename);
               }
             });
@@ -163,6 +220,7 @@ export class UploadPortalComponent {
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
+        this.isLoading = false;
       });
     }
   }
