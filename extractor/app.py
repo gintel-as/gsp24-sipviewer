@@ -127,6 +127,7 @@ def job():
     print("Deleting upload and processed folder content")
     delete_folder_contents(app.config['UPLOAD_FOLDER'])
     delete_folder_contents(app.config['PROCESSED_FOLDER'])
+    delete_folder_contents(app.config['FILE_ERROR_FOLDER'])
 
 if __name__ == '__main__':
     scheduler = APScheduler()
