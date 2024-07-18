@@ -355,10 +355,8 @@ export class SessionTableComponent implements AfterViewInit {
 
   //Exports selected sessions as a pretty JSON-file with indent=2
   exportSelectedToJson() {
-    let selectedSessionIDs: string[] = this.selection.selected.map(
-      (session) => session.sessionInfo.sessionID
-    );
-    const jsonText = JSON.stringify(selectedSessionIDs, null, 2);
+    const selectedSessions: Session[] = this.selection.selected;
+    const jsonText = JSON.stringify(selectedSessions, null, 2);
     this.dataService.downloadJsonFile(jsonText, 'output.json');
   }
 }
