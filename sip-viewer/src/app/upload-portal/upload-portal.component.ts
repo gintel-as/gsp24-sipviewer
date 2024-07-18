@@ -117,7 +117,6 @@ export class UploadPortalComponent {
       this.files.forEach((file) => {
         this.isLoading = true;
         this.uploadAndProcessFile(file);
-        // console.log('Now uploading: ', file.name);
         this.statusText = 'Uploading file(s)';
       });
     }
@@ -203,7 +202,6 @@ export class UploadPortalComponent {
               if (statusResponse.status === 'ready') {
                 isChecking = false;
                 statusCheckInterval?.unsubscribe();
-                // console.log('File is ready. Downloading...');
                 this.statusText = 'File(s) ready. Downloading...';
                 this.downloadFile(filename);
               }
