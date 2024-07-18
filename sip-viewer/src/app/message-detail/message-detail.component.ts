@@ -39,6 +39,9 @@ export class MessageDetailComponent {
             this.textToCopy = [];
             this.packetStartLine = '';
             this.packetDetail = [];
+          } else {
+            this.packetIndex = 0; // Initialize packetIndex when new session is selected
+            this.printPacketDetails(this.messageIDList[this.packetIndex]);
           }
         },
         (error) => {
