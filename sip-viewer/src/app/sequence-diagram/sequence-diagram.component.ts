@@ -150,15 +150,31 @@ export class SequenceDiagramComponent {
     }, this.messageIndexDict);
   }
 
+  //If name begins with LegA, add to the left of CH, else just take first on the left, other participants go to the right
+  addCallHandlingToParticipants(participants: string[], ch: string): string[] {
+    if (participants.length == 0) {
+      return [];
+    }
+    let leftParticipants: string[] = [];
+    //Right participants starts with Call Handling
+    let rightParticipants: string[] = [ch];
+    participants.forEach((participant) => {
+      if (participant.toLowerCase().startsWith('lega')) {
+        leftParticipants.push(participant);
+      } else {
+        rightParticipants.push(participant);
+      }
+    });
+    return leftParticipants.concat(rightParticipants);
+  }
+
   private drawSequenceDiagram(
     messages: DiagramMessage[],
     participants: string[]
   ): void {
-    //If a diagram should be drawn, add CH
+    //If a diagram should be drawn, add CH and get all LegA occurences on left side of CH
     let ch = 'Call Handling';
-    if (participants.length !== 0) {
-      participants.splice(1, 0, ch);
-    }
+    participants = this.addCallHandlingToParticipants(participants, ch);
 
     //Constants to add spaceing for topbar and timestamps
     const spaceForTime = 180;
