@@ -1,8 +1,9 @@
 from flask import Flask, request, send_from_directory, jsonify
 from flask_cors import CORS
 from main import Main
-import os, threading, sched, time, shutil
+import os, threading, shutil, pytz
 from flask_apscheduler import APScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -117,7 +118,8 @@ def job():
 
 if __name__ == '__main__':
     scheduler = APScheduler()
-    scheduler.add_job(id='Scheduled Task', func=job, trigger='cron', hour=23, minute=00)
+    cron_trigger = CronTrigger(hour=23, minute=0, timezone=pytz.timezone('Europe/Oslo'))
+    scheduler.add_job(id='Scheduled Task', func=job, trigger=cron_trigger)
     scheduler.start()
 
     app.run(debug=True)
