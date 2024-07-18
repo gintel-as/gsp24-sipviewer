@@ -55,7 +55,7 @@ Make sure to be in the extractor directory, and have python3 and python3-venv in
    `pip install -r requirements.txt`
 
 4. Run app.py:\
-   `flask --app app run`
+   `python3 app.py`
 
 Sometimes when stopping the application, the standard port flask uses might still be reserved. If this happens, you can free up the port.\
 `fuser -k 5000/tcp`

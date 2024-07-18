@@ -117,7 +117,6 @@ export class UploadPortalComponent {
       this.files.forEach((file) => {
         this.isLoading = true;
         this.uploadAndProcessFile(file);
-        this.statusText = 'Uploading file(s)';
       });
     }
   }
@@ -174,6 +173,7 @@ export class UploadPortalComponent {
           const downloadFilename = response.processed_filename;
           this.checkFileStatus(downloadFilename);
         });
+      this.statusText = 'Uploading file(s)';
     }
   }
 
@@ -190,6 +190,7 @@ export class UploadPortalComponent {
           this.statusText = 'Processing file(s)';
           if (timeoutCounter >= maxCount) {
             alert('File download timeouted ');
+            this.isLoading = false;
           }
         }),
         takeWhile(() => isChecking)
