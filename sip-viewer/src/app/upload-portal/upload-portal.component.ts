@@ -44,6 +44,7 @@ export class UploadPortalComponent {
   endTime: string = '';
 
   isLoading: boolean = false;
+  statusText: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -114,9 +115,10 @@ export class UploadPortalComponent {
 
     if (isValid) {
       this.files.forEach((file) => {
-        console.log('Now uploading: ', file.name);
         this.isLoading = true;
         this.uploadAndProcessFile(file);
+        // console.log('Now uploading: ', file.name);
+        this.statusText = 'Uploading file(s)';
       });
     }
   }
@@ -186,6 +188,7 @@ export class UploadPortalComponent {
         tap(() => {
           timeoutCounter++;
           console.log(timeoutCounter);
+          this.statusText = 'Processing file(s)';
           if (timeoutCounter >= maxCount) {
             alert('File download timeouted ');
           }
@@ -200,7 +203,8 @@ export class UploadPortalComponent {
               if (statusResponse.status === 'ready') {
                 isChecking = false;
                 statusCheckInterval?.unsubscribe();
-                console.log('File is ready. Downloading...');
+                // console.log('File is ready. Downloading...');
+                this.statusText = 'File(s) ready. Downloading...';
                 this.downloadFile(filename);
               }
             });
@@ -221,6 +225,7 @@ export class UploadPortalComponent {
         a.click();
         window.URL.revokeObjectURL(url);
         this.isLoading = false;
+        this.statusText = '';
       });
     }
   }
