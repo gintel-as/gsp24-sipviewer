@@ -1,6 +1,5 @@
 from extractor import LogExtractor
 from logInterpreter import LogInterpreter
-from jsonFilter import JsonFilter
 import os, argparse
 
 
@@ -35,15 +34,6 @@ class Main:
         logInterpreter = LogInterpreter()
         logInterpreter.writeJsonFileFromHeaders(self.startLine, self.header,self.body, self.logInterperterOutput, sessionID, startTime, endTime, sipTo, sipFrom)
 
-    def jsonFilter(self):
-        if self.destinationPath == "":
-            dest = self.destinationPath
-        else: 
-            dest = self.destinationPath + "/"
-
-        jsonFilter = JsonFilter(self.logInterperterOutput)
-        jsonFilter.filterAllSessions(dest)
-
 if __name__ == "__main__":
 
     # input = input()
@@ -69,8 +59,6 @@ if __name__ == "__main__":
 
     main.extractor()
     main.logInterperter(sessionIDs, "", "", "", "")
-    # main.jsonFilter()
-    
 
 
     # print(main.preHeader)
