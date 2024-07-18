@@ -1,7 +1,8 @@
 from flask import Flask, request, send_from_directory, jsonify
 from flask_cors import CORS
 from main import Main
-import os, threading
+import os, threading, sched, time, shutil
+from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -98,7 +99,25 @@ def download_file(filename):
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
+def delete_folder_contents(folder):
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
 
+def job():
+    print("Deleting upload and processed folder content")
+    delete_folder_contents(app.config['UPLOAD_FOLDER'])
+    delete_folder_contents(app.config['PROCESSED_FOLDER'])
 
 if __name__ == '__main__':
+    scheduler = APScheduler()
+    scheduler.add_job(id='Scheduled Task', func=job, trigger='cron', hour=23, minute=00)
+    scheduler.start()
+
     app.run(debug=True)
