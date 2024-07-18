@@ -83,6 +83,7 @@
           <div *ngIf="isLoading; then loading"></div>
           <ng-template #loading>
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            <div>{{ statusText }}</div>
           </ng-template>
 
           <button
