@@ -206,6 +206,12 @@ export class UploadPortalComponent {
                 this.statusText = 'File(s) ready. Downloading...';
                 this.downloadFile(filename);
               }
+              if (statusResponse.status === 'error') {
+                isChecking = false;
+                statusCheckInterval?.unsubscribe();
+                this.statusText = '';
+                alert('An error has occured proccessing the file');
+              }
             });
         }
       });
