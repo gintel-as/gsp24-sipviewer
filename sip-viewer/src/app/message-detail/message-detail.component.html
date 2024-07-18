@@ -48,15 +48,17 @@
     </mat-toolbar-row>
   </mat-toolbar>
 
-  <div class="content">
-    <ul>
-      <li
-        *ngFor="let packet of packetDetail; let i = index"
-        class="list-item"
-        [ngClass]="{ 'highlighted-row ': i % 2 === 0 }"
-      >
-        {{ packet }}
-      </li>
-    </ul>
+  <div class="content-wrapper">
+    <div class="content">
+      <ul>
+        <li
+          *ngFor="let packet of packetDetail; let i = index"
+          class="list-item"
+          [ngClass]="{ 'highlighted-row ': i % 2 === 0 }"
+        >
+          {{ packet }}
+        </li>
+      </ul>
+    </div>
   </div>
 </div>

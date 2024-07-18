@@ -1,10 +1,12 @@
 mat-toolbar {
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
+  z-index: 10;
 }
 
 .main-packet-toolbar-row {
-  height: 2.5em;
+  height: 3.5em;
 }
 
 .second-packet-toolbar-row {
@@ -35,16 +37,27 @@ button {
   font-family: monospace;
   list-style-type: none;
   min-height: 1em;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  white-space: pre-wrap;
 }
 
 .message-detail-wrapper {
   display: flex;
   flex-direction: column;
+  height: 100%;
+}
+
+.content-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  height: calc(100% - 4.5em);
 }
 
 .content {
-  overflow: auto;
-  width: 100%;
+  /* overflow: auto; */
+  width: 350%;
 }
 
 :root {
