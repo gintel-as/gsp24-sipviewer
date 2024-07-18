@@ -357,6 +357,12 @@ export class SessionTableComponent implements AfterViewInit {
   exportSelectedToJson() {
     const selectedSessions: Session[] = this.selection.selected;
     const jsonText = JSON.stringify(selectedSessions, null, 2);
-    this.dataService.downloadJsonFile(jsonText, 'output.json');
+    const time = new Date();
+    const fileName = `SIP-Viewer-${this.getDateString(time)
+      .replace(/\.\d{1,3}/, '')
+      .replace(/\:/g, '-')
+      .replace(/\ /, '_')}.json`;
+    console.log(fileName);
+    this.dataService.downloadJsonFile(jsonText, fileName);
   }
 }
