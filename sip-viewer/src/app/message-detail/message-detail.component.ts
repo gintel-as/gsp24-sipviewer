@@ -39,6 +39,9 @@ export class MessageDetailComponent {
             this.textToCopy = [];
             this.packetStartLine = '';
             this.packetDetail = [];
+          } else {
+            this.packetIndex = 0; // Initialize packetIndex when new session is selected
+            this.printPacketDetails(this.messageIDList[this.packetIndex]);
           }
         },
         (error) => {
@@ -127,10 +130,8 @@ export class MessageDetailComponent {
         // Stringifies body for printing
         if (bodyArr && bodyArr.content) {
           //Add gap between header and body
-          for (let i = 0; i < 3; i++) {
-            detailsOutput.push('');
-            this.textToCopy.push('' + '\n');
-          }
+          detailsOutput.push('');
+          this.textToCopy.push('' + '\n');
           //Add body
           bodyArr.content.forEach((value) => {
             const str = value;

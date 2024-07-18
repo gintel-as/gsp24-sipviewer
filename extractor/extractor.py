@@ -57,6 +57,7 @@ class LogExtractor:
     # non-standard logs does not have a timestamp on every line
     def filterNonStandard(self, lines):
         timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+')
+        sipLogMgrPattern = re.compile(r'.*or.sip.gen.SipLogMgr.*')
         startLine = False
         content = False
         body = False
@@ -64,16 +65,19 @@ class LogExtractor:
         currentBody = []
 
         for line in lines:
+            readLine = True
             if timestampPattern.match(line):    # If line is startline
                 currentHeader = []
                 currentBody = []
-
-                self.header.append(currentHeader)
-                self.body.append(currentBody)
-
+                if sipLogMgrPattern.search(line):
+                    self.header.append(currentHeader)
+                    self.body.append(currentBody)
+                else: #If matching timestamp but no sipLogMgr, skip line
+                    readLine = False
                 startLine = True
                 content = False
                 body = False
+                
             else:                               # If line is content (header and body)
                 startLine = False
                 content = True
@@ -81,15 +85,16 @@ class LogExtractor:
                 if line == '\n':                # checks if line is body
                     body = True
             
-            # append lines to temp arrays
-            if startLine:
-                self.startLine.append(line.strip())                
+            if readLine:
+                if startLine:
+                    self.startLine.append(line.strip())                
 
-            if content:
-                if body:    
-                    currentBody.append(line.strip())
-                else:
-                    currentHeader.append(line.strip())
+                if content:
+                    if body:    
+                        currentBody.append(line.strip())
+                    else:
+                        currentHeader.append(line.strip())
+
 
     # stadard logs have a timestamp on every line
     def filterStandard(self, lines):
@@ -114,8 +119,12 @@ class LogExtractor:
         # Divides headerBody into separate arrays
         for line in headerBodyTemp:
             parts = line.split('<LF><CR><LF><CR>', 1)
-            self.header.append(parts[0])
-            self.body.append(parts[1])
+            try:
+                self.header.append(parts[0])
+                self.body.append(parts[1])
+            except:
+                self.header.append(parts[0])
+                self.body.append('')
 
         # Removes <LF><CR> from header
         for line in self.header:

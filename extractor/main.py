@@ -47,7 +47,9 @@ class Main:
 if __name__ == "__main__":
 
     # input = input()
-    inputFile = "adapter-as01.log.2024-07-03-09"
+    #  inputFile = "3.adapter.log"
+    inputFile = "3.adapter.log.2"
+    # inputFile = "adapter-as01.log.2024-07-03-09"
     # inputFile = "adapter.2024-06-17-12.log"
     # inputFile = "1.adapter.windows.log"
     # inputFile = "2.Two-Calls.adapter.log"
@@ -59,32 +61,14 @@ if __name__ == "__main__":
     # destinationPath = "./json"
     main = Main(inputFile, logPath, destinationPath)
 
-    sessionIDs = [
-    "104630926",
-    "104630927",
-    "104630928",
-    "104630929",
-    "104630928",
-    "104630936",
-    "104630934",
-    "104630932",
-    "104630931",
-    "104630935",
-    "104630930",
-    "104630933",
-    "104630937",
-    "104630938",
-    "104630939",
-    "104630940",
-    "104630941",
-    "104630942"
-]
+    sessionIDs = []
+
     # sessionID = '104630928'
     # sessionID = '104820521'
     # sessionIDs = ['104630929', '104630932']
 
     main.extractor()
-    main.logInterperter(sessionIDs, "", "", "", "+4746180307")
+    main.logInterperter(sessionIDs, "", "", "", "")
     # main.jsonFilter()
     
 
