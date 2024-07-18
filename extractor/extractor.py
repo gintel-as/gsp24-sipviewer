@@ -102,10 +102,12 @@ class LogExtractor:
         headerBodyTemp = []
         headerTemp = []
         bodyTemp = []
+
+        timestampSipLogPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+ DEBUG \[or.sip.gen.SipLogMgr\]')
         
         # Filter for or.sip.gen.SipLogMgr
         for line in lines:
-            if 'or.sip.gen.SipLogMgr' in line:
+            if timestampSipLogPattern.match(line):
                 tempLines.append(line)
         lines = tempLines
 
