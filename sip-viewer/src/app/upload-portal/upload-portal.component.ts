@@ -121,6 +121,7 @@ export class UploadPortalComponent {
     }
   }
 
+  //validator for extractor filters timestamp
   validateTimestamps(): boolean {
     const timestampPattern =
       '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d+$';
@@ -157,6 +158,7 @@ export class UploadPortalComponent {
     return isValid;
   }
 
+  //Upload file to API
   uploadAndProcessFile(file: any): void {
     if (file != null) {
       this.apiService
@@ -177,6 +179,7 @@ export class UploadPortalComponent {
     }
   }
 
+  //Check if file is done proccessing, or if an error has occured during proccessing trough API
   checkFileStatus(filename: string): void {
     let isChecking = true;
     let timeoutCounter: number = 0;
@@ -217,6 +220,7 @@ export class UploadPortalComponent {
       });
   }
 
+  //Querry API to download proccessed file
   downloadFile(filename: string): void {
     if (filename) {
       this.apiService.downloadFile(filename).subscribe((blob) => {
@@ -246,6 +250,8 @@ export class UploadPortalComponent {
       .filter((num) => !isNaN(num));
     return arr.toString();
   }
+
+  //Following is methods to handle file upload in the component
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -279,6 +285,9 @@ export class UploadPortalComponent {
     }
   }
 
+  //End of handlin file upload in component
+
+  //Handle files after they are uploaded
   handleUploadedFiles(fileList: FileList): void {
     for (let i = 0; i < fileList.length; i++) {
       if (fileList[i].type == 'application/json') {
@@ -313,6 +322,7 @@ export class UploadPortalComponent {
     });
   }
 
+  //Import JSON files and redirect user to view imported JSON.
   readJsonFiles() {
     this.jsonFiles.forEach((file: File) => {
       if (file.size > 0) {
