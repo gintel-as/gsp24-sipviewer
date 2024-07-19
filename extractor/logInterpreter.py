@@ -138,7 +138,7 @@ class LogInterpreter:
             "initialInvite": initialInvite
         }
     
-    
+    #Initialize new empty dictionary in accordance with JSON format
     def createEmptySessionDict(self, sessionID, time, sipTo, sipFrom, initialInvite):
         return {
             "sessionInfo": self.createSessionInfoDict( sessionID, time, sipTo, sipFrom, initialInvite),
@@ -165,7 +165,7 @@ class LogInterpreter:
                 result[sessionID] = dict[sessionID]
         return result
     
-        
+
     def parse_datetime(self, date_str):
         # Defines possible formats of using ms or no ms
         date_formats = ["%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"]

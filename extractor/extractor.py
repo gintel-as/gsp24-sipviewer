@@ -39,6 +39,7 @@ class LogExtractor:
             else:
                 isFormatted = False
 
+        #Checks how the log is formated, as in each line of the log is on one line with break charachters or if it spans multiple lines
         if isFormatted:
             self.filterStandard(lines)
         else:
