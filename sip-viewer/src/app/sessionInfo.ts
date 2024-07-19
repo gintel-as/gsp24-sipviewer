@@ -3,6 +3,7 @@ export interface SessionInfo {
   time: Date;
   from: string;
   to: string;
+  participants: string[];
   initialInvite: boolean;
   associatedSessions: string[];
 }
