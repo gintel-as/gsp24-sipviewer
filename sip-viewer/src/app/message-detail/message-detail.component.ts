@@ -28,19 +28,37 @@ export class MessageDetailComponent {
   textToCopy: any[] = [];
   messageIDList: string[] = [];
   packetIndex: number = 0;
+  currentSelectedMessageID: string | null = null;
 
   constructor(private dataService: DataService, private clipboard: Clipboard) {
     // Observes changes in selected sessionIDs in session-table
     dataService.selectedSessionIDs$.subscribe(() => {
       dataService.getMessagesFromSelectedSessions().subscribe(
         (messages: any[]) => {
-          this.messageIDList = messages.map((item) => item.startLine.messageID); // updates messageIDList from selected sessions
+          const newMessageIDList = messages.map(
+            (item) => item.startLine.messageID
+          );
+
+          // Update packetIndex to maintain the correct selected message
+          if (this.currentSelectedMessageID) {
+            const newIndex = newMessageIDList.indexOf(
+              this.currentSelectedMessageID
+            );
+            if (newIndex !== -1) {
+              this.packetIndex = newIndex;
+            } else {
+              this.packetIndex = 0; // Reset to the first message if the selected one is not found
+            }
+          }
+
+          this.messageIDList = newMessageIDList;
+
           if (this.messageIDList.length === 0) {
             this.textToCopy = [];
             this.packetStartLine = '';
             this.packetDetail = [];
+            this.packetIndex = 0;
           } else {
-            this.packetIndex = 0; // Initialize packetIndex when new session is selected
             this.printPacketDetails(this.messageIDList[this.packetIndex]);
           }
         },
@@ -52,9 +70,15 @@ export class MessageDetailComponent {
         }
       );
     });
+
     // Observes selected message in diagram and prints out the details
     dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
-      this.printPacketDetails(selectedMessageID);
+      this.currentSelectedMessageID = selectedMessageID;
+      const index = this.messageIDList.indexOf(selectedMessageID);
+      if (index !== -1) {
+        this.packetIndex = index;
+        this.printPacketDetails(this.messageIDList[this.packetIndex]);
+      }
     });
   }
 
