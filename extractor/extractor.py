@@ -57,7 +57,9 @@ class LogExtractor:
     # non-standard logs does not have a timestamp on every line
     def filterNonStandard(self, lines):
         timestampPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+')
-        sipLogMgrPattern = re.compile(r'.*or.sip.gen.SipLogMgr.*')
+        #In case the longer pattern might cause issues, revert to the shorter one. Second should work better but was only tested for one day.
+        # timestampSipLogPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+ DEBUG \[or.sip.gen.SipLogMgr\]')
+        timestampSipLogPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+ (\[DEBUG\]|DEBUG) (\[or.sip.gen.SipLogMgr\]|\[.*\] SipLogMgr)')
         startLine = False
         content = False
         body = False
@@ -69,7 +71,7 @@ class LogExtractor:
             if timestampPattern.match(line):    # If line is startline
                 currentHeader = []
                 currentBody = []
-                if sipLogMgrPattern.search(line):
+                if timestampSipLogPattern.search(line):
                     self.header.append(currentHeader)
                     self.body.append(currentBody)
                 else: #If matching timestamp but no sipLogMgr, skip line
@@ -103,7 +105,9 @@ class LogExtractor:
         headerTemp = []
         bodyTemp = []
 
-        timestampSipLogPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+ DEBUG \[or.sip.gen.SipLogMgr\]')
+        #In case the longer pattern might cause issues, revert to the shorter one. Second should work better but was only tested for one day.
+        # timestampSipLogPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+ DEBUG \[or.sip.gen.SipLogMgr\]')
+        timestampSipLogPattern = re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+ (\[DEBUG\]|DEBUG) (\[or.sip.gen.SipLogMgr\]|\[.*\] SipLogMgr)')
         
         # Filter for or.sip.gen.SipLogMgr
         for line in lines:
