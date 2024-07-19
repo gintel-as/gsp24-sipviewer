@@ -1,14 +1,25 @@
 <div>
-  <input type="file" (change)="onJsonFileSelected($event)" hidden #fileInput />
+  <input
+    type="file"
+    (change)="onJsonFileSelected($event)"
+    hidden
+    #fileInput
+    multiple
+  />
   <div class="file-upload-container">
-    <div *ngIf="!fileName">
+    <!-- <div *ngIf="!fileName">
       <p class="file-name-style">No file selected</p>
     </div>
     <div *ngIf="fileName">
-      <p class="file-name-style">Selected File: {{ fileName }}</p>
-    </div>
-    <button mat-raised-button color="primary" (click)="fileInput.click()">
+      <p class="file-name-style">Selected File(s): {{ fileName }}</p>
+    </div> -->
+    <button id="remove-button" mat-raised-button (click)="clearSelectedFiles()">
+      Remove All Files
+    </button>
+    <span class="medium-spacer"></span>
+    <button mat-flat-button color="primary" (click)="fileInput.click()">
       Upload JSON
     </button>
+    <span class="medium-spacer"></span>
   </div>
 </div>

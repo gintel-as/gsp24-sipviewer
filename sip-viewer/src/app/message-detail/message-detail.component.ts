@@ -6,9 +6,8 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable, find, first, tap } from 'rxjs';
 import { Message } from '../message';
-import { pack } from 'd3';
+import Utils from '../sequence-diagram/utils';
 
 @Component({
   selector: 'app-message-detail',
@@ -24,24 +23,26 @@ import { pack } from 'd3';
   styleUrl: './message-detail.component.css',
 })
 export class MessageDetailComponent {
-  // log: any[] = [];
-  resultList: any[] = [];
+  packetStartLine: string = '';
+  packetDetail: string[] = [];
   textToCopy: any[] = [];
+  messageIDList: string[] = [];
   packetIndex: number = 0;
 
-  currentMessageID: string = '';
-  messageIDList: string[] = []; // Remove later
-  sessionIDList: string[] = [];
-
   constructor(private dataService: DataService, private clipboard: Clipboard) {
-    dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
-      this.printPacketDetail(selectedMessageID);
-    });
-
-    dataService.selectedSessionIDs$.subscribe((selectedSessionIDs) => {
+    // Observes changes in selected sessionIDs in session-table
+    dataService.selectedSessionIDs$.subscribe(() => {
       dataService.getMessagesFromSelectedSessions().subscribe(
         (messages: any[]) => {
-          this.messageIDList = messages.map((item) => item.startLine.messageID);
+          this.messageIDList = messages.map((item) => item.startLine.messageID); // updates messageIDList from selected sessions
+          if (this.messageIDList.length === 0) {
+            this.textToCopy = [];
+            this.packetStartLine = '';
+            this.packetDetail = [];
+          } else {
+            this.packetIndex = 0; // Initialize packetIndex when new session is selected
+            this.printPacketDetails(this.messageIDList[this.packetIndex]);
+          }
         },
         (error) => {
           console.error(
@@ -50,6 +51,10 @@ export class MessageDetailComponent {
           );
         }
       );
+    });
+    // Observes selected message in diagram and prints out the details
+    dataService.currentSelectedMessageID$.subscribe((selectedMessageID) => {
+      this.printPacketDetails(selectedMessageID);
     });
   }
 
@@ -68,28 +73,46 @@ export class MessageDetailComponent {
       }
     }
     const id = this.messageIDList[this.packetIndex];
-    this.printPacketDetail(id);
-    this.dataService.selectNewMessageByID(id);
+    this.printPacketDetails(id);
+    this.dataService.selectNewMessageByID(id); // Puts id as new selected message
   }
 
-  findInJsonByMessageID(id: string) {
-    return this.dataService.getMessageByID(id);
-  }
-
-  printPacketDetail(id: string): void {
+  printPacketDetails(id: string): void {
     this.textToCopy = [];
-    this.resultList = [];
+    this.packetStartLine = '';
+    this.packetDetail = [];
+    this.packetIndex = this.messageIDList.indexOf(id); // Update packet detail meta information
 
-    // Update packet detail meta information
-    this.packetIndex = this.messageIDList.indexOf(id);
-
-    this.findInJsonByMessageID(id).subscribe(
+    this.dataService.getMessageByID(id).subscribe(
       (message: Message | undefined) => {
-        let output: string[] = [];
+        let startLineOutput: string = '';
+        let detailsOutput: string[] = [];
+        let startLineArr = message?.startLine;
         let sipHeaderArr = message?.sipHeader;
         let bodyArr = message?.body;
 
-        // stringifies sipHeader for printing
+        // Add startLine information
+        if (startLineArr) {
+          const packetTime =
+            message?.startLine.time instanceof Date
+              ? Utils.getDateString(message.startLine.time)
+              : 'Invalid Date';
+          const packetSessionID =
+            message?.startLine.sessionID.toString() ?? 'Not defined';
+          const packetMessageID =
+            message?.startLine.messageID.toString() ?? 'Not defined';
+          const packetDirection =
+            message?.startLine.direction.toString() ?? 'Not defined';
+          const packetParty =
+            message?.startLine.party.toString() ?? 'Not defined';
+
+          startLineOutput = `${packetTime}: ${packetSessionID}  ${
+            packetDirection === 'from' ? 'Recieved' : 'Sent'
+          } message with id=${packetMessageID} ${packetDirection} ${packetParty}`;
+        }
+        this.packetStartLine = startLineOutput;
+
+        // Stringifies sipHeader for printing
         for (const key in sipHeaderArr) {
           if (sipHeaderArr.hasOwnProperty(key)) {
             sipHeaderArr[key].forEach((value: string) => {
@@ -100,41 +123,38 @@ export class MessageDetailComponent {
                 str = key + ': ' + value;
               }
               this.textToCopy.push(str + '\n');
-              output.push(str);
+              detailsOutput.push(str);
             });
           }
         }
-
-        // stringifies body for printing
+        // Stringifies body for printing
         if (bodyArr && bodyArr.content) {
+          //Add gap between header and body
+          detailsOutput.push('');
+          this.textToCopy.push('' + '\n');
+          //Add body
           bodyArr.content.forEach((value) => {
             const str = value;
             this.textToCopy.push(str + '\n');
-            output.push(str);
+            detailsOutput.push(str);
           });
+          //Add gap at bottom for scrollability
+          detailsOutput.push('');
         }
 
-        this.resultList = output;
+        // Catches undefined so output is not undefined
+        if (message == undefined) {
+          return;
+        }
+
+        //Set packetDetails to change displayed packet
+        this.packetDetail = detailsOutput;
       },
       (error) => {
-        console.error('Error printing message with id = ' + id, error);
+        console.error('Error printing message with id = ' + id + ': ', error);
       }
     );
   }
-
-  // fetchMessages(): void {
-  //   this.dataService.getMessages().subscribe(
-  //     (messages: any[]) => {
-  //       this.log = messages;
-  //       this.messageIDList = messages.map((item) => item.startLine.messageID);
-  //       let sessionArr = messages.map((item) => item.startLine.sessionID);
-  //       this.sessionIDList = [...new Set(sessionArr)]; // Filter out duplicate sessions, leaving only distinct IDs
-  //     },
-  //     (error) => {
-  //       console.error('Error fetching messages', error);
-  //     }
-  //   );
-  // }
 
   copyText(): void {
     let output = this.textToCopy.join('');

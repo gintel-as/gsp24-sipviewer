@@ -1,43 +1,69 @@
-/* #copyPacketButton {
-    position: absolute;
-    right: 5%;
-} */
-
 mat-toolbar {
-    position: sticky;
-    top: 0;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.main-packet-toolbar-row {
+  height: 3.5em;
+}
+
+.second-packet-toolbar-row {
+  font-size: medium;
+  font-weight: bold;
+  height: 2em;
+}
+
+ul {
+  padding: 0;
+  text-indent: 2.5em;
 }
 
 #packetDetailSpan {
-    position: absolute;
-    padding-left: auto;
+  position: absolute;
 }
 
 .spacer {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 
 button {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 .list-item {
-    font-size: 18px;
-    color: #CA2F2C;
-    font-family:monospace;
-    list-style-type: none;
+  font-size: 18px;
+  font-family: monospace;
+  list-style-type: none;
+  min-height: 1em;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  white-space: pre-wrap;
 }
 
 .message-detail-wrapper {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.content-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  height: calc(100% - 4.5em);
 }
 
 .content {
-    /* height: 100%; */
-    overflow: auto;
+  /* overflow: auto; */
+  width: 350%;
 }
 
 :root {
-    height: 100%;
+  height: 100%;
+}
+
+.highlighted-row {
+  background-color: #d9c8c8;
 }

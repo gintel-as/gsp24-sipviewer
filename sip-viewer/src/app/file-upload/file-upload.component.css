@@ -15,3 +15,11 @@
   font-size: 14px;
   margin: 0;
 }
+
+#remove-button {
+  margin-right: 5px;
+}
+
+.medium-spacer {
+  margin-left: 2.5em;
+}

@@ -1,0 +1,134 @@
+.portal-container {
+  height: 100%;
+  padding: 1.5em;
+  margin-top: 64px;
+
+  display: flex;
+  justify-content: center;
+  background-color: #d3d3d3;
+  overflow: auto;
+}
+
+.portal-grid-wrapper {
+  background-color: #d3d3d3;
+  height: 80%;
+  width: 70%;
+  border-radius: 5px;
+}
+
+.portal-grid-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 5px;
+
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 4fr 1fr;
+  gap: 3px;
+}
+
+.portal-grid-item {
+  background-color: #f0f8ff;
+  padding: 5px;
+  border-radius: 0px 5px 0px 0px;
+}
+
+.portal-grid-item:first-child {
+  border-radius: 5px 0px 0px 0px;
+}
+
+.portal-grid-item:last-child {
+  border-radius: 0px 0px 5px 5px;
+}
+
+.portal-grid-item.full-width {
+  grid-column: span 2; /* Span across both columns */
+}
+
+.file-upload-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+}
+
+.form-field-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 90%;
+  margin: 3em 0em 3em 0em;
+}
+
+.form-field {
+  width: 80%;
+}
+
+.form-field-child {
+  width: 100%;
+}
+
+.form-submit-btn {
+  margin-top: auto;
+}
+
+.file-upload-content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-style: dashed;
+  border-radius: 3px;
+  border-color: #223030;
+  background-color: #f3dde1;
+
+  cursor: pointer;
+}
+
+.file-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  background-color: #5a7d7c;
+  color: #fffbff;
+  margin: 1px;
+}
+
+.remove-button {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 20px;
+}
+
+.extracted-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.portal-import-btn {
+  align-self: flex-end;
+  min-width: 200px;
+  margin: auto 0em 1em 2em;
+}

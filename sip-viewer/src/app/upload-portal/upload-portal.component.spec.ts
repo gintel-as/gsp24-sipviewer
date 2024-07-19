@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SIPViewerComponent } from './sip-viewer.component';
+import { UploadPortalComponent } from './upload-portal.component';
 
-describe('SIPViewerComponent', () => {
-  let component: SIPViewerComponent;
-  let fixture: ComponentFixture<SIPViewerComponent>;
+describe('UploadPortalComponent', () => {
+  let component: UploadPortalComponent;
+  let fixture: ComponentFixture<UploadPortalComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SIPViewerComponent]
+      imports: [UploadPortalComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SIPViewerComponent);
+    fixture = TestBed.createComponent(UploadPortalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

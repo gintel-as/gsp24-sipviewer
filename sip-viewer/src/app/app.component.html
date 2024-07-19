@@ -1,49 +1,20 @@
 <mat-toolbar>
   <mat-toolbar-row>
-    <!-- <mat-icon>gintel</mat-icon> -->
-    <img src="gintel-logo-main.png" alt="Logo" class="logo" />
+    <img src="gintel-logo-main.svg" alt="Logo" class="logo" />
     <span>
       <strong> SIP Viewer </strong>
     </span>
     <span class="spacer"></span>
     <app-file-upload></app-file-upload>
+    <span class="btn-spacer"></span>
+    <button
+      mat-flat-button
+      color="primary"
+      class="portal-extractor-btn"
+      (click)="navigateToRoute()"
+    >
+      {{ isExtractor ? " To Sip Viewer " : "Extract Logfiles" }}
+    </button>
   </mat-toolbar-row>
 </mat-toolbar>
-
-<div class="main-container">
-  <div class="resizable-div-left-wrapper">
-    <!-- ID neccessary for potential fix of key-navigation, depending on how it works after resize is fixed -->
-    <div
-      class="resizable-div-left"
-      id="leftDiv"
-      [ngStyle]="{ 'width.px': leftWidth }"
-    >
-      <app-flow-chart></app-flow-chart>
-    </div>
-    <div
-      class="resize-handle-horizontal"
-      (mousedown)="onHorizontalResizeStart($event)"
-    ></div>
-  </div>
-  <div class="right-container">
-    <div class="resizable-div-top-wrapper">
-      <div class="resizable-div-top" [ngStyle]="{ 'height.px': topHeight }">
-        <app-session-table></app-session-table>
-      </div>
-      <div
-        class="resize-handle-vertical"
-        (mousedown)="onVerticalResizeStart($event)"
-      ></div>
-    </div>
-    <div class="resizable-div-bottom">
-      <app-message-detail></app-message-detail>
-    </div>
-  </div>
-</div>
-
-<div
-  class="overlay"
-  *ngIf="resizing"
-  (mousemove)="onResize($event)"
-  (mouseup)="onResizeEnd()"
-></div>
+<div class="app-content"><router-outlet></router-outlet></div>

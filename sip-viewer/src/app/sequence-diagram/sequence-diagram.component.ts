@@ -24,7 +24,6 @@ export class SequenceDiagramComponent {
   private markedMessageId: string = '';
   private selectedPacketIndex: number = 0;
   private messageIndexDict: messageIndexDict = {};
-  private arrowStyles: string[] = Utils.getArrowStyles();
   private sessionDict: sessionDict = {};
 
   constructor(private dataService: DataService) {
@@ -51,59 +50,56 @@ export class SequenceDiagramComponent {
       .subscribe();
   }
 
-  //If session already has a style selected, keep this selection and randomly assign for other sessions
+  //Update which sessions get what styling, aims to keep currently selected sessions style and randomly assign new ones based on what is the next free style in the list of styles
   updateSessionStyles(selectedSessionIDs: string[]) {
+    let oldSessionIDs = Object.keys(this.sessionDict);
     let newSessionDict: sessionDict = {};
-    Object.keys(this.sessionDict).forEach((key) => {
-      if (selectedSessionIDs.includes(key)) {
-        newSessionDict[key] = this.sessionDict[key];
+    let styles = Utils.getArrowStyles(selectedSessionIDs.length);
+    selectedSessionIDs.forEach((sessionID) => {
+      if (!oldSessionIDs.includes(sessionID)) {
+        newSessionDict[sessionID] = styles.shift() ?? 'colored-line-orange';
+      } else {
+        //Keep previous style of unchanged sessions, but remove one occurence of the style
+        newSessionDict[sessionID] = this.sessionDict[sessionID];
+        styles = Utils.removeFirstOccurrenceOfStyle(
+          styles,
+          this.sessionDict[sessionID]
+        );
       }
-    });
-    let newSessions = selectedSessionIDs.filter(
-      (sessionID) => !Object.keys(this.sessionDict).includes(sessionID)
-    );
-    let styles = this.arrowStyles.filter(
-      (style) => !Object.values(newSessionDict).includes(style)
-    );
-    newSessions.forEach((sessionID, index) => {
-      newSessionDict[sessionID] = styles[index];
     });
     this.sessionDict = newSessionDict;
   }
 
   markSelectedMessage(messageID: string): void {
     this.markedMessageId = messageID;
+    //Select ID's marking the selected messages, and remove it from previously selected messages
     d3.select('#selected-message').attr('id', '');
     d3.select('#selected-message-text').attr('id', '');
+    d3.select('#selected-message-timestamp').attr('id', '');
+    d3.select('#selected-message-rect').attr('id', '');
+    //Find new message to select and mark it with selected ID for styling
     d3.select(`[message-id="${messageID}"`).attr('id', 'selected-message');
     d3.select(`[message-text-id="${messageID}"`).attr(
       'id',
       'selected-message-text'
     );
+    d3.select(`[message-timestamp-id="${messageID}`).attr(
+      'id',
+      'selected-message-timestamp'
+    );
+    d3.select(`[message-rect-id="${messageID}`).attr(
+      'id',
+      'selected-message-rect'
+    );
 
-    const nativeElement = d3.select('#selected-message').node() as Element;
-    nativeElement.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-      inline: 'nearest',
-    });
-
-    //Potential fix on redone resize windows
-    // if (0 == 0) {
-    //   console.log(1);
-    //   const nativeElement = d3.select('#selected-message').node() as Element;
-    //   nativeElement.scrollIntoView({
-    //     behavior: 'smooth',
-    //     block: 'center',
-    //     inline: 'nearest',
-    //   });
-    // } else {
-    //   console.log(2);
-    //   const nativeParent = document.getElementById('#leftDiv') as Element;
-    //   nativeParent.scrollTop = 0;
-    //   // document.scroll;
-    //   console.log(nativeParent.scrollTop);
-    // }
+    try {
+      const nativeElement = d3.select('#selected-message').node() as Element;
+      nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    } catch (error) {}
   }
 
   selectMessage(msg: DiagramMessage): void {
@@ -112,7 +108,7 @@ export class SequenceDiagramComponent {
   }
 
   indexOfPreviouslySelectedMessageOrFirst(): number {
-    //Potentially remove this to always stay on first packet
+    //If first packet selected, do not stay on this packet if an earlier packet is loaded in a newly selected session
     if (this.selectedPacketIndex == 0) {
       return 0;
     }
@@ -125,6 +121,7 @@ export class SequenceDiagramComponent {
     return index;
   }
 
+  //Handles keyboard navigation on ArrowUp or ArrowDown, by incrementing local packetindex
   onKeyUpDown(keyEvent: string) {
     let maxIndex = Object.keys(this.messageIndexDict).length;
     if (keyEvent === 'ArrowUp') {
@@ -144,25 +141,57 @@ export class SequenceDiagramComponent {
     );
   }
 
+  //Needed for keyboard navigation, provides a simple index that can be incremented and then find the messageID of that packet.
   setMessageIndexToIDDictionary(messages: DiagramMessage[]) {
+    this.messageIndexDict = {};
     this.messageIndexDict = messages.reduce((acc, message) => {
       acc[message.index] = message.message.startLine.messageID;
       return acc;
     }, this.messageIndexDict);
   }
 
+  //If name begins with LegA, add to the left of CH, else just take first on the left, other participants go to the right
+  addCallHandlingToParticipants(participants: string[], ch: string): string[] {
+    if (participants.length == 0) {
+      return [];
+    }
+    let leftParticipants: string[] = [];
+    //Right participants starts with Call Handling
+    let rightParticipants: string[] = [ch];
+    participants.forEach((participant) => {
+      if (participant.toLowerCase().startsWith('lega')) {
+        leftParticipants.push(participant);
+      } else {
+        rightParticipants.push(participant);
+      }
+    });
+    return leftParticipants.concat(rightParticipants);
+  }
+
   private drawSequenceDiagram(
     messages: DiagramMessage[],
     participants: string[]
   ): void {
+    //If a diagram should be drawn, add CH and get all LegA occurences on left side of CH
     let ch = 'Call Handling';
-    if (participants.length !== 0) {
-      participants.splice(1, 0, ch);
-    }
-    let spaceForTime = 180;
-    const svgWidth = Math.max(500, 200 * participants.length + spaceForTime);
+    participants = this.addCallHandlingToParticipants(participants, ch);
+
+    //Constants to add spaceing for topbar and timestamps
+    const spaceForTime = 180;
     const messageSpaceFromTop = 40;
+    let xSpaceForIndex = 0;
+    if (messages.length !== 0) {
+      xSpaceForIndex =
+        20 + messages[messages.length - 1].index.toString().length * 10;
+    }
+
+    //Set height, drawidth, and "viewwidth"(how wide the background should be)
     const svgHeight = 40 * messages.length + messageSpaceFromTop;
+    const svgDrawWidth =
+      200 * participants.length + spaceForTime + xSpaceForIndex;
+    const svgViewWidth = svgDrawWidth + 4000;
+
+    //Create dictionary that maps index to message objects
     this.setMessageIndexToIDDictionary(messages);
 
     //Clear elements for blank canvas
@@ -173,7 +202,7 @@ export class SequenceDiagramComponent {
     const svg = d3
       .select(this.diagram.nativeElement)
       .append('svg')
-      .attr('width', svgWidth)
+      .attr('width', svgViewWidth)
       .attr('height', svgHeight)
       .attr('y', 0)
       .attr('id', 'diagramSVG')
@@ -183,13 +212,13 @@ export class SequenceDiagramComponent {
     const svg2 = d3
       .select(this.diagramLabels.nativeElement)
       .append('svg')
-      .attr('width', svgWidth)
+      .attr('width', svgDrawWidth)
       .attr('height', 50);
 
     const xScale = d3
       .scaleBand()
       .domain(participants)
-      .range([spaceForTime, svgWidth])
+      .range([spaceForTime, svgDrawWidth])
       .padding(0.5);
 
     const yScale = d3
@@ -239,10 +268,13 @@ export class SequenceDiagramComponent {
         directionOffset = -5;
       }
       const y = yScale(msg.index);
-      //Potentially change/remove labelSpace? Currently hard coded to 80px, but should probably be made flexible
-      let labelSpace = msg.index.toString().length * 5 + 2;
-      let labelX = spaceForTime + 80;
+      let labelX = spaceForTime + xSpaceForIndex;
       let textLine = msg.message.startLine.method;
+      let rectClass = '';
+      // If even index, set background rectangle class with color background
+      if (msg.index % 2 == 0) {
+        rectClass = 'message-background-line-red';
+      }
 
       //Add 'SDP' to each line with content length > 0, if no content length attr catch error
       try {
@@ -254,7 +286,30 @@ export class SequenceDiagramComponent {
       //Select style for message based on session
       let classes = this.sessionDict[`${msg.message.startLine.sessionID}`];
 
-      // Draw arrow
+      // Draw background rectangle
+      svg
+        .append('rect')
+        .attr('x', 0)
+        .attr('width', svgViewWidth)
+        .attr('y', y - 25)
+        .attr('height', 40)
+        .attr('class', rectClass)
+        .attr('message-rect-id', msg.message.startLine.messageID)
+        .on('click', () => this.selectMessage(msg));
+
+      // Draw invisibleline for highlights
+      svg
+        .append('line')
+        .attr('x1', fromX)
+        .attr('x2', toX)
+        .attr('y1', y)
+        .attr('y2', y)
+        .attr('stroke', 'none ')
+        .attr('stroke-width', 10)
+        .attr('message-id', msg.message.startLine.messageID)
+        .on('click', () => this.selectMessage(msg));
+
+      // Draw arrow-line
       svg
         .append('line')
         .attr('x1', fromX)
@@ -262,9 +317,7 @@ export class SequenceDiagramComponent {
         .attr('y1', y)
         .attr('y2', y)
         .attr('marker-end', 'url(#arrow)')
-        .attr('marker-start', '1')
         .attr('class', `${classes} arrow-line`)
-        .attr('message-id', msg.message.startLine.messageID)
         .on('click', () => this.selectMessage(msg));
 
       // Draw message text
@@ -283,8 +336,9 @@ export class SequenceDiagramComponent {
         .attr('x', labelX)
         .attr('y', y + 5.5)
         .attr('class', 'side-details')
+        .attr('message-timestamp-id', msg.message.startLine.messageID)
         .text(
-          `${msg.index}: ${Utils.getDateString(msg.message.startLine.time)}`
+          `${msg.index + 1}: ${Utils.getDateString(msg.message.startLine.time)}`
         )
         .on('click', () => this.selectMessage(msg));
     });
@@ -308,6 +362,10 @@ export class SequenceDiagramComponent {
     if (messages.length !== 0) {
       let indexToMark = this.indexOfPreviouslySelectedMessageOrFirst();
       this.selectMessage(messages[indexToMark]);
+    } else {
+      //Reset marking values to default if messages is empty
+      this.markedMessageId = '';
+      this.selectedPacketIndex = 0;
     }
   }
 }
