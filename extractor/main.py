@@ -15,6 +15,7 @@ class Main:
         # tempVariables
         self.logInterperterOutput = None
 
+    
     def extractor(self):
         input = self.logPath + "/" + self.inputFile
         extractor = LogExtractor(input)
@@ -35,15 +36,8 @@ class Main:
         logInterpreter.writeJsonFileFromHeaders(self.startLine, self.header,self.body, self.logInterperterOutput, sessionID, startTime, endTime, sipTo, sipFrom)
 
 if __name__ == "__main__":
-
-    # input = input()
-    #  inputFile = "3.adapter.log"
-    # inputFile = "3.adapter.log.2"
-    inputFile = "adapter-as01.log.2024-07-03-09"
-    # inputFile = "adapter.2024-06-17-12.log"
-    # inputFile = "1.adapter.windows.log"
-    # inputFile = "2.Two-Calls.adapter.log"
-    # inputFile = "adapter_BCT.log"
+    #InputFile for testing
+    inputFile = ""
 
     logPath = "./extractor/logs"
     destinationPath = "./extractor/json"
@@ -53,15 +47,5 @@ if __name__ == "__main__":
 
     sessionIDs = []
 
-    # sessionID = '104630928'
-    # sessionID = '104820521'
-    # sessionIDs = ['104630929', '104630932']
-
     main.extractor()
     main.logInterperter(sessionIDs, "", "", "", "")
-
-
-    # print(main.preHeader)
-    # print(main.headerBody)
-    # print(len(main.preHeader))
-    # print(len(main.headerBody))
