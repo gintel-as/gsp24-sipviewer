@@ -72,6 +72,11 @@ export class SequenceDiagramComponent {
 
   markSelectedMessage(messageID: string): void {
     this.markedMessageId = messageID;
+    for (const key in this.messageIndexDict) {
+      if (this.messageIndexDict[key] === messageID) {
+        this.selectedPacketIndex = Number(key);
+      }
+    }
     //Select ID's marking the selected messages, and remove it from previously selected messages
     d3.select('#selected-message').attr('id', '');
     d3.select('#selected-message-text').attr('id', '');
