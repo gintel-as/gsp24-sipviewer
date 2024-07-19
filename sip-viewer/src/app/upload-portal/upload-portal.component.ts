@@ -285,7 +285,7 @@ export class UploadPortalComponent {
     }
   }
 
-  //End of handlin file upload in component
+  //End of handling file upload in component
 
   //Handle files after they are uploaded
   handleUploadedFiles(fileList: FileList): void {
