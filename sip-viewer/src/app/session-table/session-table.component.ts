@@ -52,6 +52,8 @@ export class SessionTableComponent implements AfterViewInit {
   filterActive = false; // Used to check whether filter is given input
   relationsActivated = false;
   sessionsList: string[] = [];
+  //Array for exporting selected sessions
+  selectedSessionsToExport: Session[] = [];
 
   constructor(
     private dataService: DataService,
@@ -61,6 +63,13 @@ export class SessionTableComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.fetchSessions();
     this.changeDetectorRef.detectChanges();
+    this.dataService.selectedSessionIDs$.subscribe(() => {
+      this.dataService
+        .getSelectedSessions()
+        .subscribe((sessions: Session[]) => {
+          this.selectedSessionsToExport = sessions;
+        });
+    });
   }
   fetchSessions(): void {
     this.dataService.getSessions().subscribe(
@@ -118,6 +127,7 @@ export class SessionTableComponent implements AfterViewInit {
                 time: session.sessionInfo.time,
                 from: msgFrom,
                 to: msgTo,
+                participants: session.sessionInfo.participants,
                 initialInvite: session.sessionInfo.initialInvite,
                 associatedSessions: session.sessionInfo.associatedSessions,
               },
@@ -355,8 +365,7 @@ export class SessionTableComponent implements AfterViewInit {
 
   //Exports selected sessions as a pretty JSON-file with indent=2
   exportSelectedToJson() {
-    const selectedSessions: Session[] = this.selection.selected;
-    const jsonText = JSON.stringify(selectedSessions, null, 2);
+    const jsonText = JSON.stringify(this.selectedSessionsToExport, null, 2);
     //Set filename format SIP-Viewer-YYYY-MM-DD_HH-MM-SS.json
     const time = new Date();
     const fileName = `SIP-Viewer-${this.getDateString(time)
@@ -367,3 +376,8 @@ export class SessionTableComponent implements AfterViewInit {
     this.dataService.downloadJsonFile(jsonText, fileName);
   }
 }
+
+// Convert Date to a string and remove "T" and "Z"
+Date.prototype.toJSON = function () {
+  return this.toISOString().replace('T', ' ').replace('Z', '');
+};
